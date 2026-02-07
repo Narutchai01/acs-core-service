@@ -69,9 +69,8 @@ model TageGroups {
 model tag {
   id           Int         @id @default(autoincrement()) @map("id")
   name         String      @unique @map("name")
-  typeId       Int         @map("type_id")
   tageGroups   TageGroups? @relation(fields: [tageGroupsId], references: [id])
-  tageGroupsId Int?
+  tageGroupsId Int         @map("tage_groups_id")
 
   @@map("tags")
 }

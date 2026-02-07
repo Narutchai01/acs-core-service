@@ -1,8 +1,10 @@
 import { excuteSeedRoles } from "./role";
 import { prisma } from "../../src/lib/db";
+import { executeSeedTags } from "./tag";
 
 async function main() {
   await excuteSeedRoles(prisma);
+  await executeSeedTags(prisma);
 }
 
 try {

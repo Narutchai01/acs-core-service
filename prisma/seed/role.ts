@@ -1,4 +1,4 @@
-import { Role } from "../../src/modules/roles/domain/role.js";
+import { Role } from "../../src/core/models/role.js";
 import { PrismaClient } from "../../src/generated/prisma/client.js";
 
 export const roles: Role[] = [
