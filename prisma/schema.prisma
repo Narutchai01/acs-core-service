@@ -57,3 +57,21 @@ model User {
 
   @@map("users")
 }
+
+model TageGroups {
+  id   Int    @id @default(autoincrement()) @map("id")
+  name String @unique @map("name")
+  tags tag[]
+
+  @@map("tag_groups")
+}
+
+model tag {
+  id           Int         @id @default(autoincrement()) @map("id")
+  name         String      @unique @map("name")
+  typeId       Int         @map("type_id")
+  tageGroups   TageGroups? @relation(fields: [tageGroupsId], references: [id])
+  tageGroupsId Int?
+
+  @@map("tags")
+}
