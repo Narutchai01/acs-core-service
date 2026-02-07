@@ -3,7 +3,7 @@ import { healthContoller } from "../modules/health/health.controller";
 import { prisma } from "../lib/db";
 import { logger } from "elysia-logger";
 import { userController } from "../modules/users/user.controller";
-import { responseEnhancer } from "../core/interceptor/response";
+import { openapi } from "@elysiajs/openapi";
 
 export class Server {
   constructor(
@@ -12,8 +12,51 @@ export class Server {
   ) {}
   start() {
     const app = new Elysia({ prefix: "/api" })
+      .use(
+        openapi({
+          path: "/docs",
+          documentation: {
+            info: {
+              title: "ACS Core Service API",
+              version: "1.0.0",
+              description: "API Documentation",
+            },
+            tags: [
+              { name: "Auth", description: "Authentication Endpoints" },
+              {
+                name: "Users ",
+                description: "User Management Endpoints",
+              },
+            ],
+          },
+          // เลือก Provider: 'scalar' (สวย/ใหม่) หรือ 'swagger' (คลาสสิก)
+          provider: "scalar", // หรือ 'swagger'
+        }),
+      )
+      .mapResponse(({ responseValue, set }) => {
+        // ถ้า format มาแล้ว ไม่ต้องครอบซ้ำ
+        if (
+          typeof responseValue === "object" &&
+          responseValue !== null &&
+          "status" in responseValue &&
+          "data" in responseValue &&
+          "msg" in responseValue &&
+          "err" in responseValue
+        ) {
+          return Response.json(responseValue);
+        }
+
+        const statusCode = typeof set.status === "number" ? set.status : 200;
+
+        return Response.json({
+          status: statusCode,
+          data: responseValue,
+          msg: "success",
+          err: null,
+        });
+      })
       .use(logger())
-      .use(responseEnhancer)
+
       .decorate("prisma", prisma);
 
     app.group("/v1", (app) => app.use(healthContoller).use(userController));

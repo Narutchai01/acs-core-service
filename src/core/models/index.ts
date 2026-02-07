@@ -12,3 +12,10 @@ export interface Pageable<T> {
   page: number;
   pageSize: number;
 }
+
+export interface ResponseModel<T> {
+  data: T;
+  status: number;
+  message?: string;
+  err?: string;
+}
