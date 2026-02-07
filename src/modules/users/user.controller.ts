@@ -2,8 +2,8 @@ import { Elysia, t } from "elysia";
 import { UserService } from "./user.service";
 import { UserRepository } from "../../infrastructure/user.repository";
 import { prisma } from "../../lib/db";
-import { UserSchema } from "./domain/user";
-import { responseTemplate, mapResponse } from "../../core/interceptor/response";
+import { User, UserSchema } from "./domain/user";
+import { mapResponse, success } from "../../core/interceptor/response";
 
 const userRepository = new UserRepository(prisma);
 const userService = new UserService(userRepository);
@@ -14,7 +14,7 @@ export const userController = new Elysia({ prefix: "/users" })
     "/",
     async ({ userService, set }) => {
       const users = await userService.getUsers();
-      return mapResponse(users, "Users retrieved successfully");
+      return success<User[]>(users, "Users retrieved successfully");
     },
     {
       detail: {
@@ -22,13 +22,14 @@ export const userController = new Elysia({ prefix: "/users" })
         description: "Retrieve a list of all users in the system",
         tags: ["Users "],
       },
-      response: responseTemplate,
+      response: mapResponse(t.Array(UserSchema)),
     },
   )
   .post(
     "/super-user",
     async ({ userService, body }) => {
-      return await userService.createUser(body);
+      const newUser = await userService.createUser(body);
+      return success<User>(newUser, "Super user created successfully", 201);
     },
     {
       detail: {
@@ -37,6 +38,6 @@ export const userController = new Elysia({ prefix: "/users" })
         tags: ["Users "],
       },
       body: t.Omit(UserSchema, ["id", "createdAt", "updatedAt"]),
-      response: UserSchema,
+      response: mapResponse(UserSchema),
     },
   );

@@ -8,6 +8,16 @@ export const healthContoller = new Elysia({ prefix: "/health" }).decorate(
   healthService,
 );
 
-healthContoller.get("/", async () => {
-  return healthService.getHealthStatus();
-});
+healthContoller.get(
+  "/",
+  async () => {
+    return healthService.getHealthStatus();
+  },
+  {
+    detail: {
+      summary: "Health Check",
+      description: "Check the health status of the service",
+      tags: ["Health"],
+    },
+  },
+);

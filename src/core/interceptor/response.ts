@@ -1,25 +1,23 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, type TSchema } from "elysia";
 
-export const responseTemplate = t.Object({
-  status: t.Number(),
-  data: t.Union([t.Null(), t.Any()]),
-  msg: t.String(),
-  err: t.Union([t.Null(), t.String()]),
-});
-
-export function mapResponse<T>(
-  response: T,
-  msg = "Request successful",
-  statudCode = 200,
-  err = null,
-) {
+// Helper function สำหรับส่ง Success Response
+export function success<T>(data: T, msg = "Success", status = 200) {
   return {
     status: 200,
-    data: response,
-    msg: msg,
+    data,
+    msg,
     err: null,
   };
 }
+
+export const mapResponse = (schema: TSchema) => {
+  return t.Object({
+    status: t.Number(),
+    data: schema,
+    msg: t.String(),
+    err: t.Union([t.String(), t.Null()]),
+  });
+};
 
 const getStatusCode = (code: number | string): number => {
   if (typeof code === "number") return code;
