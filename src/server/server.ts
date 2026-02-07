@@ -3,6 +3,7 @@ import { healthContoller } from "../modules/health/health.controller";
 import { prisma } from "../lib/db";
 import { logger } from "elysia-logger";
 import { userController } from "../modules/users/user.controller";
+import { responseEnhancer } from "../core/interceptor/response";
 
 export class Server {
   constructor(
@@ -12,6 +13,7 @@ export class Server {
   start() {
     const app = new Elysia({ prefix: "/api" })
       .use(logger())
+      .use(responseEnhancer)
       .decorate("prisma", prisma);
 
     app.group("/v1", (app) => app.use(healthContoller).use(userController));

@@ -24,7 +24,8 @@ userController
   )
   .post(
     "/super-user",
-    async ({ userService, body }) => {
+    async ({ userService, body, set }) => {
+      set.status = 201;
       return await userService.createUser(body);
     },
     {
