@@ -1,5 +1,8 @@
 import { Elysia } from "elysia";
 import { healthContoller } from "../modules/health/health.controller";
+import { prisma } from "../lib/db";
+import { logger } from "elysia-logger";
+import { userController } from "../modules/users/user.controller";
 
 export class Server {
   constructor(
@@ -7,9 +10,11 @@ export class Server {
     private readonly hostname: string,
   ) {}
   start() {
-    const app = new Elysia({ prefix: "/api" });
+    const app = new Elysia({ prefix: "/api" })
+      .use(logger())
+      .decorate("prisma", prisma);
 
-    app.group("/v1", (app) => app.use(healthContoller));
+    app.group("/v1", (app) => app.use(healthContoller).use(userController));
 
     app.listen({ port: this.port, hostname: this.hostname });
 
