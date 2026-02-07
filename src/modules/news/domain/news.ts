@@ -22,12 +22,7 @@ export const CreateNewsDTO = t.Omit(NewsSchema, [
   "image",
 ]);
 
-export const NewsDTO = t.Omit(NewsSchema, [
-  "deletedAt",
-  "createdBy",
-  "updatedBy",
-  "tagID",
-]);
+export const NewsDTO = t.Omit(NewsSchema, ["deletedAt", "createdBy", "tagID"]);
 
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;

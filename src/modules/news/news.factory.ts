@@ -7,7 +7,7 @@ export const toNewsDTO = (news: News): NewsDTO => {
 
 export class NewsFactory {
   mapNewsToDTO(news: News): NewsDTO {
-    const { tagID, ...dto } = news; // ตัดทิ้งตรงนี้
+    const { tagID, deletedAt, createdAt, createdBy, updatedBy, ...dto } = news; // ตัดทิ้งตรงนี้
     return dto;
   }
 
