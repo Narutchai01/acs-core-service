@@ -1,0 +1,17 @@
+services:
+  database:
+    container_name: acs-core-database
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./databasepg:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
