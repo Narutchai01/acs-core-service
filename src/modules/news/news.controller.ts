@@ -4,9 +4,11 @@ import { prisma } from "../../lib/db";
 import { NewsService } from "./news.service";
 import { NewsDocs } from "./news.docs";
 import { success } from "../../core/interceptor/response";
+import { NewsFactory } from "./news.factory";
 
 const newsRepository = new NewsRepository(prisma);
-const newsService = new NewsService(newsRepository);
+const newsFactory = new NewsFactory();
+const newsService = new NewsService(newsRepository, newsFactory);
 
 export const newsController = new Elysia({ prefix: "/news" }).decorate(
   "newsService",

@@ -1,3 +1,4 @@
+import { t } from "elysia";
 export interface BaseModel {
   createdAt?: Date;
   createdBy?: number;
@@ -19,3 +20,11 @@ export interface ResponseModel<T> {
   message?: string;
   err?: string;
 }
+
+export const BaseModelSchema = t.Object({
+  createdAt: t.Optional(t.Date()),
+  createdBy: t.Optional(t.Number()),
+  updatedAt: t.Optional(t.Date()),
+  updatedBy: t.Optional(t.Number()),
+  deletedAt: t.Optional(t.Nullable(t.Date())),
+});

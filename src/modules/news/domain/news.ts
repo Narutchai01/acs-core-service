@@ -1,35 +1,34 @@
 import { t, Static } from "elysia";
-import { BaseModel } from "../../../core/models";
+import { BaseModelSchema } from "../../../core/models";
 
-export const NewsSchema = t.Object({
-  id: t.Number(),
+export const NewsContent = t.Object({
   title: t.String(),
   image: t.String(),
   detail: t.String(),
   startDate: t.Date(),
-  dueDate: t.Optional(t.Nullable(t.Date())),
+  dueDate: t.Optional(t.Nullable(t.Date())), // ใส่ Nullable เพื่อความชัวร์
   tagID: t.Number(),
 });
 
-export type News = Static<typeof NewsSchema & BaseModel>;
+export const NewsSchema = t.Intersect([NewsContent, BaseModelSchema]);
 
-export const NewsDTO = t.Omit(NewsSchema, [
-  "deteletedAt",
+export const CreateNewsDTO = t.Omit(NewsSchema, [
+  "id",
+  "createdAt",
+  "updatedAt",
+  "deletedAt",
   "createdBy",
   "updatedBy",
-  "createdAt",
+  "image",
+]);
+
+export const NewsDTO = t.Omit(NewsSchema, [
   "deletedAt",
+  "createdBy",
+  "updatedBy",
   "tagID",
 ]);
 
-export type CreateNewsDTO = Omit<
-  News,
-  | "id"
-  | "createdAt"
-  | "updatedAt"
-  | "deteletedAt"
-  | "updatedBy"
-  | "createdBy"
-  | "image"
-  // | "tags"
->;
+export type News = Static<typeof NewsSchema>;
+export type NewsDTO = Static<typeof NewsDTO>;
+export type CreateNewsDTO = Static<typeof CreateNewsDTO>;

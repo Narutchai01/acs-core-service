@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { CreateNewsDTO, NewsDTO, NewsSchema } from "./domain/news";
+import { CreateNewsDTO, NewsDTO } from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
 export const NewsDocs = {
   createNews: {
@@ -18,16 +18,7 @@ export const NewsDocs = {
         body.dueDate = new Date(body.dueDate);
       }
     },
-    body: t.Omit(NewsSchema, [
-      "id",
-      "createdAt",
-      "updatedAt",
-      "image",
-      "deteletedAt",
-      "tags",
-      "createdBy",
-      "updatedBy",
-    ]),
+    body: CreateNewsDTO,
     response: mapResponse(NewsDTO),
   },
   getNews: {
