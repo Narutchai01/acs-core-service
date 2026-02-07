@@ -61,16 +61,35 @@ model User {
 model TageGroups {
   id   Int    @id @default(autoincrement()) @map("id")
   name String @unique @map("name")
-  tags tag[]
+  tags Tag[]
 
   @@map("tag_groups")
 }
 
-model tag {
+model Tag {
   id           Int         @id @default(autoincrement()) @map("id")
   name         String      @unique @map("name")
   tageGroups   TageGroups? @relation(fields: [tageGroupsId], references: [id])
   tageGroupsId Int         @map("tage_groups_id")
+  news         News[]
 
   @@map("tags")
+}
+
+model News {
+  id        Int       @id @default(autoincrement()) @map("id")
+  title     String    @map("title")
+  image     String    @map("image")
+  detail    String    @map("detail")
+  startDate DateTime  @map("start_date")
+  dueDate   DateTime? @map("due_date")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  createdBy Int       @map("created_by")
+  updatedBy Int       @map("updated_by")
+  tagID     Int       @map("tag_id")
+  tag       Tag       @relation(fields: [tagID], references: [id])
+
+  @@map("news")
 }

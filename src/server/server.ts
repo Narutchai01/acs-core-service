@@ -1,9 +1,10 @@
 import { Elysia } from "elysia";
-import { healthContoller } from "../modules/health/health.controller";
 import { prisma } from "../lib/db";
 import { logger } from "elysia-logger";
 import { userController } from "../modules/users/user.controller";
 import { openapi } from "@elysiajs/openapi";
+import { newsController } from "../modules/news/news.controller";
+import { healthContoller } from "../modules/health/health.controller";
 
 export class Server {
   constructor(
@@ -30,6 +31,10 @@ export class Server {
               {
                 name: "Health",
                 description: "Health Check Endpoints",
+              },
+              {
+                name: "News",
+                description: "News Management Endpoints",
               },
             ],
           },
@@ -63,7 +68,9 @@ export class Server {
 
       .decorate("prisma", prisma);
 
-    app.group("/v1", (app) => app.use(healthContoller).use(userController));
+    app
+      .group("/v1", (app) => app.use(healthContoller).use(userController))
+      .use(newsController);
 
     app.listen({ port: this.port, hostname: this.hostname });
 
