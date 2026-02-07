@@ -19,7 +19,9 @@ export const NewsDocs = {
       }
     },
     body: CreateNewsDTO,
-    response: mapResponse(NewsDTO),
+    response: {
+      201: mapResponse(NewsDTO),
+    },
   },
   getNews: {
     detail: {
@@ -27,6 +29,8 @@ export const NewsDocs = {
       description: "Retrieve a list of all news items",
       tags: ["News"],
     },
-    response: mapResponse(t.Array(NewsDTO)),
+    response: {
+      200: mapResponse(t.Array(NewsDTO)),
+    },
   },
 };

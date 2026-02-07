@@ -68,9 +68,9 @@ export class Server {
 
       .decorate("prisma", prisma);
 
-    app
-      .group("/v1", (app) => app.use(healthContoller).use(userController))
-      .use(newsController);
+    app.group("/v1", (app) =>
+      app.use(healthContoller).use(newsController).use(userController),
+    );
 
     app.listen({ port: this.port, hostname: this.hostname });
 
