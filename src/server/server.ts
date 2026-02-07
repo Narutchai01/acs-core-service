@@ -27,6 +27,10 @@ export class Server {
                 name: "Users ",
                 description: "User Management Endpoints",
               },
+              {
+                name: "Health",
+                description: "Health Check Endpoints",
+              },
             ],
           },
           // เลือก Provider: 'scalar' (สวย/ใหม่) หรือ 'swagger' (คลาสสิก)
