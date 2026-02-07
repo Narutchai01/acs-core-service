@@ -19,6 +19,7 @@ export const NewsDTO = t.Omit(NewsSchema, [
   "updatedBy",
   "createdAt",
   "deletedAt",
+  "tagID",
 ]);
 
 export type CreateNewsDTO = Omit<

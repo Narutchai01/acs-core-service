@@ -3,6 +3,7 @@ import { INewsRepository } from "./domain/news.repository";
 
 interface INewsService {
   createNews(data: CreateNewsDTO): Promise<News>;
+  getNews(): Promise<News[]>;
 }
 
 export class NewsService implements INewsService {
@@ -16,5 +17,9 @@ export class NewsService implements INewsService {
       updatedBy: 0,
     };
     return this.newsRepository.createNews(newsData);
+  }
+
+  async getNews(): Promise<News[]> {
+    return this.newsRepository.getNews();
   }
 }

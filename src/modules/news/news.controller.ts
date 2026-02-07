@@ -13,12 +13,21 @@ export const newsController = new Elysia({ prefix: "/news" }).decorate(
   newsService,
 );
 
-newsController.post(
-  "/",
-  async ({ newsService, body, set }) => {
-    const news = await newsService.createNews(body);
-    set.status = 201;
-    return success(news, "News created successfully", 201);
-  },
-  NewsDocs.createNews,
-);
+newsController
+  .post(
+    "/",
+    async ({ newsService, body, set }) => {
+      const news = await newsService.createNews(body);
+      set.status = 201;
+      return success(news, "News created successfully", 201);
+    },
+    NewsDocs.createNews,
+  )
+  .get(
+    "/",
+    async ({ newsService }) => {
+      const newsList = await newsService.getNews();
+      return success(newsList, "News retrieved successfully");
+    },
+    NewsDocs.getNews,
+  );

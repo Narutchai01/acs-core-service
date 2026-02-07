@@ -30,4 +30,12 @@ export const NewsDocs = {
     ]),
     response: mapResponse(NewsDTO),
   },
+  getNews: {
+    detail: {
+      summary: "Get all news",
+      description: "Retrieve a list of all news items",
+      tags: ["News"],
+    },
+    response: mapResponse(t.Array(NewsDTO)),
+  },
 };
