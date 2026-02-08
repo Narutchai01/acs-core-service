@@ -33,4 +33,15 @@ export const NewsDocs = {
       200: mapResponse(t.Array(NewsDTO)),
     },
   },
+  getNewsById: {
+    detail: {
+      summary: "Get news by ID",
+      description: "Retrieve a news item by its ID",
+      tags: ["News"],
+    },
+    response: {
+      200: mapResponse(NewsDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };

@@ -6,6 +6,7 @@ import { NewsDocs } from "./news.docs";
 import { success } from "../../core/interceptor/response";
 import { NewsFactory } from "./news.factory";
 import { SupabaseService } from "../../core/utils/supabase";
+import { HttpStatusCode } from "../../core/types/http";
 
 const newsRepository = new NewsRepository(prisma);
 const newsFactory = new NewsFactory();
@@ -26,8 +27,8 @@ newsController
     "/",
     async ({ newsService, body, set }) => {
       const news = await newsService.createNews(body);
-      set.status = 201;
-      return success(news, "News created successfully", 201);
+      set.status = HttpStatusCode.CREATED;
+      return success(news, "News created successfully", HttpStatusCode.CREATED);
     },
     NewsDocs.createNews,
   )
@@ -38,4 +39,16 @@ newsController
       return success(newsList, "News retrieved successfully");
     },
     NewsDocs.getNews,
+  )
+  .get(
+    "/:id",
+    async ({ newsService, params, set }) => {
+      const news = await newsService.getNewsById(Number(params.id));
+      if (!news) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "News not found", HttpStatusCode.NOT_FOUND);
+      }
+      return success(news, "News retrieved successfully");
+    },
+    NewsDocs.getNewsById,
   );

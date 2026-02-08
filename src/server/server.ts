@@ -5,6 +5,8 @@ import { userController } from "../modules/users/user.controller";
 import { openapi } from "@elysiajs/openapi";
 import { newsController } from "../modules/news/news.controller";
 import { healthContoller } from "../modules/health/health.controller";
+import { responseEnhancer } from "../core/interceptor/response";
+import { errorPlugin } from "../core/interceptor/error";
 
 export class Server {
   constructor(
@@ -42,28 +44,9 @@ export class Server {
           provider: "scalar", // หรือ 'swagger'
         }),
       )
-      .mapResponse(({ responseValue, set }) => {
-        // ถ้า format มาแล้ว ไม่ต้องครอบซ้ำ
-        if (
-          typeof responseValue === "object" &&
-          responseValue !== null &&
-          "status" in responseValue &&
-          "data" in responseValue &&
-          "msg" in responseValue &&
-          "err" in responseValue
-        ) {
-          return Response.json(responseValue);
-        }
+      .use(responseEnhancer)
+      .use(errorPlugin)
 
-        const statusCode = typeof set.status === "number" ? set.status : 200;
-
-        return Response.json({
-          status: statusCode,
-          data: responseValue,
-          msg: "success",
-          err: null,
-        });
-      })
       .use(logger())
 
       .decorate("prisma", prisma);
