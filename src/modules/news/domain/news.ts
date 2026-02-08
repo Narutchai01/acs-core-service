@@ -6,11 +6,11 @@ const CommonNewsFields = {
   detail: t.String(),
   startDate: t.Date(),
   dueDate: t.Optional(t.Nullable(t.Date())),
-  tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
 };
 export const CreateNewsDTO = t.Object({
   ...CommonNewsFields,
   image: t.File(),
+  tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
 });
 
 export const NewsSchema = t.Intersect([
@@ -23,10 +23,6 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   ...CommonNewsFields,
-  image: t.String(),
-
-  id: t.Number(),
-  createdAt: t.Date(),
   updatedAt: t.Date(),
 });
 
