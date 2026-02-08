@@ -26,7 +26,7 @@ userController
   .post(
     "/super-user",
     async ({ userService, body }) => {
-      const newUser = await userService.createUser(body);
+      const newUser = await userService.createSuperUser(body);
       return success<User>(newUser, "Super user created successfully", 201);
     },
     userDocs.createUser,

@@ -1,14 +1,12 @@
 import { News, NewsDTO } from "./domain/news";
 
-export const toNewsDTO = (news: News): NewsDTO => {
-  const { tagID, ...dto } = news; // ตัดทิ้งตรงนี้
-  return dto;
-};
-
 export class NewsFactory {
   mapNewsToDTO(news: News): NewsDTO {
-    const { tagID, deletedAt, createdAt, createdBy, updatedBy, ...dto } = news; // ตัดทิ้งตรงนี้
-    return dto;
+    const { deletedAt, createdAt, createdBy, updatedBy, ...dto } = news; // ตัดทิ้งตรงนี้
+    return {
+      ...dto,
+      updatedAt: news.updatedAt as Date,
+    };
   }
 
   mapNewsListToDTO(newsList: News[]): NewsDTO[] {

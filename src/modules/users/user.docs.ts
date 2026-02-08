@@ -1,4 +1,4 @@
-import { UserSchema } from "./domain/user";
+import { UserSchema, CreateUserDTO } from "./domain/user";
 import { mapResponse } from "../../core/interceptor/response";
 import { t } from "elysia";
 
@@ -9,7 +9,7 @@ export const userDocs = {
       description: "Create a new super user with the provided information",
       tags: ["Users "],
     },
-    body: t.Omit(UserSchema, ["id", "createdAt", "updatedAt"]),
+    body: CreateUserDTO,
     response: mapResponse(UserSchema),
   },
   getUsers: {
