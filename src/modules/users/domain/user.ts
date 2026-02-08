@@ -24,5 +24,14 @@ export const UserSchema = t.Intersect([
   BaseModelSchema,
 ]);
 
+export const CreateUserModel = t.Object({
+  ...CommonUserFields,
+  password: t.Optional(t.Nullable(t.String())),
+  imageUrl: t.Optional(t.Nullable(t.String())),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
 export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
+export type CreateUserModel = Static<typeof CreateUserModel>;

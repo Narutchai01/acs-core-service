@@ -1,6 +1,6 @@
 import { PrismaClient, Prisma } from "../generated/prisma/client";
-import { Student } from "../modules/students/domain./student";
-import { IStudentRepository } from "../modules/students/domain./student.repository";
+import { Student } from "../modules/students/domain/student";
+import { IStudentRepository } from "../modules/students/domain/student.repository";
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 

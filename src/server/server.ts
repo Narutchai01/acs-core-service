@@ -7,6 +7,8 @@ import { newsController } from "../modules/news/news.controller";
 import { healthContoller } from "../modules/health/health.controller";
 import { responseEnhancer } from "../core/interceptor/response";
 import { errorPlugin } from "../core/interceptor/error";
+import { openapiConfig } from "./openapi.config";
+import { StudentController } from "../modules/students/student.controller";
 
 export class Server {
   constructor(
@@ -15,35 +17,7 @@ export class Server {
   ) {}
   start() {
     const app = new Elysia({ prefix: "/api" })
-      .use(
-        openapi({
-          path: "/docs",
-          documentation: {
-            info: {
-              title: "ACS Core Service API",
-              version: "1.0.0",
-              description: "API Documentation",
-            },
-            tags: [
-              { name: "Auth", description: "Authentication Endpoints" },
-              {
-                name: "Users ",
-                description: "User Management Endpoints",
-              },
-              {
-                name: "Health",
-                description: "Health Check Endpoints",
-              },
-              {
-                name: "News",
-                description: "News Management Endpoints",
-              },
-            ],
-          },
-          // เลือก Provider: 'scalar' (สวย/ใหม่) หรือ 'swagger' (คลาสสิก)
-          provider: "scalar", // หรือ 'swagger'
-        }),
-      )
+      .use(openapi(openapiConfig))
       .use(responseEnhancer)
       .use(errorPlugin)
 
@@ -52,7 +26,11 @@ export class Server {
       .decorate("prisma", prisma);
 
     app.group("/v1", (app) =>
-      app.use(healthContoller).use(newsController).use(userController),
+      app
+        .use(healthContoller)
+        .use(newsController)
+        .use(userController)
+        .use(StudentController),
     );
 
     app.listen({ port: this.port, hostname: this.hostname });
