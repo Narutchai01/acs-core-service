@@ -1,3 +1,4 @@
+import { SupabaseService } from "../../core/utils/supabase";
 import { CreateNewsDTO, NewsDTO } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -11,12 +12,21 @@ export class NewsService implements INewsService {
   constructor(
     private readonly newsRepository: INewsRepository,
     private readonly newsFactory: NewsFactory,
+    private readonly storageService: SupabaseService,
   ) {}
 
   async createNews(data: CreateNewsDTO): Promise<NewsDTO> {
+    const image = data.image;
+    if (!image) {
+      throw new Error("Image is required");
+    }
+
+    const imageURL = await this.storageService.uploadFile(image, "news");
+
+    // Get public URL of the uploaded image
     const newsData = {
       ...data,
-      image: "placeholder.jpg",
+      image: imageURL,
       createdBy: 0,
       updatedBy: 0,
     };

@@ -5,10 +5,16 @@ import { NewsService } from "./news.service";
 import { NewsDocs } from "./news.docs";
 import { success } from "../../core/interceptor/response";
 import { NewsFactory } from "./news.factory";
+import { SupabaseService } from "../../core/utils/supabase";
 
 const newsRepository = new NewsRepository(prisma);
 const newsFactory = new NewsFactory();
-const newsService = new NewsService(newsRepository, newsFactory);
+const supabaseService = new SupabaseService();
+const newsService = new NewsService(
+  newsRepository,
+  newsFactory,
+  supabaseService,
+);
 
 export const newsController = new Elysia({ prefix: "/news" }).decorate(
   "newsService",
