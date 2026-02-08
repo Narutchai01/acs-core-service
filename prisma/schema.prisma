@@ -33,6 +33,7 @@ model UserRole {
   role      Role      @relation(fields: [roleId], references: [id])
   user      User      @relation(fields: [userId], references: [id])
 
+  @@unique([userId, roleId])
   @@map("user_roles")
 }
 
@@ -52,8 +53,8 @@ model User {
   deletedAt   DateTime? @map("deleted_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  // ProjectMember  ProjectMember[]
   userRoles UserRole[]
+  student   Student?
 
   @@map("users")
 }
@@ -92,4 +93,22 @@ model News {
   tag       Tag       @relation(fields: [tagID], references: [id])
 
   @@map("news")
+}
+
+model Student {
+  id          Int       @id @default(autoincrement()) @map("id")
+  userID      Int       @unique @map("user_id")
+  studentCode String    @map("student_code")
+  linkedin    String?   @map("linkedin")
+  facebook    String?   @map("facebook")
+  instagram   String?   @map("instagram")
+  github      String?   @map("github")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  createdBy   Int       @map("created_by")
+  updatedBy   Int       @map("updated_by")
+  user        User      @relation(fields: [userID], references: [id])
+
+  @@map("students")
 }
