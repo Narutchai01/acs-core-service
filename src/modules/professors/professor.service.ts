@@ -81,14 +81,10 @@ export class ProfessorService implements IProfessorService {
         .map((field) => field.trim())
         .join(",");
 
-      const professorData: Prisma.ProfessorCreateInput = {
+      const professorData: Prisma.ProfessorUncheckedCreateInput = {
         ...rawProfessorData,
         expertFields: expertFieldsString,
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
+        userID: user.id,
         createdBy: 0,
         updatedBy: 0,
       };

@@ -5,11 +5,16 @@ import {
   ProfessorQueryParams,
 } from "../modules/professors/domain/professor";
 import { calculatePagination } from "../core/utils/calculator";
+import { AppError } from "../core/error/app-error";
+import { ErrorCode } from "../core/types/errors";
+import { HttpStatusCode } from "../core/types/http";
 
 export class ProfessorRepository implements IProfessorRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async createProfessor(data: Prisma.ProfessorCreateInput): Promise<Professor> {
+  async createProfessor(
+    data: Prisma.ProfessorUncheckedCreateInput,
+  ): Promise<Professor> {
     const professor = await this.prisma.professor.create({
       data,
       include: {
@@ -41,12 +46,34 @@ export class ProfessorRepository implements IProfessorRepository {
   }
 
   async getProfessorById(id: number): Promise<Professor | null> {
-    const professor = await this.prisma.professor.findUnique({
-      where: { id },
-      include: {
-        user: true,
-      },
-    });
-    return professor as Professor | null;
+    try {
+      const professor = await this.prisma.professor.findUnique({
+        where: { id },
+        include: {
+          user: true,
+        },
+      });
+      return professor as Professor | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Database error occurred",
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
+
+  // async assignEducation(
+  //   data: Prisma.EducationUncheckedCreateInput,
+  // ): Promise<Education> {
+  //   const education = await this.prisma.education.create({
+  //     data,
+  //   });
+  //   return education;
+  // }
 }

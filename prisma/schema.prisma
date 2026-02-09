@@ -139,6 +139,7 @@ model Professor {
   profRoom           String    @map("prof_room")
   phone              String    @map("phone")
   expertFields       String    @map("expert_fields")
+  educations         String    @map("educations")
   createdBy          Int       @map("created_by")
   updatedBy          Int       @map("updated_by")
   academicPositionID Int       @map("academic_position_id")
@@ -146,8 +147,7 @@ model Professor {
   deletedAt          DateTime? @map("deleted_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
-  user      User        @relation(fields: [userID], references: [id])
-  education Education[]
+  user User @relation(fields: [userID], references: [id])
 
   @@map("professors")
 }
@@ -198,16 +198,16 @@ model ClassBook {
   @@map("class_books")
 }
 
-model Education {
-  id          Int        @id @default(autoincrement()) @map("id")
-  education   String     @map("education")
-  professor   Professor? @relation(fields: [professorID], references: [id])
-  professorID Int        @map("professor_id")
-  createdBy   Int        @map("created_by")
-  updatedBy   Int        @map("updated_by")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  deletedAt   DateTime?  @map("deleted_at")
+// model Education {
+//   id          Int        @id @default(autoincrement()) @map("id")
+//   education   String     @map("education")
+//   professor   Professor? @relation(fields: [professorID], references: [id])
+//   professorID Int        @map("professor_id")
+//   createdBy   Int        @map("created_by")
+//   updatedBy   Int        @map("updated_by")
+//   createdAt   DateTime   @default(now()) @map("created_at")
+//   updatedAt   DateTime   @updatedAt @map("updated_at")
+//   deletedAt   DateTime?  @map("deleted_at")
 
-  @@map("education")
-}
+//   @@map("education")
+// }
