@@ -55,6 +55,7 @@ model User {
 
   userRoles UserRole[]
   student   Student?
+  professor Professor?
 
   @@map("users")
 }
@@ -126,4 +127,22 @@ model Curriculum {
   deletedAt    DateTime? @map("deleted_at")
 
   @@map("curriculums")
+}
+
+model Professor {
+  id                 Int       @id @default(autoincrement()) @map("id")
+  userID             Int       @unique @map("user_id")
+  profRoom           String    @map("prof_room")
+  phone              String    @map("phone")
+  createdBy          Int       @map("created_by")
+  updatedBy          Int       @map("updated_by")
+  academicPositionId Int       @map("academic_position_id")
+  majorPositionId    Int       @map("major_position_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  deletedAt          DateTime? @map("deleted_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userID], references: [id])
+
+  @@map("professors")
 }
