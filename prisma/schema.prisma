@@ -112,3 +112,18 @@ model Student {
 
   @@map("students")
 }
+
+model Curriculum {
+  id           Int       @id @default(autoincrement()) @map("id")
+  year         String    @map("year")
+  documentURL  String    @map("document_url")
+  description  String    @map("description")
+  thumbnailURL String    @map("thumbnail_url")
+  createdBy    Int       @map("created_by")
+  updatedBy    Int       @map("updated_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@map("curriculums")
+}
