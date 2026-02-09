@@ -39,4 +39,14 @@ export class ProfessorRepository implements IProfessorRepository {
     });
     return professors as Professor[];
   }
+
+  async getProfessorById(id: number): Promise<Professor | null> {
+    const professor = await this.prisma.professor.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+    return professor as Professor | null;
+  }
 }

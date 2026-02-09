@@ -9,9 +9,11 @@ import { IProfessorRepository } from "./domain/professor.repository";
 import { IProfessorFactory } from "./profressor.factory";
 import { CreateUserModel } from "../users/domain/user";
 import { Prisma } from "../../generated/prisma/client";
+import { AppError } from "../../core/error/app-error";
 interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
   getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
+  getProfessorById(id: number): Promise<ProfessorDTO | null>;
 }
 
 export class ProfessorService implements IProfessorService {
@@ -75,5 +77,20 @@ export class ProfessorService implements IProfessorService {
   async getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]> {
     const professors = await this.professorRepository.getProfessors(query);
     return this.professorFactory.mapPrfessorListToDTO(professors);
+  }
+
+  async getProfessorById(id: number): Promise<ProfessorDTO | null> {
+    try {
+      const professor = await this.professorRepository.getProfessorById(id);
+      if (!professor) {
+        return null;
+      }
+      return this.professorFactory.mapProfessorToDTO(professor);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 }

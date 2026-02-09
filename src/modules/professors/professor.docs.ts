@@ -31,4 +31,19 @@ export const ProfessorDocs = {
       200: mapResponse(t.Array(ProfessorDTO)),
     },
   },
+  getProfessorById: {
+    detail: {
+      summary: "Retrieves a professor by ID.",
+      description:
+        "This endpoint fetches the details of a specific professor using their unique ID.",
+      tags: ["Professors"],
+    },
+    params: t.Object({
+      id: t.Number(),
+    }),
+    responses: {
+      200: mapResponse(ProfessorDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };

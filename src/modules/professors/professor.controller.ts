@@ -65,4 +65,23 @@ export const ProfessorController = new Elysia({
       );
     },
     ProfessorDocs.getProfessors,
+  )
+  .get(
+    "/:id",
+    async ({ professorService, params, set }) => {
+      const professor = await professorService.getProfessorById(
+        Number(params.id),
+      );
+      if (!professor) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "Professor not found", HttpStatusCode.NOT_FOUND);
+      }
+      set.status = HttpStatusCode.OK;
+      return success(
+        professor,
+        "Professor retrieved successfully",
+        HttpStatusCode.OK,
+      );
+    },
+    ProfessorDocs.getProfessorById,
   );
