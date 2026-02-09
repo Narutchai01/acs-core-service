@@ -2,11 +2,19 @@ import { BaseModelSchema } from "../../../core/models";
 import { Static, t } from "elysia";
 
 export const CommonUserFields = {
-  firstNameTh: t.String(),
-  lastNameTh: t.String(),
+  firstNameTh: t.String({
+    minLength: 1,
+  }),
+  lastNameTh: t.String({
+    minLength: 1,
+  }),
   firstNameEn: t.Optional(t.Nullable(t.String())),
   lastNameEn: t.Optional(t.Nullable(t.String())),
-  email: t.String(),
+  email: t.String({
+    minLength: 5,
+    format: "email",
+    examples: ["acs.com@kmutt.ac.th"],
+  }),
   nickName: t.Optional(t.Nullable(t.String())),
 };
 

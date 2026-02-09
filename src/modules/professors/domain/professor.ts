@@ -1,6 +1,7 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 import { CommonUserFields, UserSchema } from "../../users/domain/user";
+import { CommonAcademicPosition } from "../../../core/models/academic";
 
 export const CommonProfessorFields = {
   phone: t.String(),
@@ -11,8 +12,9 @@ export const ProfessorSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     userID: t.Number(),
-    expertFields: t.Optional(t.Array(t.String())),
-    educations: t.Optional(t.Array(t.String())),
+    expertFields: t.Optional(t.Nullable(t.String())),
+    educations: t.Optional(t.Nullable(t.String())),
+    academicPosition: t.Object({ ...CommonAcademicPosition }),
     ...CommonProfessorFields,
     user: UserSchema,
   }),
@@ -22,9 +24,27 @@ export const ProfessorSchema = t.Intersect([
 export const CreateProfrssorDTO = t.Object({
   ...CommonProfessorFields,
   ...CommonUserFields,
-  imageFile: t.Optional(t.File()),
-  expertFields: t.Optional(t.Nullable(t.String())),
-  educations: t.Optional(t.Nullable(t.String())),
+  imageFile: t.Optional(
+    t.File({
+      examples: ["professor1.jpg"],
+    }),
+  ),
+  expertFields: t.Optional(
+    t.Nullable(
+      t.String({
+        examples: ["Computer Science, Data Science, AI,Machine Learning"],
+      }),
+    ),
+  ),
+  educations: t.Optional(
+    t.Nullable(
+      t.String({
+        examples: [
+          "Ph.D. in Computer Science / M.Sc. in Data Science / B.Eng. in Software Engineering",
+        ],
+      }),
+    ),
+  ),
   academicPositionID: t.Numeric(),
 });
 
@@ -34,6 +54,7 @@ export const ProfessorDTO = t.Object({
   expertFields: t.Array(t.String()),
   educations: t.Array(t.String()),
   user: UserSchema,
+  academicPosition: t.Object({ ...CommonAcademicPosition }),
 });
 
 export const ProfessorQueryParams = t.Object({

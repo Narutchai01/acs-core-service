@@ -14,11 +14,12 @@ export class ProfessorFactory implements IProfessorFactory {
       profRoom: professor.profRoom,
       user: this.userFactory.mapUserToDTO(professor.user),
       phone: professor.phone,
+      academicPosition: professor.academicPosition,
       expertFields: professor.expertFields
-        ? professor.expertFields.split(",").map((field) => field.trim())
+        ? professor.expertFields?.split(",").map((field) => field.trim())
         : [],
       educations: professor.educations
-        ? professor.educations.split("/").map((edu) => edu.trim())
+        ? professor.educations?.split("/").map((edu) => edu.trim())
         : [],
     };
   }
