@@ -123,6 +123,8 @@ export class ProfessorService implements IProfessorService {
       if (!professor) {
         return null;
       }
+      console.log(professor);
+
       return this.professorFactory.mapProfessorToDTO(professor);
     } catch (error) {
       if (error instanceof AppError && error.statusCode === 404) {

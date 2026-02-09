@@ -1,7 +1,7 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 import { CommonUserFields, UserSchema } from "../../users/domain/user";
-import { CommonAcademicPosition } from "../../../core/models/academic";
+import { AcademicPositionSchema } from "../../../core/models/academic";
 
 export const CommonProfessorFields = {
   phone: t.String(),
@@ -14,7 +14,8 @@ export const ProfessorSchema = t.Intersect([
     userID: t.Number(),
     expertFields: t.Optional(t.Nullable(t.String())),
     educations: t.Optional(t.Nullable(t.String())),
-    academicPosition: t.Object({ ...CommonAcademicPosition }),
+    academicPositionID: t.Number(),
+    academicPosition: t.Intersect([AcademicPositionSchema]),
     ...CommonProfessorFields,
     user: UserSchema,
   }),
@@ -54,11 +55,18 @@ export const ProfessorDTO = t.Object({
   expertFields: t.Array(t.String()),
   educations: t.Array(t.String()),
   user: UserSchema,
-  academicPosition: t.Object({ ...CommonAcademicPosition }),
+  academicPosition: AcademicPositionSchema,
 });
 
 export const ProfessorQueryParams = t.Object({
   ...CommonQueryParams,
+  academicPosition: t.Optional(
+    t.Boolean({
+      default: false,
+      examples: [true, false],
+      description: "Include academic position details",
+    }),
+  ),
 });
 
 export type Professor = Static<typeof ProfessorSchema>;

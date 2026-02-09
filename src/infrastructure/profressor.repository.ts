@@ -19,9 +19,10 @@ export class ProfessorRepository implements IProfessorRepository {
       data,
       include: {
         user: true,
+        academicPosition: true,
       },
     });
-    return professor as Professor;
+    return professor as unknown as Professor;
   }
 
   async getProfessors(query: ProfessorQueryParams): Promise<Professor[]> {
@@ -30,6 +31,7 @@ export class ProfessorRepository implements IProfessorRepository {
       pageSize = 10,
       orderBy = "createdAt",
       sortBy = "asc",
+      academicPosition,
     } = query;
 
     const professors = await this.prisma.professor.findMany({
@@ -40,9 +42,10 @@ export class ProfessorRepository implements IProfessorRepository {
       },
       include: {
         user: true,
+        academicPosition: academicPosition,
       },
     });
-    return professors as Professor[];
+    return professors as unknown as Professor[];
   }
 
   async getProfessorById(id: number): Promise<Professor | null> {
@@ -51,6 +54,7 @@ export class ProfessorRepository implements IProfessorRepository {
         where: { id },
         include: {
           user: true,
+          academicPosition: true,
         },
       });
       return professor as Professor | null;
