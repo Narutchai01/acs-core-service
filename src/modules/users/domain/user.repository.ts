@@ -1,7 +1,8 @@
-import { User } from "./user";
+import { User, UserRole } from "./user";
 import { Prisma } from "../../../generated/prisma/client";
 
-export abstract class IUserRepository {
-  abstract createUser(data: Prisma.UserCreateInput): Promise<User>;
-  abstract getUsers(): Promise<User[]>;
+export interface IUserRepository {
+  createUser(data: Prisma.UserCreateInput): Promise<User>;
+  getUsers(): Promise<User[]>;
+  assignUserRole(data: Prisma.UserRoleUncheckedCreateInput): Promise<UserRole>;
 }

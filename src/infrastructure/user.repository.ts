@@ -1,6 +1,6 @@
 import { IUserRepository } from "../modules/users/domain/user.repository";
 import { PrismaInstance } from "../lib/db";
-import { User } from "../modules/users/domain/user";
+import { User, UserRole } from "../modules/users/domain/user";
 import { Prisma } from "../generated/prisma/client";
 
 export class UserRepository implements IUserRepository {
@@ -14,5 +14,12 @@ export class UserRepository implements IUserRepository {
   async getUsers(): Promise<User[]> {
     const users = await this.db.user.findMany();
     return users as User[];
+  }
+
+  async assignUserRole(
+    data: Prisma.UserRoleUncheckedCreateInput,
+  ): Promise<UserRole> {
+    const userRole = await this.db.userRole.create({ data });
+    return userRole as unknown as UserRole;
   }
 }

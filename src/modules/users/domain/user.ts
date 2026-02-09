@@ -35,3 +35,18 @@ export const CreateUserModel = t.Object({
 export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
+
+export const CommonUserRoleFields = {
+  id: t.Number(),
+  userID: t.Number(),
+  roleID: t.Number(),
+};
+
+export const UserRoleSchema = t.Intersect([
+  t.Object({
+    ...CommonUserRoleFields,
+  }),
+  BaseModelSchema,
+]);
+
+export type UserRole = Static<typeof UserRoleSchema>;
