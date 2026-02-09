@@ -26,4 +26,15 @@ export const CourseDocs = {
       200: mapResponse(t.Array(CourseDTO)),
     },
   },
+  getCourseById: {
+    detail: {
+      summary: "Get course by ID",
+      description: "This endpoint retrieves a course by its ID.",
+      tags: ["Courses"],
+    },
+    response: {
+      200: mapResponse(CourseDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };

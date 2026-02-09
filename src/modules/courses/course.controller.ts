@@ -41,4 +41,16 @@ export const CourseController = new Elysia({ prefix: "/courses" })
       );
     },
     CourseDocs.getCourses,
+  )
+  .get(
+    "/:id",
+    async ({ courseService, params, set }) => {
+      const course = await courseService.getCourseByID(Number(params.id));
+      if (!course) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "Course not found", HttpStatusCode.NOT_FOUND);
+      }
+      return success(course, "Course retrieved successfully");
+    },
+    CourseDocs.getCourseById,
   );
