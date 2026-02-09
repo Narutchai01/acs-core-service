@@ -1,9 +1,9 @@
-import { ICurriculumRepository } from "../modules/curriculum/domain/curriculum.repository";
+import { ICurriculumRepository } from "../modules/curriculums/domain/curriculum.repository";
 import { PrismaClient, Prisma } from "../generated/prisma/client";
 import {
   Curriculum,
   CurriculumQueryParams,
-} from "../modules/curriculum/domain/curriculum";
+} from "../modules/curriculums/domain/curriculum";
 import { calculatePagination } from "../core/utils/calculator";
 
 export class CurriculumRepository implements ICurriculumRepository {
