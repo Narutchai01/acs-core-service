@@ -28,6 +28,5 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
       },
     ],
   },
-  // เลือก Provider: 'scalar' (สวย/ใหม่) หรือ 'swagger' (คลาสสิก)
   provider: "scalar", // หรือ 'swagger'
 };
