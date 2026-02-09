@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { config } from "../config/config.js";
 
 export class SupabaseService {
   public client: SupabaseClient;
@@ -6,9 +7,9 @@ export class SupabaseService {
 
   constructor() {
     // ตรวจสอบ Environment Variables
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
-    const bucketNmae = process.env.SUPABASE_BUCKET || "public";
+    const supabaseUrl = config.SUPABASE_URL;
+    const supabaseKey = config.SUPABASE_KEY;
+    const bucketNmae = config.BUCKET_NAME;
 
     if (!supabaseUrl || !supabaseKey) {
       throw new Error("Supabase URL or Key is missing!");
