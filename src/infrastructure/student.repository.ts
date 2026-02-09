@@ -5,6 +5,8 @@ import {
 } from "../modules/students/domain/student";
 import { IStudentRepository } from "../modules/students/domain/student.repository";
 import { calculatePagination } from "../core/utils/calculator";
+import { AppError } from "../core/error/app-error";
+import { ErrorCode } from "../core/types/errors";
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -31,5 +33,28 @@ export class StudentRepository implements IStudentRepository {
       },
     });
     return students as Student[];
+  }
+
+  async getStudentById(id: number): Promise<Student | null> {
+    try {
+      const student = await this.prisma.student.findUnique({
+        where: { id },
+        include: {
+          user: true,
+        },
+      });
+      return student as Student | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "Student not found",
+            404,
+          );
+        }
+      }
+      throw error;
+    }
   }
 }

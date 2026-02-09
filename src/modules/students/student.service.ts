@@ -15,6 +15,7 @@ import { IStudentFactory } from "./student.factory";
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
   getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
+  getStudentById(id: number): Promise<StudentDTO | null>;
 }
 
 export class StudentService implements IStudentService {
@@ -95,5 +96,20 @@ export class StudentService implements IStudentService {
     return students.map((student) =>
       this.studentFactory.MapStudentToDTO(student),
     );
+  }
+
+  async getStudentById(id: number): Promise<StudentDTO | null> {
+    try {
+      const student = await this.studentRepository.getStudentById(id);
+      if (!student) {
+        return null;
+      }
+      return this.studentFactory.MapStudentToDTO(student);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 }
