@@ -5,6 +5,7 @@ import { userController } from "../modules/users/user.controller";
 import { StudentController } from "../modules/students/student.controller";
 import { CurriculumController } from "../modules/curriculums/curriculum.controller";
 import { ProfessorController } from "../modules/professors/professor.controller";
+import { CourseController } from "../modules/courses/course.controller";
 
 export const RouteSetup = new Elysia();
 
@@ -15,5 +16,6 @@ RouteSetup.group("/v1", (app) =>
     .use(userController)
     .use(StudentController)
     .use(CurriculumController)
-    .use(ProfessorController),
+    .use(ProfessorController)
+    .use(CourseController),
 );

@@ -125,6 +125,7 @@ model Curriculum {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")
+  courses      Course[]
 
   @@map("curriculums")
 }
@@ -148,9 +149,30 @@ model Professor {
 }
 
 model TypeCourse {
-  id          Int    @id @default(autoincrement()) @map("id")
-  type        String @unique @map("name")
-  description String @map("description")
+  id          Int      @id @default(autoincrement()) @map("id")
+  type        String   @unique @map("name")
+  description String   @map("description")
+  courses     Course[]
 
   @@map("type_courses")
+}
+
+model Course {
+  id           Int        @id @default(autoincrement()) @map("id")
+  courseCode   String     @map("course_code")
+  detail       String     @map("detail")
+  courseNameEn String     @map("course_name_en")
+  courseNameTh String     @map("course_name_th")
+  credits      String     @map("credits")
+  typeCourseID Int        @map("type_course_id")
+  curriculumID Int        @map("curriculum_id")
+  createdBy    Int        @map("created_by")
+  updatedBy    Int        @map("updated_by")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  deletedAt    DateTime?  @map("deleted_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  typeCourse   TypeCourse @relation(fields: [typeCourseID], references: [id])
+  curriculum   Curriculum @relation(fields: [curriculumID], references: [id])
+
+  @@map("courses")
 }

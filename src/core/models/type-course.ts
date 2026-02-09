@@ -2,7 +2,7 @@ import { Static, t } from "elysia";
 
 export const TypeCourseSchema = t.Object({
   id: t.Number(),
-  name: t.String(),
+  type: t.String(),
   description: t.Optional(t.Nullable(t.String())),
 });
 
