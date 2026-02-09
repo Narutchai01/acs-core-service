@@ -1,5 +1,5 @@
 import { t, Static } from "elysia";
-import { BaseModelSchema } from "../../../core/models";
+import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 
 export const CommonClassBookFields = {
   classof: t.String(),
@@ -22,8 +22,7 @@ export const CreateClassBookDTO = t.Object({
 });
 
 export const ClassBookQueryParams = t.Object({
-  classof: t.Optional(t.String()),
-  firstYearAcademic: t.Optional(t.String()),
+  ...CommonQueryParams,
 });
 
 export const ClassBookDTO = t.Object({
@@ -35,3 +34,4 @@ export const ClassBookDTO = t.Object({
 export type ClassBook = Static<typeof ClassBookSchema>;
 export type ClassBookDTO = Static<typeof ClassBookDTO>;
 export type CreateClassBookDTO = Static<typeof CreateClassBookDTO>;
+export type ClassBookQueryParams = Static<typeof ClassBookQueryParams>;
