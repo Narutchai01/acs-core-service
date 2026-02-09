@@ -10,6 +10,7 @@ import { IStudentFactory } from "./student.factory";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
+  getStudents(): Promise<StudentDTO[]>;
 }
 
 export class StudentService implements IStudentService {
@@ -83,5 +84,12 @@ export class StudentService implements IStudentService {
       console.log(error);
       throw error;
     }
+  }
+
+  async getStudents(): Promise<StudentDTO[]> {
+    const students = await this.studentRepository.getStudents();
+    return students.map((student) =>
+      this.studentFactory.MapStudentToDTO(student),
+    );
   }
 }

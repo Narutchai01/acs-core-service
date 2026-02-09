@@ -6,6 +6,8 @@ import { UserRepository } from "../../infrastructure/user.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { StudentDocs } from "./student.docs";
 import { StudentFactory } from "./student.factory";
+import { success } from "../../core/interceptor/response";
+import { HttpStatusCode } from "../../core/types/http";
 
 const studentRepository = new StudentRepository(prisma);
 const userRepository = new UserRepository(prisma);
@@ -26,9 +28,22 @@ export const StudentController = new Elysia({ prefix: "/students" }).decorate(
 
 StudentController.post(
   "/",
-  async ({ body, studentService }) => {
+  async ({ body, studentService, set }) => {
     const student = await studentService.createStudent(body);
-    return student;
+    set.status = HttpStatusCode.CREATED;
+    return success(
+      student,
+      "Student created successfully",
+      HttpStatusCode.CREATED,
+    );
   },
   StudentDocs.createStudent,
+).get(
+  "/",
+  async ({ studentService, set }) => {
+    const students = await studentService.getStudents();
+    set.status = HttpStatusCode.OK;
+    return success(students, "Students retrieved successfully");
+  },
+  StudentDocs.getStudents,
 );

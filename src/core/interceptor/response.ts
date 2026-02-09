@@ -3,7 +3,7 @@ import { Elysia, t, type TSchema } from "elysia";
 // Helper function สำหรับส่ง Success Response
 export function success<T>(data: T, msg = "Success", status = 200) {
   return {
-    status: 200,
+    status: status,
     data,
     msg,
     err: null,

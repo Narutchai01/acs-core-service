@@ -3,4 +3,5 @@ import { Student } from "./student";
 
 export interface IStudentRepository {
   createStudent(data: Prisma.StudentCreateInput): Promise<Student>;
+  getStudents(): Promise<Student[]>;
 }

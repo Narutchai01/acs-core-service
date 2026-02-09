@@ -9,7 +9,6 @@ export class StudentFactory implements IStudentFactory {
   MapStudentToDTO(student: Student): StudentDTO {
     return {
       id: student.id,
-      userID: student.userID,
       studentCode: student.studentCode,
       linkedin: student.linkedin,
       github: student.github,

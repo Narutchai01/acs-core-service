@@ -1,4 +1,6 @@
-import { CreateStudentDTO } from "./domain/student";
+import { CreateStudentDTO, StudentDTO } from "./domain/student";
+import { mapResponse } from "../../core/interceptor/response";
+import { t } from "elysia";
 export const StudentDocs = {
   createStudent: {
     detail: {
@@ -7,5 +9,18 @@ export const StudentDocs = {
       tags: ["Students"],
     },
     body: CreateStudentDTO,
+    response: {
+      201: mapResponse(StudentDTO),
+    },
+  },
+  getStudents: {
+    detail: {
+      summary: "Get student",
+      description: "Retrieve a student's information by their ID",
+      tags: ["Students"],
+    },
+    response: {
+      200: mapResponse(t.Array(StudentDTO)),
+    },
   },
 };

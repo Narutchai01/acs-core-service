@@ -13,7 +13,7 @@ export const CommonStudentFields = {
 export const StudentSchema = t.Intersect([
   t.Object({
     id: t.Number(),
-    userId: t.Number(),
+    userID: t.Number(),
     ...CommonStudentFields,
     user: UserSchema,
   }),

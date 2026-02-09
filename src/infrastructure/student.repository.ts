@@ -11,6 +11,15 @@ export class StudentRepository implements IStudentRepository {
         user: true,
       },
     });
-    return student;
+    return student as Student;
+  }
+
+  async getStudents(): Promise<Student[]> {
+    const students = await this.prisma.student.findMany({
+      include: {
+        user: true,
+      },
+    });
+    return students as Student[];
   }
 }
