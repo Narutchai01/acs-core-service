@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { CreateNewsDTO, NewsDTO } from "./domain/news";
+import { CreateNewsDTO, NewsDTO, NewsQueryParams } from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
 export const NewsDocs = {
   createNews: {
@@ -29,6 +29,7 @@ export const NewsDocs = {
       description: "Retrieve a list of all news items",
       tags: ["News"],
     },
+    query: NewsQueryParams,
     response: {
       200: mapResponse(t.Array(NewsDTO)),
     },

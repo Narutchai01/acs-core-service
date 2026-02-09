@@ -2,13 +2,13 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { SupabaseService } from "../../core/utils/supabase";
-import { CreateNewsDTO, NewsDTO } from "./domain/news";
+import { CreateNewsDTO, NewsDTO, NewsQueryParams } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
 
 interface INewsService {
   createNews(data: CreateNewsDTO): Promise<NewsDTO>;
-  getNews(): Promise<NewsDTO[]>;
+  getNews(query: NewsQueryParams): Promise<NewsDTO[]>;
   getNewsById(id: number): Promise<NewsDTO | null>;
 }
 
@@ -54,8 +54,8 @@ export class NewsService implements INewsService {
     }
   }
 
-  async getNews(): Promise<NewsDTO[]> {
-    const newsList = await this.newsRepository.getNews();
+  async getNews(query: NewsQueryParams): Promise<NewsDTO[]> {
+    const newsList = await this.newsRepository.getNews(query);
     if (!newsList || newsList.length === 0) {
       return [];
     }

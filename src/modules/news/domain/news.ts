@@ -1,5 +1,5 @@
 import { t, Static } from "elysia";
-import { BaseModelSchema } from "../../../core/models";
+import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 
 const CommonNewsFields = {
   title: t.String(),
@@ -26,6 +26,12 @@ export const NewsDTO = t.Object({
   updatedAt: t.Date(),
 });
 
+export const NewsQueryParams = t.Object({
+  tagID: t.Optional(t.Numeric()),
+  ...CommonQueryParams,
+});
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
+export type NewsQueryParams = Static<typeof NewsQueryParams>;

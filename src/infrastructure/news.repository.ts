@@ -1,9 +1,9 @@
 import { PrismaClient, Prisma } from "../generated/prisma/client";
 import { INewsRepository } from "../modules/news/domain/news.repository";
-import { News } from "../modules/news/domain/news";
+import { News, NewsQueryParams } from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
-
+import { calculatePagination } from "../core/utils/calculator";
 export class NewsRepository implements INewsRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -17,8 +17,17 @@ export class NewsRepository implements INewsRepository {
     return news;
   }
 
-  async getNews(): Promise<News[]> {
+  async getNews(query: NewsQueryParams): Promise<News[]> {
+    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
     const newsList = await this.prisma.news.findMany({
+      skip: calculatePagination(page, pageSize),
+      take: pageSize,
+      orderBy: {
+        [orderBy]: sortBy,
+      },
+      where: {
+        ...(query.tagID && { tagID: query.tagID }),
+      },
       include: {
         tag: false,
       },

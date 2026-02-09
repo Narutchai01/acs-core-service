@@ -34,8 +34,9 @@ newsController
   )
   .get(
     "/",
-    async ({ newsService }) => {
-      const newsList = await newsService.getNews();
+    async ({ newsService, query, set }) => {
+      const newsList = await newsService.getNews(query);
+      set.status = HttpStatusCode.OK;
       return success(newsList, "News retrieved successfully");
     },
     NewsDocs.getNews,
