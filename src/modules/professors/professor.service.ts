@@ -36,6 +36,8 @@ export class ProfessorService implements IProfessorService {
       ...rawProfessorData
     } = data;
     let pathImage: string | null = null;
+    let expertFieldsString: string | null = "";
+    let educationsString: string | null = "";
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
@@ -76,14 +78,25 @@ export class ProfessorService implements IProfessorService {
         );
       }
 
-      const expertFieldsString = rawProfessorData.expertFields
-        .split('"')
-        .map((field) => field.trim())
-        .join(",");
+      if (rawProfessorData.expertFields) {
+        expertFieldsString = rawProfessorData.expertFields
+          ?.split('"')
+          .map((field) => field.trim())
+          .join(",");
+      }
+
+      if (rawProfessorData.educations) {
+        educationsString = rawProfessorData.educations
+          ?.split('"')
+          .map((edu) => edu.trim())
+          .join("/");
+      }
 
       const professorData: Prisma.ProfessorUncheckedCreateInput = {
         ...rawProfessorData,
         expertFields: expertFieldsString,
+        academicPositionID: rawProfessorData.academicPositionID,
+        educations: educationsString,
         userID: user.id,
         createdBy: 0,
         updatedBy: 0,

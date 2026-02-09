@@ -11,8 +11,8 @@ export const ProfessorSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     userID: t.Number(),
-    expertFields: t.String(),
-    educations: t.String(),
+    expertFields: t.Optional(t.Array(t.String())),
+    educations: t.Optional(t.Array(t.String())),
     ...CommonProfessorFields,
     user: UserSchema,
   }),
@@ -23,8 +23,8 @@ export const CreateProfrssorDTO = t.Object({
   ...CommonProfessorFields,
   ...CommonUserFields,
   imageFile: t.Optional(t.File()),
-  expertFields: t.String(),
-  educations: t.String(),
+  expertFields: t.Optional(t.Nullable(t.String())),
+  educations: t.Optional(t.Nullable(t.String())),
   academicPositionID: t.Numeric(),
 });
 
