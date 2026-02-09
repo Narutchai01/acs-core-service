@@ -53,8 +53,14 @@ export class ProfessorService implements IProfessorService {
 
       const user = await this.userRepository.createUser(userData);
 
+      const expertFieldsString = rawProfessorData.expertFields
+        .split('"')
+        .map((field) => field.trim())
+        .join(",");
+
       const professorData: Prisma.ProfessorCreateInput = {
         ...rawProfessorData,
+        expertFields: expertFieldsString,
         user: {
           connect: {
             id: user.id,

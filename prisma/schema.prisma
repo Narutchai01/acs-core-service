@@ -134,6 +134,7 @@ model Professor {
   userID             Int       @unique @map("user_id")
   profRoom           String    @map("prof_room")
   phone              String    @map("phone")
+  expertFields       String    @map("expert_fields")
   createdBy          Int       @map("created_by")
   updatedBy          Int       @map("updated_by")
   academicPositionID Int       @map("academic_position_id")

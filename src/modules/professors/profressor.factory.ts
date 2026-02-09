@@ -12,6 +12,9 @@ export class ProfessorFactory implements IProfessorFactory {
       profRoom: professor.profRoom,
       user: professor.user,
       phone: professor.phone,
+      expertFields: professor.expertFields
+        ? professor.expertFields.split(",").map((field) => field.trim())
+        : [],
     };
   }
 
