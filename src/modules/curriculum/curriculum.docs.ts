@@ -1,6 +1,10 @@
 import { t } from "elysia";
 import { mapResponse } from "../../core/interceptor/response";
-import { CreateCurriculumDTO, CurriculumDTO } from "./domain/curriculum";
+import {
+  CreateCurriculumDTO,
+  CurriculumDTO,
+  CurriculumQueryParams,
+} from "./domain/curriculum";
 
 export const CurriculumDocs = {
   createCurruculum: {
@@ -21,8 +25,9 @@ export const CurriculumDocs = {
       description: "Retrieve a list of all curriculums",
       tags: ["Curriculum"],
     },
+    query: CurriculumQueryParams,
     response: {
-      200: mapResponse(CurriculumDTO.Array()),
+      200: mapResponse(t.Array(CurriculumDTO)),
       500: mapResponse(t.Null()),
     },
   },

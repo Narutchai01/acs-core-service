@@ -17,7 +17,7 @@ const curriculumService = new CurriculumService(
   supabaseService,
 );
 
-export const CurriculumController = new Elysia()
+export const CurriculumController = new Elysia({ prefix: "/curriculums" })
   .decorate("curriculumService", curriculumService)
   .post(
     "/",
@@ -31,4 +31,13 @@ export const CurriculumController = new Elysia()
       );
     },
     CurriculumDocs.createCurruculum,
+  )
+  .get(
+    "/",
+    async ({ curriculumService, query, set }) => {
+      const curriculums = await curriculumService.getCurriculums(query);
+      set.status = HttpStatusCode.OK;
+      return success(curriculums ?? [], "Curriculums retrieved successfully");
+    },
+    CurriculumDocs.getCurriculums,
   );
