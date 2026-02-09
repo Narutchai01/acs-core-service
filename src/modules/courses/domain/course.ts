@@ -41,6 +41,10 @@ export const CreateCourseDTO = t.Object({
 
 export const CourseQueryParams = t.Object({
   ...CommonQueryParams,
+  search: t.Optional(t.String()),
+  searchBy: t.Optional(t.String()),
+  typeCourseID: t.Optional(t.Number()),
+  curriculumID: t.Optional(t.Number()),
 });
 
 export type CourseQueryParams = Static<typeof CourseQueryParams>;
