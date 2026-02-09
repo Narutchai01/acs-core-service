@@ -98,7 +98,7 @@ model News {
 
 model Student {
   id          Int       @id @default(autoincrement()) @map("id")
-  classbookID Int       @map("classbook_id")
+  classBookID Int       @map("classbook_id")
   userID      Int       @unique @map("user_id")
   studentCode String    @map("student_code")
   linkedin    String?   @map("linkedin")
@@ -111,7 +111,7 @@ model Student {
   createdBy   Int       @map("created_by")
   updatedBy   Int       @map("updated_by")
   user        User      @relation(fields: [userID], references: [id])
-  classBook   ClassBook @relation(fields: [classbookID], references: [id])
+  classBook   ClassBook @relation(fields: [classBookID], references: [id])
 
   @@map("students")
 }

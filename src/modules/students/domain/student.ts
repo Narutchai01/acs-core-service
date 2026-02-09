@@ -22,6 +22,7 @@ export const StudentSchema = t.Intersect([
 
 export const CreateStudentModel = t.Object({
   ...CommonStudentFields,
+  classBookID: t.Number(),
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
@@ -29,6 +30,7 @@ export const CreateStudentModel = t.Object({
 export const CreateStudentDTO = t.Object({
   ...CommonStudentFields,
   ...CommonUserFields,
+  classBookID: t.Numeric(),
   imageFile: t.Optional(t.Nullable(t.File())),
 });
 

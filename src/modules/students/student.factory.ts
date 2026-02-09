@@ -1,4 +1,5 @@
 import { Student, StudentDTO } from "./domain/student";
+import { IUserFactory } from "../users/user.factory";
 
 export interface IStudentFactory {
   MapStudentToDTO(student: Student): StudentDTO;
@@ -6,6 +7,7 @@ export interface IStudentFactory {
 }
 
 export class StudentFactory implements IStudentFactory {
+  constructor(private readonly userFactory: IUserFactory) {}
   MapStudentToDTO(student: Student): StudentDTO {
     return {
       id: student.id,
@@ -14,7 +16,7 @@ export class StudentFactory implements IStudentFactory {
       github: student.github,
       facebook: student.facebook,
       instagram: student.instagram,
-      user: student.user,
+      user: this.userFactory.mapUserToDTO(student.user),
     };
   }
 

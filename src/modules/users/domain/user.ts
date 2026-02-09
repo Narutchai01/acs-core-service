@@ -32,9 +32,16 @@ export const CreateUserModel = t.Object({
   updatedBy: t.Number(),
 });
 
+export const UserDTO = t.Object({
+  id: t.Number(),
+  ...CommonUserFields,
+  imageUrl: t.Optional(t.Nullable(t.String())),
+});
+
 export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
+export type UserDTO = Static<typeof UserDTO>;
 
 export const CommonUserRoleFields = {
   id: t.Number(),

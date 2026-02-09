@@ -8,11 +8,13 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { SupabaseService } from "../../core/utils/supabase";
 import { UserRepository } from "../../infrastructure/user.repository";
+import { UserFactory } from "../users/user.factory";
 
+const userFactory = new UserFactory();
 const storage = new SupabaseService();
 const userRepository = new UserRepository(prisma);
 const professorRepository = new ProfessorRepository(prisma);
-const professorFactory = new ProfessorFactory();
+const professorFactory = new ProfessorFactory(userFactory);
 const professorService = new ProfessorService(
   professorRepository,
   userRepository,
