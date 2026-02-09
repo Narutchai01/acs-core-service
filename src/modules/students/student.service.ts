@@ -11,6 +11,7 @@ import { CreateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
+import { IUnitOfWork } from "../../core/uow/uow.interface";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
@@ -25,6 +26,7 @@ export class StudentService implements IStudentService {
     private readonly userRepository: IUserRepository,
     private readonly storage: SupabaseService,
     private readonly studentFactory: IStudentFactory,
+    private readonly uowRepository: IUnitOfWork,
   ) {}
 
   async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
