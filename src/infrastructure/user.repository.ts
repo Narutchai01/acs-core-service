@@ -20,6 +20,6 @@ export class UserRepository implements IUserRepository {
     data: Prisma.UserRoleUncheckedCreateInput,
   ): Promise<UserRole> {
     const userRole = await this.db.userRole.create({ data });
-    return userRole as unknown as UserRole;
+    return userRole;
   }
 }

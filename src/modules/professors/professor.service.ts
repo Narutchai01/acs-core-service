@@ -65,8 +65,8 @@ export class ProfessorService implements IProfessorService {
       }
 
       const role = await this.userRepository.assignUserRole({
-        userId: user.id,
-        roleId: 3,
+        userID: user.id,
+        roleID: 3,
         createdBy: 0,
         updatedBy: 0,
       });

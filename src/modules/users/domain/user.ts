@@ -15,7 +15,14 @@ export const CommonUserFields = {
     format: "email",
     examples: ["acs.com@kmutt.ac.th"],
   }),
-  nickName: t.Optional(t.Nullable(t.String())),
+  nickName: t.Optional(
+    t.Nullable(
+      t.String({
+        minLength: 1,
+        examples: ["Ace"],
+      }),
+    ),
+  ),
 };
 
 export const CreateUserDTO = t.Object({
