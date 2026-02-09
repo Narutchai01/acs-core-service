@@ -1,4 +1,8 @@
-import { CreateCurriculumDTO, CurriculumDTO } from "./domain/curriculum";
+import {
+  CreateCurriculumDTO,
+  CurriculumDTO,
+  CurriculumQueryParams,
+} from "./domain/curriculum";
 import { ICurriculumRepository } from "./domain/curriculum.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
@@ -8,6 +12,7 @@ import { ICurriculumFactory } from "./curriculum.factory";
 
 interface ICurriculumService {
   createCurriculum(data: CreateCurriculumDTO): Promise<CurriculumDTO>;
+  getCurriculums(querry: CurriculumQueryParams): Promise<CurriculumDTO[]>;
 }
 
 export class CurriculumService implements ICurriculumService {
@@ -49,5 +54,12 @@ export class CurriculumService implements ICurriculumService {
       console.error(error);
       throw error;
     }
+  }
+
+  async getCurriculums(
+    querry: CurriculumQueryParams,
+  ): Promise<CurriculumDTO[]> {
+    const curriculums = await this.curriculumRepository.getCurriculums(querry);
+    return this.curriculumFactory.mapCurriculumsToDTOs(curriculums);
   }
 }

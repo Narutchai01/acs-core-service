@@ -1,6 +1,10 @@
 import { ICurriculumRepository } from "../modules/curriculum/domain/curriculum.repository";
 import { PrismaClient, Prisma } from "../generated/prisma/client";
-import { Curriculum } from "../modules/curriculum/domain/curriculum";
+import {
+  Curriculum,
+  CurriculumQueryParams,
+} from "../modules/curriculum/domain/curriculum";
+import { calculatePagination } from "../core/utils/calculator";
 
 export class CurriculumRepository implements ICurriculumRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -12,5 +16,17 @@ export class CurriculumRepository implements ICurriculumRepository {
       data,
     });
     return curriculum;
+  }
+
+  async getCurriculums(query: CurriculumQueryParams): Promise<Curriculum[]> {
+    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
+    const curriculums = await this.prisma.curriculum.findMany({
+      skip: calculatePagination(page, pageSize),
+      take: pageSize,
+      orderBy: {
+        [orderBy]: sortBy,
+      },
+    });
+    return curriculums;
   }
 }
