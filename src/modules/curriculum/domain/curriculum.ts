@@ -17,9 +17,16 @@ export const CurriculumSchema = t.Intersect([
 ]);
 
 export const CreateCurriculumDTO = t.Object({
-  thumbnail: t.File(),
+  thumbnailFile: t.File(),
+  ...CommonCurriculumField,
+});
+
+export const CurriculumDTO = t.Object({
+  id: t.Number(),
+  thumbnailURL: t.String(),
   ...CommonCurriculumField,
 });
 
 export type Curriculum = Static<typeof CurriculumSchema>;
 export type CreateCurriculumDTO = Static<typeof CreateCurriculumDTO>;
+export type CurriculumDTO = Static<typeof CurriculumDTO>;
