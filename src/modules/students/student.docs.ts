@@ -43,4 +43,17 @@ export const StudentDocs = {
       404: mapResponse(t.Null()),
     },
   },
+  deleteStudent: {
+    detail: {
+      summary: "Delete student",
+      description: "Delete a student's information by their ID",
+      tags: ["Students"],
+    },
+    params: t.Object({
+      id: t.Number(),
+    }),
+    response: {
+      200: mapResponse(StudentDTO),
+    },
+  },
 };

@@ -16,6 +16,7 @@ interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
   getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
   getStudentById(id: number): Promise<StudentDTO | null>;
+  deleteStudent(id: number): Promise<StudentDTO>;
 }
 
 export class StudentService implements IStudentService {
@@ -66,8 +67,8 @@ export class StudentService implements IStudentService {
       }
 
       const role = await this.userRepository.assignUserRole({
-        userId: user.id,
-        roleId: 2,
+        userID: user.id,
+        roleID: 2,
         createdBy: 0,
         updatedBy: 0,
       });
@@ -123,5 +124,10 @@ export class StudentService implements IStudentService {
       }
       throw error;
     }
+  }
+
+  async deleteStudent(id: number): Promise<StudentDTO> {
+    const student = await this.studentRepository.deleteStudent(id);
+    return this.studentFactory.MapStudentToDTO(student);
   }
 }

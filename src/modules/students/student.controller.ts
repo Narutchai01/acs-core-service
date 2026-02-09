@@ -61,4 +61,12 @@ StudentController.post(
       return success(student, "Student retrieved successfully");
     },
     StudentDocs.getStudentById,
+  )
+  .delete(
+    "/:id",
+    async ({ studentService, params, set }) => {
+      const student = await studentService.deleteStudent(Number(params.id));
+      return success(student, "Student deleted successfully");
+    },
+    StudentDocs.deleteStudent,
   );
