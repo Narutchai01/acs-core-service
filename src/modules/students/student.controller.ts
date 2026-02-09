@@ -38,12 +38,25 @@ StudentController.post(
     );
   },
   StudentDocs.createStudent,
-).get(
-  "/",
-  async ({ studentService, set, query }) => {
-    const students = await studentService.getStudents(query);
-    set.status = HttpStatusCode.OK;
-    return success(students, "Students retrieved successfully");
-  },
-  StudentDocs.getStudents,
-);
+)
+  .get(
+    "/",
+    async ({ studentService, set, query }) => {
+      const students = await studentService.getStudents(query);
+      set.status = HttpStatusCode.OK;
+      return success(students, "Students retrieved successfully");
+    },
+    StudentDocs.getStudents,
+  )
+  .get(
+    "/:id",
+    async ({ studentService, params, set }) => {
+      const student = await studentService.getStudentById(Number(params.id));
+      if (!student) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
+      }
+      return success(student, "Student retrieved successfully");
+    },
+    StudentDocs.getStudentById,
+  );

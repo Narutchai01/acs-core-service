@@ -29,4 +29,18 @@ export const StudentDocs = {
       200: mapResponse(t.Array(StudentDTO)),
     },
   },
+  getStudentById: {
+    detail: {
+      summary: "Get student by ID",
+      description: "Retrieve a student's information by their ID",
+      tags: ["Students"],
+    },
+    params: t.Object({
+      id: t.Number(),
+    }),
+    response: {
+      200: mapResponse(StudentDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };
