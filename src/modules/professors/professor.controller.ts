@@ -1,0 +1,47 @@
+import Elysia from "elysia";
+import { ProfessorService } from "./professor.service";
+import { ProfessorRepository } from "../../infrastructure/profressor.repository";
+import { ProfessorFactory } from "./profressor.factory";
+import { prisma } from "../../lib/db";
+import { ProfessorDocs } from "./professor.docs";
+import { success } from "../../core/interceptor/response";
+import { HttpStatusCode } from "../../core/types/http";
+import { SupabaseService } from "../../core/utils/supabase";
+import { UserRepository } from "../../infrastructure/user.repository";
+
+const storage = new SupabaseService();
+const userRepository = new UserRepository(prisma);
+const professorRepository = new ProfessorRepository(prisma);
+const professorFactory = new ProfessorFactory();
+const professorService = new ProfessorService(
+  professorRepository,
+  userRepository,
+  professorFactory,
+  storage,
+);
+
+export const ProfessorController = new Elysia({
+  prefix: "/professors",
+})
+  .decorate("professorService", professorService)
+  .post(
+    "/",
+    async ({ professorService, body, set }) => {
+      const professor = await professorService.createProfessor(body);
+      if (!professor) {
+        set.status = HttpStatusCode.INTERNAL_SERVER_ERROR;
+        return success(
+          null,
+          "Failed to create professor",
+          HttpStatusCode.INTERNAL_SERVER_ERROR,
+        );
+      }
+      set.status = HttpStatusCode.CREATED;
+      return success(
+        professor,
+        "Professor created successfully",
+        HttpStatusCode.CREATED,
+      );
+    },
+    ProfessorDocs.createProfessor,
+  );
