@@ -10,7 +10,9 @@ import { ErrorCode } from "../core/types/errors";
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async createStudent(data: Prisma.StudentCreateInput): Promise<Student> {
+  async createStudent(
+    data: Prisma.StudentUncheckedCreateInput,
+  ): Promise<Student> {
     const student = await this.prisma.student.create({
       data,
       include: {

@@ -79,13 +79,12 @@ export class StudentService implements IStudentService {
         );
       }
 
-      const rawStudentData: Prisma.StudentCreateInput = {
+      const rawStudentData: Prisma.StudentUncheckedCreateInput = {
         ...studentData,
+        classbookID: 1,
         createdBy: 0,
         updatedBy: 0,
-        user: {
-          connect: { id: user.id },
-        },
+        userID: user.id,
       };
 
       const student =

@@ -98,6 +98,7 @@ model News {
 
 model Student {
   id          Int       @id @default(autoincrement()) @map("id")
+  classbookID Int       @map("classbook_id")
   userID      Int       @unique @map("user_id")
   studentCode String    @map("student_code")
   linkedin    String?   @map("linkedin")
@@ -110,22 +111,24 @@ model Student {
   createdBy   Int       @map("created_by")
   updatedBy   Int       @map("updated_by")
   user        User      @relation(fields: [userID], references: [id])
+  classBook   ClassBook @relation(fields: [classbookID], references: [id])
 
   @@map("students")
 }
 
 model Curriculum {
-  id           Int       @id @default(autoincrement()) @map("id")
-  year         String    @map("year")
-  documentURL  String    @map("document_url")
-  description  String    @map("description")
-  thumbnailURL String    @map("thumbnail_url")
-  createdBy    Int       @map("created_by")
-  updatedBy    Int       @map("updated_by")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  id           Int         @id @default(autoincrement()) @map("id")
+  year         String      @map("year")
+  documentURL  String      @map("document_url")
+  description  String      @map("description")
+  thumbnailURL String      @map("thumbnail_url")
+  createdBy    Int         @map("created_by")
+  updatedBy    Int         @map("updated_by")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  deletedAt    DateTime?   @map("deleted_at")
   courses      Course[]
+  classBooks   ClassBook[]
 
   @@map("curriculums")
 }
@@ -175,4 +178,21 @@ model Course {
   curriculum   Curriculum @relation(fields: [curriculumID], references: [id])
 
   @@map("courses")
+}
+
+model ClassBook {
+  id                Int        @id @default(autoincrement()) @map("id")
+  classof           String     @unique @map("classof")
+  firstYearAcademic String     @map("first_year_academic")
+  thumbnailURL      String     @map("thumbnail_url")
+  curriculumID      Int        @map("curriculum_id")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+  deletedAt         DateTime?  @map("deleted_at")
+  createdBy         Int        @map("created_by")
+  updatedBy         Int        @map("updated_by")
+  curriculum        Curriculum @relation(fields: [curriculumID], references: [id])
+  students          Student[]
+
+  @@map("class_books")
 }
