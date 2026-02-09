@@ -1,9 +1,8 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema } from "../../../core/models";
-import { CreateUserDTO, UserSchema } from "../../users/domain/user";
+import { UserSchema, CommonUserFields } from "../../users/domain/user";
 
 export const CommonStudentFields = {
-  userId: t.Number(),
   studentCode: t.String(),
   linkedin: t.Optional(t.Nullable(t.String())),
   github: t.Optional(t.Nullable(t.String())),
@@ -14,6 +13,7 @@ export const CommonStudentFields = {
 export const StudentSchema = t.Intersect([
   t.Object({
     id: t.Number(),
+    userId: t.Number(),
     ...CommonStudentFields,
     user: UserSchema,
   }),
@@ -26,13 +26,11 @@ export const CreateStudentModel = t.Object({
   updatedBy: t.Number(),
 });
 
-export const CreateStudentDTO = t.Intersect([
-  CreateUserDTO,
-  t.Object({
-    ...CommonStudentFields,
-    imageFile: t.Optional(t.Nullable(t.File())),
-  }),
-]);
+export const CreateStudentDTO = t.Object({
+  ...CommonStudentFields,
+  ...CommonUserFields,
+  imageFile: t.Optional(t.Nullable(t.File())),
+});
 
 export const StudentDTO = t.Object({
   id: t.Number(),

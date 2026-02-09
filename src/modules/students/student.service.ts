@@ -21,7 +21,16 @@ export class StudentService implements IStudentService {
   ) {}
 
   async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
-    const { imageFile, ...studentData } = data;
+    const {
+      imageFile,
+      email,
+      nickName,
+      firstNameTh,
+      lastNameTh,
+      firstNameEn,
+      lastNameEn,
+      ...studentData
+    } = data;
     let imagePath: string | null = null;
     try {
       if (imageFile) {
@@ -29,7 +38,13 @@ export class StudentService implements IStudentService {
       }
 
       const rawUserData: CreateUserModel = {
-        ...studentData,
+        email,
+        firstNameTh,
+        lastNameTh,
+        nickName,
+        firstNameEn,
+        lastNameEn,
+        password: null,
         imageUrl: imagePath,
         createdBy: 0,
         updatedBy: 0,
