@@ -27,6 +27,7 @@ export class NewsRepository implements INewsRepository {
       },
       where: {
         ...(query.tagID && { tagID: query.tagID }),
+        deletedAt: null,
       },
       include: {
         tag: false,
@@ -38,7 +39,7 @@ export class NewsRepository implements INewsRepository {
   async getNewsById(id: number): Promise<News | null> {
     try {
       const news = await this.prisma.news.findUnique({
-        where: { id },
+        where: { id, deletedAt: null },
         include: {
           tag: true,
         },

@@ -40,6 +40,9 @@ export class ProfessorRepository implements IProfessorRepository {
       orderBy: {
         [orderBy]: sortBy,
       },
+      where: {
+        deletedAt: null,
+      },
       include: {
         user: true,
         academicPosition: academicPosition,
@@ -51,7 +54,7 @@ export class ProfessorRepository implements IProfessorRepository {
   async getProfessorById(id: number): Promise<Professor | null> {
     try {
       const professor = await this.prisma.professor.findUnique({
-        where: { id },
+        where: { id, deletedAt: null },
         include: {
           user: true,
           academicPosition: true,

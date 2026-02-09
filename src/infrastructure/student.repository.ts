@@ -27,6 +27,9 @@ export class StudentRepository implements IStudentRepository {
     const students = await this.prisma.student.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
+      where: {
+        deletedAt: null,
+      },
       orderBy: {
         [orderBy]: sortBy,
       },
@@ -40,7 +43,7 @@ export class StudentRepository implements IStudentRepository {
   async getStudentById(id: number): Promise<Student | null> {
     try {
       const student = await this.prisma.student.findUnique({
-        where: { id },
+        where: { id, deletedAt: null },
         include: {
           user: true,
         },

@@ -54,7 +54,7 @@ export class ClassBookRepository implements IClassBookRepository {
   async getClassBookById(id: number): Promise<ClassBook | null> {
     try {
       const classBook = await this.prisma.classBook.findUnique({
-        where: { id },
+        where: { id, deletedAt: null },
       });
       return classBook;
     } catch (error) {

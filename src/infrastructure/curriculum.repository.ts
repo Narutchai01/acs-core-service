@@ -23,6 +23,9 @@ export class CurriculumRepository implements ICurriculumRepository {
     const curriculums = await this.prisma.curriculum.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
+      where: {
+        deletedAt: null,
+      },
       orderBy: {
         [orderBy]: sortBy,
       },

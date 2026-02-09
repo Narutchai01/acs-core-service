@@ -42,6 +42,7 @@ export class CourseRepository implements ICourseRepository {
         [orderBy]: sortBy,
       },
       where: {
+        deletedAt: null,
         ...(typeCourseID && { typeCourseID }),
         ...(curriculumID && { curriculumID }),
         ...(search &&
