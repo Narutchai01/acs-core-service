@@ -146,7 +146,8 @@ model Professor {
   deletedAt          DateTime? @map("deleted_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userID], references: [id])
+  user      User        @relation(fields: [userID], references: [id])
+  education Education[]
 
   @@map("professors")
 }
@@ -195,4 +196,18 @@ model ClassBook {
   students          Student[]
 
   @@map("class_books")
+}
+
+model Education {
+  id          Int        @id @default(autoincrement()) @map("id")
+  education   String     @map("education")
+  professor   Professor? @relation(fields: [professorID], references: [id])
+  professorID Int        @map("professor_id")
+  createdBy   Int        @map("created_by")
+  updatedBy   Int        @map("updated_by")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  @@map("education")
 }
