@@ -65,6 +65,20 @@ export class StudentService implements IStudentService {
         );
       }
 
+      const role = await this.userRepository.assignUserRole({
+        userId: user.id,
+        roleId: 2,
+        createdBy: 0,
+        updatedBy: 0,
+      });
+
+      if (!role) {
+        throw new AppError(
+          ErrorCode.DATABASE_ERROR,
+          "Failed to assign role to student user",
+        );
+      }
+
       const rawStudentData: Prisma.StudentCreateInput = {
         ...studentData,
         createdBy: 0,

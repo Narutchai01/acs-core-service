@@ -10,6 +10,7 @@ import { IProfessorFactory } from "./profressor.factory";
 import { CreateUserModel } from "../users/domain/user";
 import { Prisma } from "../../generated/prisma/client";
 import { AppError } from "../../core/error/app-error";
+import { ErrorCode } from "../../core/types/errors";
 interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
   getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
@@ -52,6 +53,28 @@ export class ProfessorService implements IProfessorService {
       };
 
       const user = await this.userRepository.createUser(userData);
+
+      if (!user) {
+        throw new AppError(
+          ErrorCode.DATABASE_ERROR,
+          "Failed to create user for professor",
+          500,
+        );
+      }
+
+      const role = await this.userRepository.assignUserRole({
+        userId: user.id,
+        roleId: 3,
+        createdBy: 0,
+        updatedBy: 0,
+      });
+
+      if (!role) {
+        throw new AppError(
+          ErrorCode.DATABASE_ERROR,
+          "Failed to assign role to student user",
+        );
+      }
 
       const expertFieldsString = rawProfessorData.expertFields
         .split('"')
