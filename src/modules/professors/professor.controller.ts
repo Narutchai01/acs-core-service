@@ -44,4 +44,25 @@ export const ProfessorController = new Elysia({
       );
     },
     ProfessorDocs.createProfessor,
+  )
+  .get(
+    "/",
+    async ({ professorService, query, set }) => {
+      const professors = await professorService.getProfessors(query);
+      if (!professors) {
+        set.status = HttpStatusCode.INTERNAL_SERVER_ERROR;
+        return success(
+          null,
+          "Failed to retrieve professors",
+          HttpStatusCode.INTERNAL_SERVER_ERROR,
+        );
+      }
+      set.status = HttpStatusCode.OK;
+      return success(
+        professors,
+        "Professors retrieved successfully",
+        HttpStatusCode.OK,
+      );
+    },
+    ProfessorDocs.getProfessors,
   );

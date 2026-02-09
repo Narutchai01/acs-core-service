@@ -1,5 +1,5 @@
 import { t, Static } from "elysia";
-import { BaseModelSchema } from "../../../core/models";
+import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 import { CommonUserFields, UserSchema } from "../../users/domain/user";
 
 export const CommonProfessorFields = {
@@ -30,6 +30,11 @@ export const ProfessorDTO = t.Object({
   user: UserSchema,
 });
 
+export const ProfessorQueryParams = t.Object({
+  ...CommonQueryParams,
+});
+
 export type Professor = Static<typeof ProfessorSchema>;
 export type CreateProfessorDTO = Static<typeof CreateProfrssorDTO>;
 export type ProfessorDTO = Static<typeof ProfessorDTO>;
+export type ProfessorQueryParams = Static<typeof ProfessorQueryParams>;

@@ -1,12 +1,17 @@
 import { SupabaseService } from "../../core/utils/supabase";
 import { IUserRepository } from "../users/domain/user.repository";
-import { CreateProfessorDTO, ProfessorDTO } from "./domain/professor";
+import {
+  CreateProfessorDTO,
+  ProfessorDTO,
+  ProfessorQueryParams,
+} from "./domain/professor";
 import { IProfessorRepository } from "./domain/professor.repository";
 import { IProfessorFactory } from "./profressor.factory";
 import { CreateUserModel } from "../users/domain/user";
 import { Prisma } from "../../generated/prisma/client";
 interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
+  getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
 }
 
 export class ProfessorService implements IProfessorService {
@@ -65,5 +70,10 @@ export class ProfessorService implements IProfessorService {
       console.log(error);
       throw error;
     }
+  }
+
+  async getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]> {
+    const professors = await this.professorRepository.getProfessors(query);
+    return this.professorFactory.mapPrfessorListToDTO(professors);
   }
 }

@@ -1,6 +1,10 @@
 import { IProfessorRepository } from "../modules/professors/domain/professor.repository";
 import { PrismaClient, Prisma } from "../generated/prisma/client";
-import { Professor } from "../modules/professors/domain/professor";
+import {
+  Professor,
+  ProfessorQueryParams,
+} from "../modules/professors/domain/professor";
+import { calculatePagination } from "../core/utils/calculator";
 
 export class ProfessorRepository implements IProfessorRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -13,5 +17,26 @@ export class ProfessorRepository implements IProfessorRepository {
       },
     });
     return professor as Professor;
+  }
+
+  async getProfessors(query: ProfessorQueryParams): Promise<Professor[]> {
+    const {
+      page = 1,
+      pageSize = 10,
+      orderBy = "createdAt",
+      sortBy = "asc",
+    } = query;
+
+    const professors = await this.prisma.professor.findMany({
+      skip: calculatePagination(page, pageSize),
+      take: pageSize,
+      orderBy: {
+        [orderBy]: sortBy,
+      },
+      include: {
+        user: true,
+      },
+    });
+    return professors as Professor[];
   }
 }
