@@ -1,6 +1,10 @@
 import { SupabaseService } from "../../core/utils/supabase";
 import { Prisma } from "../../generated/prisma/client";
-import { CreateStudentDTO, StudentDTO } from "./domain/student";
+import {
+  CreateStudentDTO,
+  StudentDTO,
+  StudentQueryParams,
+} from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
 import { CreateUserModel } from "../users/domain/user";
@@ -10,7 +14,7 @@ import { IStudentFactory } from "./student.factory";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
-  getStudents(): Promise<StudentDTO[]>;
+  getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
 }
 
 export class StudentService implements IStudentService {
@@ -86,8 +90,8 @@ export class StudentService implements IStudentService {
     }
   }
 
-  async getStudents(): Promise<StudentDTO[]> {
-    const students = await this.studentRepository.getStudents();
+  async getStudents(query: StudentQueryParams): Promise<StudentDTO[]> {
+    const students = await this.studentRepository.getStudents(query);
     return students.map((student) =>
       this.studentFactory.MapStudentToDTO(student),
     );

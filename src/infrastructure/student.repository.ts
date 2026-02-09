@@ -1,6 +1,10 @@
 import { PrismaClient, Prisma } from "../generated/prisma/client";
-import { Student } from "../modules/students/domain/student";
+import {
+  Student,
+  StudentQueryParams,
+} from "../modules/students/domain/student";
 import { IStudentRepository } from "../modules/students/domain/student.repository";
+import { calculatePagination } from "../core/utils/calculator";
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -14,8 +18,14 @@ export class StudentRepository implements IStudentRepository {
     return student as Student;
   }
 
-  async getStudents(): Promise<Student[]> {
+  async getStudents(query: StudentQueryParams): Promise<Student[]> {
+    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
     const students = await this.prisma.student.findMany({
+      skip: calculatePagination(page, pageSize),
+      take: pageSize,
+      orderBy: {
+        [orderBy]: sortBy,
+      },
       include: {
         user: true,
       },

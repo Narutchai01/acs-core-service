@@ -40,8 +40,8 @@ StudentController.post(
   StudentDocs.createStudent,
 ).get(
   "/",
-  async ({ studentService, set }) => {
-    const students = await studentService.getStudents();
+  async ({ studentService, set, query }) => {
+    const students = await studentService.getStudents(query);
     set.status = HttpStatusCode.OK;
     return success(students, "Students retrieved successfully");
   },

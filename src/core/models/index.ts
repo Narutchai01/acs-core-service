@@ -28,3 +28,10 @@ export const BaseModelSchema = t.Object({
   updatedBy: t.Optional(t.Number()),
   deletedAt: t.Optional(t.Nullable(t.Date())),
 });
+
+export const CommonQueryParams = {
+  page: t.Optional(t.Numeric({ default: 1, minimum: 1 })),
+  pageSize: t.Optional(t.Numeric({ default: 10, minimum: 1 })),
+  orderBy: t.Optional(t.String({ default: "createdAt" })),
+  sortBy: t.Optional(t.String({ default: "desc" })),
+};
