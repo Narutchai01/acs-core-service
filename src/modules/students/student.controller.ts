@@ -24,9 +24,7 @@ export const StudentController = new Elysia({ prefix: "/students" }).decorate(
   studentService,
 );
 
-StudentController.get("/", async () => {
-  return "Get all students";
-}).post(
+StudentController.post(
   "/",
   async ({ body, studentService }) => {
     const student = await studentService.createStudent(body);
