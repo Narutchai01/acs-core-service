@@ -9,7 +9,6 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
       description: "API Documentation",
     },
     tags: [
-      { name: "Auth", description: "Authentication Endpoints" },
       {
         name: "Users ",
         description: "User Management Endpoints",
@@ -28,5 +27,5 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
       },
     ],
   },
-  provider: "scalar", // หรือ 'swagger'
+  provider: "scalar",
 };
