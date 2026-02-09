@@ -1,6 +1,7 @@
 import { CourseDTO, Course } from "./domain/course";
-interface ICourseFactory {
+export interface ICourseFactory {
   mapCourseToDTO(course: Course): CourseDTO;
+  mapCourseListToDTO(courses: Course[]): CourseDTO[];
 }
 
 export class CourseFactory implements ICourseFactory {
@@ -15,5 +16,9 @@ export class CourseFactory implements ICourseFactory {
       typeCourse: course.typeCourse,
       curriculum: course.curriculum,
     };
+  }
+
+  mapCourseListToDTO(courses: Course[]): CourseDTO[] {
+    return courses.map((course) => this.mapCourseToDTO(course));
   }
 }

@@ -1,5 +1,5 @@
 import { t, Static } from "elysia";
-import { BaseModelSchema } from "../../../core/models";
+import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 import { TypeCourseSchema } from "../../../core/models/type-course";
 import {
   CurriculumDTO,
@@ -39,6 +39,11 @@ export const CreateCourseDTO = t.Object({
   curriculumID: t.Number(),
 });
 
+export const CourseQueryParams = t.Object({
+  ...CommonQueryParams,
+});
+
+export type CourseQueryParams = Static<typeof CourseQueryParams>;
 export type Course = Static<typeof CourseSchema>;
 export type CreateCourseDTO = Static<typeof CreateCourseDTO>;
 export type CourseDTO = Static<typeof CourseDTO>;

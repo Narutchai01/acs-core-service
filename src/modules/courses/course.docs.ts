@@ -1,5 +1,6 @@
 import { mapResponse } from "../../core/interceptor/response";
-import { CourseDTO, CreateCourseDTO } from "./domain/course";
+import { CourseDTO, CourseQueryParams, CreateCourseDTO } from "./domain/course";
+import { t } from "elysia";
 
 export const CourseDocs = {
   creteCourse: {
@@ -12,6 +13,17 @@ export const CourseDocs = {
     body: CreateCourseDTO,
     response: {
       201: mapResponse(CourseDTO),
+    },
+  },
+  getCourses: {
+    detail: {
+      summary: "Get list of courses",
+      description: "This endpoint retrieves a list of courses.",
+      tags: ["Courses"],
+    },
+    query: CourseQueryParams,
+    response: {
+      200: mapResponse(t.Array(CourseDTO)),
     },
   },
 };
