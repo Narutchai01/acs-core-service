@@ -6,4 +6,5 @@ export interface IClassBookRepository {
     data: Prisma.ClassBookUncheckedCreateInput,
   ): Promise<ClassBook>;
   getClassBooks(query: ClassBookQueryParams): Promise<ClassBook[]>;
+  getClassBookById(id: number): Promise<ClassBook | null>;
 }

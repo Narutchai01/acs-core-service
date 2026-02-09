@@ -7,7 +7,12 @@ export interface IClassBookFactory {
 
 export class ClassBookFactory implements IClassBookFactory {
   mapClassBookToDTO(classBook: ClassBook): ClassBookDTO {
-    return { ...classBook };
+    return {
+      id: classBook.id,
+      thumbnailURL: classBook.thumbnailURL,
+      classof: classBook.classof,
+      firstYearAcademic: classBook.firstYearAcademic,
+    };
   }
   mapClassBookListToDTO(classBooks: ClassBook[]): ClassBookDTO[] {
     return classBooks.map((classBook) => this.mapClassBookToDTO(classBook));

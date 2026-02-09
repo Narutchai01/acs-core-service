@@ -23,6 +23,9 @@ export const CreateClassBookDTO = t.Object({
 
 export const ClassBookQueryParams = t.Object({
   ...CommonQueryParams,
+  search: t.Optional(t.String()),
+  searchBy: t.Optional(t.String()),
+  curriculumID: t.Optional(t.Number()),
 });
 
 export const ClassBookDTO = t.Object({

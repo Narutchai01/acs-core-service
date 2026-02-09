@@ -1,5 +1,9 @@
 import { IClassBookFactory } from "./class-book.factory";
-import { CreateClassBookDTO, ClassBookDTO } from "./domain/class-book";
+import {
+  CreateClassBookDTO,
+  ClassBookDTO,
+  ClassBookQueryParams,
+} from "./domain/class-book";
 import { IClassBookRepository } from "./domain/class-book.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
@@ -7,6 +11,8 @@ import { ErrorCode } from "../../core/types/errors";
 
 interface IClassBookService {
   createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO>;
+  getClassBooks(query: ClassBookQueryParams): Promise<ClassBookDTO[]>;
+  getClassBookById(id: number): Promise<ClassBookDTO | null>;
 }
 
 export class ClassBookService implements IClassBookService {
@@ -47,5 +53,18 @@ export class ClassBookService implements IClassBookService {
       console.log(error);
       throw error;
     }
+  }
+
+  async getClassBooks(query: ClassBookQueryParams): Promise<ClassBookDTO[]> {
+    const classBooks = await this.classBookRepository.getClassBooks(query);
+    return this.classBookFactory.mapClassBookListToDTO(classBooks);
+  }
+
+  async getClassBookById(id: number): Promise<ClassBookDTO | null> {
+    const classBook = await this.classBookRepository.getClassBookById(id);
+    if (!classBook) {
+      return null;
+    }
+    return this.classBookFactory.mapClassBookToDTO(classBook);
   }
 }
