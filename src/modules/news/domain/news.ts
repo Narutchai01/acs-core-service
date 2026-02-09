@@ -23,7 +23,6 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   ...CommonNewsFields,
-  updatedAt: t.Date(),
 });
 
 export const NewsQueryParams = t.Object({

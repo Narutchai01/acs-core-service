@@ -5,7 +5,6 @@ export class NewsFactory {
     const { deletedAt, createdAt, createdBy, updatedBy, ...dto } = news; // ตัดทิ้งตรงนี้
     return {
       ...dto,
-      updatedAt: news.updatedAt as Date,
     };
   }
 

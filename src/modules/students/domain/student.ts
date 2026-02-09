@@ -35,7 +35,6 @@ export const CreateStudentDTO = t.Object({
 export const StudentDTO = t.Object({
   id: t.Number(),
   ...CommonStudentFields,
-  updatedAt: t.Date(),
   user: UserSchema,
 });
 

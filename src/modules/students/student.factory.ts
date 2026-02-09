@@ -14,7 +14,6 @@ export class StudentFactory implements IStudentFactory {
       github: student.github,
       facebook: student.facebook,
       instagram: student.instagram,
-      updatedAt: student.updatedAt as Date,
       user: student.user,
     };
   }
