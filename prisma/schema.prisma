@@ -146,3 +146,11 @@ model Professor {
 
   @@map("professors")
 }
+
+model TypeCourse {
+  id          Int    @id @default(autoincrement()) @map("id")
+  type        String @unique @map("name")
+  description String @map("description")
+
+  @@map("type_courses")
+}
