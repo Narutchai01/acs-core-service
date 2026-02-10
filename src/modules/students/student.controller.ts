@@ -69,4 +69,12 @@ StudentController.post(
       return success(student, "Student deleted successfully");
     },
     StudentDocs.deleteStudent,
+  )
+  .patch(
+    "/:id",
+    async ({ studentService, params, body, set }) => {
+      const student = await studentService.updateStudent(params.id, body);
+      return success(student, "Student updated successfully");
+    },
+    StudentDocs.updateStudent,
   );

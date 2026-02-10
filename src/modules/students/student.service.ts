@@ -3,6 +3,7 @@ import { Prisma } from "../../generated/prisma/client";
 import {
   CreateStudentDTO,
   StudentDTO,
+  Student,
   StudentQueryParams,
   StudentUpdateDTO,
 } from "./domain/student";
@@ -12,7 +13,6 @@ import { CreateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
-import { IUnitOfWork } from "../../core/uow/uow.interface";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
@@ -28,7 +28,7 @@ export class StudentService implements IStudentService {
     private readonly userRepository: IUserRepository,
     private readonly storage: SupabaseService,
     private readonly studentFactory: IStudentFactory,
-    private readonly uowRepository: IUnitOfWork,
+    // private readonly uowRepository: IUnitOfWork,
   ) {}
 
   async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
@@ -139,18 +139,42 @@ export class StudentService implements IStudentService {
     studentID: number,
     data: StudentUpdateDTO,
   ): Promise<StudentDTO> {
-    const { ...studentData } = data;
+    const { imageFile, ...studentData } = data;
     let imagePath: string | undefined = undefined;
+    let student: Student;
     try {
-      const updateData: Prisma.StudentUncheckedUpdateInput = {
+      if (imageFile) {
+        imagePath = await this.storage.uploadFile(imageFile, "students");
+      }
+
+      const updatedUserData: Prisma.UserUncheckedUpdateInput = {
+        ...(imagePath && { imageUrl: imagePath }),
+      };
+
+      const updateStudentData: Prisma.StudentUncheckedUpdateInput = {
         ...studentData,
       };
 
-      const updatedStudent = await this.studentRepository.updateStudent(
+      student = await this.studentRepository.updateStudent(
         studentID,
-        updateData,
+        updateStudentData,
       );
-      return this.studentFactory.MapStudentToDTO(updatedStudent);
+
+      const updateUser = await this.userRepository.updateUser(
+        student.userID,
+        updatedUserData,
+      );
+
+      if (!updateUser) {
+        throw new AppError(
+          ErrorCode.DATABASE_ERROR,
+          "Failed to update user for student",
+        );
+      }
+
+      student.user = updateUser;
+
+      return this.studentFactory.MapStudentToDTO(student);
     } catch (error) {
       console.log(error);
       throw error;

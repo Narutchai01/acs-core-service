@@ -2,6 +2,7 @@ import {
   CreateStudentDTO,
   StudentDTO,
   StudentQueryParams,
+  StudentUpdateDTO,
 } from "./domain/student";
 import { mapResponse } from "../../core/interceptor/response";
 
@@ -52,6 +53,28 @@ export const StudentDocs = {
     params: t.Object({
       id: t.Number(),
     }),
+    response: {
+      200: mapResponse(StudentDTO),
+    },
+  },
+  updateStudent: {
+    detail: {
+      summary: "Update student",
+      description: "Update a student's information by their ID",
+      tags: ["Students"],
+    },
+    transform({ body }: { body: StudentUpdateDTO }) {
+      Object.keys(body).forEach((key) => {
+        const k = key as keyof StudentUpdateDTO;
+        if (body[k] === "") {
+          body[k] = undefined;
+        }
+      });
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    body: StudentUpdateDTO,
     response: {
       200: mapResponse(StudentDTO),
     },
