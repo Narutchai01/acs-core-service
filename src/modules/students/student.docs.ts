@@ -3,6 +3,7 @@ import {
   StudentDTO,
   StudentQueryParams,
   StudentUpdateDTO,
+  CreaetListStudentDTO,
 } from "./domain/student";
 import { mapResponse } from "../../core/interceptor/response";
 
@@ -77,6 +78,17 @@ export const StudentDocs = {
     body: StudentUpdateDTO,
     response: {
       200: mapResponse(StudentDTO),
+    },
+  },
+  createStudentBatch: {
+    detail: {
+      summary: "Create list of students",
+      description: "Create multiple students with the provided information",
+      tags: ["Students"],
+    },
+    body: CreaetListStudentDTO,
+    response: {
+      201: mapResponse(t.Array(StudentDTO)),
     },
   },
 };

@@ -6,6 +6,7 @@ import {
   Student,
   StudentQueryParams,
   StudentUpdateDTO,
+  CreaetListStudentDTO,
 } from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
@@ -13,6 +14,7 @@ import { CreateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
+import { HttpStatusCode } from "../../core/types/http";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
@@ -20,6 +22,7 @@ interface IStudentService {
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
   updateStudent(studentID: number, data: StudentUpdateDTO): Promise<StudentDTO>;
+  createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]>;
 }
 
 export class StudentService implements IStudentService {
@@ -193,6 +196,73 @@ export class StudentService implements IStudentService {
     } catch (error) {
       console.log(error);
       throw error;
+    }
+  }
+
+  async createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]> {
+    const { classBookID, students } = data;
+    let studentsDB: Student[] = [];
+    try {
+      for (const studentData of students) {
+        const {
+          linkedin,
+          github,
+          facebook,
+          instagram,
+          studentCode,
+          ...userData
+        } = studentData;
+
+        const rawUserData: Prisma.UserUncheckedCreateInput = {
+          ...userData,
+          createdBy: 0,
+          updatedBy: 0,
+        };
+
+        const user = await this.userRepository.createUser(rawUserData);
+
+        if (!user) {
+          throw new AppError(
+            ErrorCode.DATABASE_ERROR,
+            "Failed to create user for student",
+            HttpStatusCode.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        const rawStudentData: Prisma.StudentUncheckedCreateInput = {
+          linkedin,
+          github,
+          facebook,
+          instagram,
+          studentCode,
+          classBookID,
+          createdBy: 0,
+          updatedBy: 0,
+          userID: user.id,
+        };
+
+        const student =
+          await this.studentRepository.createStudent(rawStudentData);
+
+        if (!student) {
+          throw new AppError(
+            ErrorCode.DATABASE_ERROR,
+            "Failed to create student",
+            HttpStatusCode.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        studentsDB.push(student);
+      }
+
+      return this.studentFactory.MapStudentListToDTO(studentsDB);
+    } catch (error) {
+      console.log(error);
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Failed to create students batch",
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

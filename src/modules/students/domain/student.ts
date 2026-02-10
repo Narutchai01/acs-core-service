@@ -53,9 +53,21 @@ export const StudentUpdateDTO = t.Partial(
   }),
 );
 
+export const CreateStudent = t.Object({
+  ...CommonStudentFields,
+  ...CommonUserFields,
+});
+
+export const CreaetListStudentDTO = t.Object({
+  classBookID: t.Number(),
+  students: t.Array(CreateStudent),
+});
+
 export type Student = Static<typeof StudentSchema>;
 export type CreateStudentDTO = Static<typeof CreateStudentDTO>;
 export type StudentDTO = Static<typeof StudentDTO>;
 export type CreateStudentModel = Static<typeof CreateStudentModel>;
 export type StudentQueryParams = Static<typeof StudentQueryParams>;
 export type StudentUpdateDTO = Static<typeof StudentUpdateDTO>;
+export type CreateStudent = Static<typeof CreateStudent>;
+export type CreaetListStudentDTO = Static<typeof CreaetListStudentDTO>;

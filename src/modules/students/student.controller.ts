@@ -50,6 +50,19 @@ StudentController.post(
     },
     StudentDocs.getStudents,
   )
+  .post(
+    "/batch",
+    async ({ body, studentService, set }) => {
+      const students = await studentService.createStudentBatch(body);
+
+      return success(
+        students,
+        "Students created successfully",
+        HttpStatusCode.CREATED,
+      );
+    },
+    StudentDocs.createStudentBatch,
+  )
   .get(
     "/:id",
     async ({ studentService, params, set }) => {
