@@ -22,4 +22,14 @@ export class UserRepository implements IUserRepository {
     const userRole = await this.db.userRole.create({ data });
     return userRole;
   }
+  async updateUser(
+    userID: number,
+    data: Prisma.UserUncheckedUpdateInput,
+  ): Promise<User> {
+    const updatedUser = await this.db.user.update({
+      where: { id: userID, deletedAt: null },
+      data,
+    });
+    return updatedUser as User;
+  }
 }
