@@ -5,9 +5,11 @@ import { prisma } from "../../lib/db";
 import { User } from "./domain/user";
 import { success } from "../../core/interceptor/response";
 import { userDocs } from "./user.docs";
+import { UserFactory } from "./user.factory";
 
+const userFactory = new UserFactory();
 const userRepository = new UserRepository(prisma);
-const userService = new UserService(userRepository);
+const userService = new UserService(userRepository, userFactory);
 
 export const userController = new Elysia({ prefix: "/users" }).decorate(
   "userService",

@@ -1,15 +1,19 @@
-import { CreateUserDTO, User } from "./domain/user";
+import { CreateUserDTO, UserDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
+import { IUserFactory } from "./user.factory";
 
 export abstract class IUserService {
-  abstract createSuperUser(data: CreateUserDTO): Promise<User>;
-  abstract getUsers(): Promise<User[]>;
+  abstract createSuperUser(data: CreateUserDTO): Promise<UserDTO>;
+  abstract getUsers(): Promise<UserDTO[]>;
 }
 
 export class UserService implements IUserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userFactory: IUserFactory,
+  ) {}
 
-  async createSuperUser(data: CreateUserDTO): Promise<User> {
+  async createSuperUser(data: CreateUserDTO): Promise<UserDTO> {
     const user = await this.userRepository.createUser({
       ...data,
       firstNameEn: (data.firstNameEn as string) ?? null,
@@ -18,11 +22,11 @@ export class UserService implements IUserService {
       createdBy: 0,
       updatedBy: 0,
     });
-    return user;
+    return this.userFactory.mapUserToDTO(user);
   }
 
-  async getUsers(): Promise<User[]> {
+  async getUsers(): Promise<UserDTO[]> {
     const users = await this.userRepository.getUsers();
-    return users;
+    return this.userFactory.mapUserListToDTO(users);
   }
 }
