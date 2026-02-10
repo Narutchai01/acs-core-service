@@ -1,9 +1,10 @@
 import { t } from "elysia";
 import { mapResponse } from "../../core/interceptor/response";
 import {
-  CreateProfrssorDTO,
   ProfessorDTO,
   ProfessorQueryParams,
+  ProfessorUpdateDTO,
+  CreateProfessorDTO,
 } from "./domain/professor";
 
 export const ProfessorDocs = {
@@ -14,7 +15,7 @@ export const ProfessorDocs = {
         "This endpoint allows for the creation of a new professor by accepting the necessary data and returning the created professor's details.",
       tags: ["Professors"],
     },
-    body: CreateProfrssorDTO,
+    body: CreateProfessorDTO,
     responses: {
       201: mapResponse(ProfessorDTO),
     },
@@ -41,6 +42,30 @@ export const ProfessorDocs = {
     params: t.Object({
       id: t.Number(),
     }),
+    responses: {
+      200: mapResponse(ProfessorDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
+  updateProfessor: {
+    detail: {
+      summary: "Updates an existing professor's details.",
+      description:
+        "This endpoint allows for updating the details of an existing professor by their ID.",
+      tags: ["Professors"],
+    },
+    transform({ body }: { body: ProfessorUpdateDTO }) {
+      Object.keys(body).forEach((key) => {
+        const k = key as keyof ProfessorUpdateDTO;
+        if (body[k] === "") {
+          body[k] = undefined;
+        }
+      });
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    body: ProfessorUpdateDTO,
     responses: {
       200: mapResponse(ProfessorDTO),
       404: mapResponse(t.Null()),

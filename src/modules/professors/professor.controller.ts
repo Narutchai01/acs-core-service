@@ -86,4 +86,24 @@ export const ProfessorController = new Elysia({
       );
     },
     ProfessorDocs.getProfessorById,
+  )
+  .patch(
+    "/:id",
+    async ({ professorService, params, body, set }) => {
+      const professor = await professorService.updateProfessor(
+        Number(params.id),
+        body,
+      );
+      if (!professor) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "Professor not found", HttpStatusCode.NOT_FOUND);
+      }
+      set.status = HttpStatusCode.OK;
+      return success(
+        professor,
+        "Professor updated successfully",
+        HttpStatusCode.OK,
+      );
+    },
+    ProfessorDocs.updateProfessor,
   );

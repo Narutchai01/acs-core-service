@@ -22,7 +22,7 @@ export const ProfessorSchema = t.Intersect([
   BaseModelSchema,
 ]);
 
-export const CreateProfrssorDTO = t.Object({
+export const CreateProfessorDTO = t.Object({
   ...CommonProfessorFields,
   ...CommonUserFields,
   imageFile: t.Optional(
@@ -69,7 +69,33 @@ export const ProfessorQueryParams = t.Object({
   ),
 });
 
+export const ProfessorUpdateDTO = t.Partial(
+  t.Object({
+    ...CommonProfessorFields,
+    ...CommonUserFields,
+    imageFile: t.Optional(t.Nullable(t.File())),
+    expertFields: t.Optional(
+      t.Nullable(
+        t.String({
+          examples: ["Computer Science, Data Science, AI,Machine Learning"],
+        }),
+      ),
+    ),
+    educations: t.Optional(
+      t.Nullable(
+        t.String({
+          examples: [
+            "Ph.D. in Computer Science / M.Sc. in Data Science / B.Eng. in Software Engineering",
+          ],
+        }),
+      ),
+    ),
+    academicPositionID: t.Numeric(),
+  }),
+);
+
 export type Professor = Static<typeof ProfessorSchema>;
-export type CreateProfessorDTO = Static<typeof CreateProfrssorDTO>;
+export type CreateProfessorDTO = Static<typeof CreateProfessorDTO>;
 export type ProfessorDTO = Static<typeof ProfessorDTO>;
 export type ProfessorQueryParams = Static<typeof ProfessorQueryParams>;
+export type ProfessorUpdateDTO = Static<typeof ProfessorUpdateDTO>;

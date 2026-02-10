@@ -75,6 +75,21 @@ export class ProfessorRepository implements IProfessorRepository {
     }
   }
 
+  async updateProfessor(
+    professorID: number,
+    data: Prisma.ProfessorUncheckedUpdateInput,
+  ): Promise<Professor> {
+    const professor = await this.prisma.professor.update({
+      where: { id: professorID },
+      data,
+      include: {
+        user: true,
+        academicPosition: true,
+      },
+    });
+    return professor as unknown as Professor;
+  }
+
   // async assignEducation(
   //   data: Prisma.EducationUncheckedCreateInput,
   // ): Promise<Education> {

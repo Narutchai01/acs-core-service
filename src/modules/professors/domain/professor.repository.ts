@@ -7,4 +7,8 @@ export interface IProfessorRepository {
   ): Promise<Professor>;
   getProfessors(query: ProfessorQueryParams): Promise<Professor[]>;
   getProfessorById(id: number): Promise<Professor | null>;
+  updateProfessor(
+    professorID: number,
+    data: Prisma.ProfessorUncheckedUpdateInput,
+  ): Promise<Professor>;
 }

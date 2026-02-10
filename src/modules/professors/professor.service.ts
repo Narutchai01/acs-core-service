@@ -2,8 +2,10 @@ import { SupabaseService } from "../../core/utils/supabase";
 import { IUserRepository } from "../users/domain/user.repository";
 import {
   CreateProfessorDTO,
+  Professor,
   ProfessorDTO,
   ProfessorQueryParams,
+  ProfessorUpdateDTO,
 } from "./domain/professor";
 import { IProfessorRepository } from "./domain/professor.repository";
 import { IProfessorFactory } from "./profressor.factory";
@@ -15,6 +17,10 @@ interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
   getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
   getProfessorById(id: number): Promise<ProfessorDTO | null>;
+  updateProfessor(
+    professorID: number,
+    data: Partial<CreateProfessorDTO>,
+  ): Promise<ProfessorDTO | null>;
 }
 
 export class ProfessorService implements IProfessorService {
@@ -131,6 +137,64 @@ export class ProfessorService implements IProfessorService {
         return null;
       }
       throw error;
+    }
+  }
+
+  async updateProfessor(
+    professorID: number,
+    data: ProfessorUpdateDTO,
+  ): Promise<ProfessorDTO | null> {
+    const { imageFile, ...rawProfessorData } = data;
+    let pathImage: string | undefined = undefined;
+    let professor: Professor | null;
+    try {
+      if (imageFile) {
+        pathImage = await this.storage.uploadFile(imageFile, "professors");
+      }
+
+      const updatedProfessor: Prisma.ProfessorUncheckedUpdateInput = {
+        ...rawProfessorData,
+        updatedBy: 0,
+      };
+
+      professor = await this.professorRepository.updateProfessor(
+        professorID,
+        updatedProfessor,
+      );
+
+      if (!professor) {
+        return null;
+      }
+
+      const updatedUserData: Prisma.UserUncheckedUpdateInput = {
+        ...rawProfessorData,
+        ...(pathImage && { imageUrl: pathImage }),
+        updatedBy: 0,
+      };
+
+      const user = await this.userRepository.updateUser(
+        professor.userID,
+        updatedUserData,
+      );
+
+      if (!user) {
+        throw new AppError(
+          ErrorCode.DATABASE_ERROR,
+          "Failed to update user for professor",
+          500,
+        );
+      }
+
+      professor.user = user;
+
+      return this.professorFactory.mapProfessorToDTO(professor);
+    } catch (error) {
+      console.log(error);
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Failed to update professor",
+        500,
+      );
     }
   }
 }
