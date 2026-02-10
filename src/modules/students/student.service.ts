@@ -139,7 +139,15 @@ export class StudentService implements IStudentService {
     studentID: number,
     data: StudentUpdateDTO,
   ): Promise<StudentDTO> {
-    const { imageFile, ...studentData } = data;
+    const {
+      imageFile,
+      studentCode,
+      linkedin,
+      github,
+      facebook,
+      instagram,
+      ...userData
+    } = data;
     let imagePath: string | undefined = undefined;
     let student: Student;
     try {
@@ -149,10 +157,17 @@ export class StudentService implements IStudentService {
 
       const updatedUserData: Prisma.UserUncheckedUpdateInput = {
         ...(imagePath && { imageUrl: imagePath }),
+        ...userData,
+        updatedBy: 0,
       };
 
       const updateStudentData: Prisma.StudentUncheckedUpdateInput = {
-        ...studentData,
+        studentCode,
+        linkedin,
+        github,
+        facebook,
+        instagram,
+        updatedBy: 0,
       };
 
       student = await this.studentRepository.updateStudent(

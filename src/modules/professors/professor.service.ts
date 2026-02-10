@@ -13,6 +13,7 @@ import { CreateUserModel } from "../users/domain/user";
 import { Prisma } from "../../generated/prisma/client";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
+import { HttpStatusCode } from "../../core/types/http";
 interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
   getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
@@ -144,7 +145,15 @@ export class ProfessorService implements IProfessorService {
     professorID: number,
     data: ProfessorUpdateDTO,
   ): Promise<ProfessorDTO | null> {
-    const { imageFile, ...rawProfessorData } = data;
+    const {
+      imageFile,
+      phone,
+      profRoom,
+      educations,
+      expertFields,
+      academicPositionID,
+      ...UserData
+    } = data;
     let pathImage: string | undefined = undefined;
     let professor: Professor | null;
     try {
@@ -153,7 +162,11 @@ export class ProfessorService implements IProfessorService {
       }
 
       const updatedProfessor: Prisma.ProfessorUncheckedUpdateInput = {
-        ...rawProfessorData,
+        phone,
+        profRoom,
+        academicPositionID,
+        educations,
+        expertFields,
         updatedBy: 0,
       };
 
@@ -167,7 +180,7 @@ export class ProfessorService implements IProfessorService {
       }
 
       const updatedUserData: Prisma.UserUncheckedUpdateInput = {
-        ...rawProfessorData,
+        ...UserData,
         ...(pathImage && { imageUrl: pathImage }),
         updatedBy: 0,
       };
@@ -193,7 +206,7 @@ export class ProfessorService implements IProfessorService {
       throw new AppError(
         ErrorCode.DATABASE_ERROR,
         "Failed to update professor",
-        500,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
       );
     }
   }
