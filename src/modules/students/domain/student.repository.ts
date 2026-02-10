@@ -6,4 +6,8 @@ export interface IStudentRepository {
   getStudents(query: StudentQueryParams): Promise<Student[]>;
   getStudentById(id: number): Promise<Student | null>;
   deleteStudent(id: number): Promise<Student>;
+  updateStudent(
+    studentID: number,
+    data: Prisma.StudentUncheckedUpdateInput,
+  ): Promise<Student>;
 }

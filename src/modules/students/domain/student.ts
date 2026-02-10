@@ -44,8 +44,18 @@ export const StudentQueryParams = t.Object({
   ...CommonQueryParams,
 });
 
+export const StudentUpdateDTO = t.Partial(
+  t.Object({
+    ...CommonStudentFields,
+    ...CommonUserFields,
+    classBookID: t.Numeric(),
+    imageFile: t.Optional(t.Nullable(t.File())),
+  }),
+);
+
 export type Student = Static<typeof StudentSchema>;
 export type CreateStudentDTO = Static<typeof CreateStudentDTO>;
 export type StudentDTO = Static<typeof StudentDTO>;
 export type CreateStudentModel = Static<typeof CreateStudentModel>;
 export type StudentQueryParams = Static<typeof StudentQueryParams>;
+export type StudentUpdateDTO = Static<typeof StudentUpdateDTO>;

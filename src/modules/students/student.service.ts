@@ -4,6 +4,7 @@ import {
   CreateStudentDTO,
   StudentDTO,
   StudentQueryParams,
+  StudentUpdateDTO,
 } from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
@@ -18,6 +19,7 @@ interface IStudentService {
   getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
+  updateStudent(studentID: number, data: StudentUpdateDTO): Promise<StudentDTO>;
 }
 
 export class StudentService implements IStudentService {
@@ -131,5 +133,27 @@ export class StudentService implements IStudentService {
   async deleteStudent(id: number): Promise<StudentDTO> {
     const student = await this.studentRepository.deleteStudent(id);
     return this.studentFactory.MapStudentToDTO(student);
+  }
+
+  async updateStudent(
+    studentID: number,
+    data: StudentUpdateDTO,
+  ): Promise<StudentDTO> {
+    const { ...studentData } = data;
+    let imagePath: string | undefined = undefined;
+    try {
+      const updateData: Prisma.StudentUncheckedUpdateInput = {
+        ...studentData,
+      };
+
+      const updatedStudent = await this.studentRepository.updateStudent(
+        studentID,
+        updateData,
+      );
+      return this.studentFactory.MapStudentToDTO(updatedStudent);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

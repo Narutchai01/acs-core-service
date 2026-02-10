@@ -88,4 +88,31 @@ export class StudentRepository implements IStudentRepository {
       throw error;
     }
   }
+
+  async updateStudent(
+    studentID: number,
+    data: Prisma.StudentUncheckedUpdateInput,
+  ): Promise<Student> {
+    try {
+      const student = await this.prisma.student.update({
+        where: { id: studentID },
+        data,
+        include: {
+          user: true,
+        },
+      });
+      return student as Student;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "Student not found",
+            404,
+          );
+        }
+      }
+      throw error;
+    }
+  }
 }
