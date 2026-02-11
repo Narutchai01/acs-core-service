@@ -9,6 +9,7 @@ import { StudentFactory } from "./student.factory";
 import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { UserFactory } from "../users/user.factory";
+import { authMiddleware } from "../../middleware/auth";
 
 const userFactory = new UserFactory();
 const studentRepository = new StudentRepository(prisma);
@@ -23,71 +24,74 @@ const studentService = new StudentService(
   studentFactory,
 );
 
-export const StudentController = new Elysia({ prefix: "/students" }).decorate(
-  "studentService",
-  studentService,
-);
+export const StudentController = new Elysia({ prefix: "/students" })
+  .decorate("studentService", studentService)
+  .guard({}, (privateApp) =>
+    privateApp
+      .use(authMiddleware)
+      .post(
+        "/",
+        async ({ body, studentService, set }) => {
+          const student = await studentService.createStudent(body);
+          set.status = HttpStatusCode.CREATED;
+          return success(
+            student,
+            "Student created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        StudentDocs.createStudent,
+      )
+      .post(
+        "/batch",
+        async ({ body, studentService }) => {
+          const students = await studentService.createStudentBatch(body);
 
-StudentController.post(
-  "/",
-  async ({ body, studentService, set }) => {
-    const student = await studentService.createStudent(body);
-    set.status = HttpStatusCode.CREATED;
-    return success(
-      student,
-      "Student created successfully",
-      HttpStatusCode.CREATED,
-    );
-  },
-  StudentDocs.createStudent,
-)
-  .get(
-    "/",
-    async ({ studentService, set, query }) => {
-      const students = await studentService.getStudents(query);
-      set.status = HttpStatusCode.OK;
-      return success(students, "Students retrieved successfully");
-    },
-    StudentDocs.getStudents,
-  )
-  .post(
-    "/batch",
-    async ({ body, studentService, set }) => {
-      const students = await studentService.createStudentBatch(body);
-
-      return success(
-        students,
-        "Students created successfully",
-        HttpStatusCode.CREATED,
-      );
-    },
-    StudentDocs.createStudentBatch,
-  )
-  .get(
-    "/:id",
-    async ({ studentService, params, set }) => {
-      const student = await studentService.getStudentById(Number(params.id));
-      if (!student) {
-        set.status = HttpStatusCode.NOT_FOUND;
-        return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
-      }
-      return success(student, "Student retrieved successfully");
-    },
-    StudentDocs.getStudentById,
-  )
-  .delete(
-    "/:id",
-    async ({ studentService, params, set }) => {
-      const student = await studentService.deleteStudent(Number(params.id));
-      return success(student, "Student deleted successfully");
-    },
-    StudentDocs.deleteStudent,
-  )
-  .patch(
-    "/:id",
-    async ({ studentService, params, body, set }) => {
-      const student = await studentService.updateStudent(params.id, body);
-      return success(student, "Student updated successfully");
-    },
-    StudentDocs.updateStudent,
+          return success(
+            students,
+            "Students created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        StudentDocs.createStudentBatch,
+      )
+      .delete(
+        "/:id",
+        async ({ studentService, params }) => {
+          const student = await studentService.deleteStudent(Number(params.id));
+          return success(student, "Student deleted successfully");
+        },
+        StudentDocs.deleteStudent,
+      )
+      .patch(
+        "/:id",
+        async ({ studentService, params, body }) => {
+          const student = await studentService.updateStudent(params.id, body);
+          return success(student, "Student updated successfully");
+        },
+        StudentDocs.updateStudent,
+      )
+      .get(
+        "/",
+        async ({ studentService, set, query }) => {
+          const students = await studentService.getStudents(query);
+          set.status = HttpStatusCode.OK;
+          return success(students, "Students retrieved successfully");
+        },
+        StudentDocs.getStudents,
+      )
+      .get(
+        "/:id",
+        async ({ studentService, params, set }) => {
+          const student = await studentService.getStudentById(
+            Number(params.id),
+          );
+          if (!student) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
+          }
+          return success(student, "Student retrieved successfully");
+        },
+        StudentDocs.getStudentById,
+      ),
   );

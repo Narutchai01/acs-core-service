@@ -8,6 +8,15 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
       version: "1.0.0",
       description: "API Documentation",
     },
+    components: {
+      securitySchemes: {
+        cookieAuth: {
+          type: "apiKey",
+          in: "cookie", // 👈 บอกว่าส่งมาทาง Cookie
+          name: "accessToken", // 👈 ชื่อ Cookie ที่ต้องส่ง
+        },
+      },
+    },
     tags: [
       {
         name: "Users ",
