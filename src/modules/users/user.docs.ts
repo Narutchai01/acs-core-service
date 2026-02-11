@@ -20,4 +20,12 @@ export const userDocs = {
     },
     response: mapResponse(t.Array(UserDTO)),
   },
+  getUserProfile: {
+    detail: {
+      summary: "Get user profile",
+      description: "Retrieve the profile information of the authenticated user",
+      tags: ["Users "],
+    },
+    response: mapResponse(UserDTO),
+  },
 };

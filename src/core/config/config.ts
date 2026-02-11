@@ -6,6 +6,7 @@ export interface Config {
   HTTPONLY?: boolean;
   SECURE?: boolean;
   ENVIRONMENT: string;
+  SECRET_JWT: string;
 }
 
 export const config: Config = {
@@ -18,4 +19,5 @@ export const config: Config = {
   HTTPONLY: process.env.HTTPONLY === "true" || true,
   SECURE: process.env.SECURE === "true" || true,
   ENVIRONMENT: process.env.ENVIRONMENT || "development",
+  SECRET_JWT: String(process.env.SECRET_JWT),
 };

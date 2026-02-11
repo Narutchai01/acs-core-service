@@ -6,17 +6,18 @@ import { User } from "./domain/user";
 import { success } from "../../core/interceptor/response";
 import { userDocs } from "./user.docs";
 import { UserFactory } from "./user.factory";
+// import { authMiddleware } from "../../middleware/auth";
+import { jwtPlugin } from "../../core/plugins/jwt";
+import { authMiddleware } from "../../middleware/auth";
+import { HttpStatusCode } from "../../core/types/http";
 
 const userFactory = new UserFactory();
 const userRepository = new UserRepository(prisma);
 const userService = new UserService(userRepository, userFactory);
 
-export const userController = new Elysia({ prefix: "/users" }).decorate(
-  "userService",
-  userService,
-);
-
-userController
+export const userController = new Elysia({ prefix: "/users" })
+  .decorate("userService", userService)
+  // .use(jwtPlugin)
   .get(
     "/",
     async ({ userService, set }) => {
@@ -32,4 +33,21 @@ userController
       return success<User>(newUser, "Super user created successfully", 201);
     },
     userDocs.createUser,
+  )
+  .guard({}, (privateApp) =>
+    privateApp.use(authMiddleware).get(
+      "/profile",
+      async ({ userID }: { userID: number }) => {
+        const user = await userService.getUserById(userID);
+        if (!user) {
+          return success<null>(
+            null,
+            "User not found",
+            HttpStatusCode.NOT_FOUND,
+          );
+        }
+        return success<User>(user, "User profile retrieved successfully");
+      },
+      userDocs.getUserProfile,
+    ),
   );

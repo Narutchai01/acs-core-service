@@ -2,9 +2,10 @@ import { CreateSuperUserDTO, UserDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
 import { IUserFactory } from "./user.factory";
 
-export abstract class IUserService {
-  abstract createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
-  abstract getUsers(): Promise<UserDTO[]>;
+export interface IUserService {
+  createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
+  getUsers(): Promise<UserDTO[]>;
+  getUserById(id: number): Promise<UserDTO | null>;
 }
 
 export class UserService implements IUserService {
@@ -27,5 +28,14 @@ export class UserService implements IUserService {
   async getUsers(): Promise<UserDTO[]> {
     const users = await this.userRepository.getUsers();
     return this.userFactory.mapUserListToDTO(users);
+  }
+
+  async getUserById(id: number): Promise<UserDTO | null> {
+    return this.userRepository.getUserById(id).then((user) => {
+      if (!user) {
+        return null;
+      }
+      return this.userFactory.mapUserToDTO(user);
+    });
   }
 }

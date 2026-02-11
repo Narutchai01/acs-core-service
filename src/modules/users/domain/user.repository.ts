@@ -10,4 +10,5 @@ export interface IUserRepository {
     data: Prisma.UserUncheckedUpdateInput,
   ): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
+  getUserById(id: number): Promise<User | null>;
 }

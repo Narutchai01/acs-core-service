@@ -2,6 +2,9 @@ import { IUserRepository } from "../modules/users/domain/user.repository";
 import { PrismaInstance } from "../lib/db";
 import { User, UserRole } from "../modules/users/domain/user";
 import { Prisma } from "../generated/prisma/client";
+import { AppError } from "../core/error/app-error";
+import { ErrorCode } from "../core/types/errors";
+import { HttpStatusCode } from "../core/types/http";
 
 export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
@@ -39,5 +42,26 @@ export class UserRepository implements IUserRepository {
     });
 
     return user as User | null;
+  }
+
+  async getUserById(id: number): Promise<User | null> {
+    try {
+      const user = await this.db.user.findFirst({
+        where: { id: id, deletedAt: null },
+      });
+
+      return user as User | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Database error occurred",
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
