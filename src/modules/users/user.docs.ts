@@ -1,4 +1,4 @@
-import { CreateUserDTO, UserDTO } from "./domain/user";
+import { CreateSuperUserDTO, UserDTO } from "./domain/user";
 import { mapResponse } from "../../core/interceptor/response";
 import { t } from "elysia";
 
@@ -9,7 +9,7 @@ export const userDocs = {
       description: "Create a new super user with the provided information",
       tags: ["Users "],
     },
-    body: CreateUserDTO,
+    body: CreateSuperUserDTO,
     response: mapResponse(UserDTO),
   },
   getUsers: {

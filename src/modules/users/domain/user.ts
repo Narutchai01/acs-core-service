@@ -29,6 +29,14 @@ export const CreateUserDTO = t.Object({
   ...CommonUserFields,
 });
 
+export const CreateSuperUserDTO = t.Object({
+  ...CommonUserFields,
+  password: t.String({
+    minLength: 4,
+    examples: ["P@ssw0rd"],
+  }),
+});
+
 export const UserSchema = t.Intersect([
   t.Object({
     id: t.Number(),
@@ -57,6 +65,7 @@ export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
 export type UserDTO = Static<typeof UserDTO>;
+export type CreateSuperUserDTO = Static<typeof CreateSuperUserDTO>;
 
 export const CommonUserRoleFields = {
   id: t.Number(),

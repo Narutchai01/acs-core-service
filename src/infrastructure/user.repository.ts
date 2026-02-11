@@ -6,7 +6,7 @@ import { Prisma } from "../generated/prisma/client";
 export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+  async createUser(data: Prisma.UserUncheckedCreateInput): Promise<User> {
     const user = await this.db.user.create({ data });
     return user as User;
   }
@@ -31,5 +31,13 @@ export class UserRepository implements IUserRepository {
       data,
     });
     return updatedUser as User;
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    const user = await this.db.user.findFirst({
+      where: { email: email, deletedAt: null },
+    });
+
+    return user as User | null;
   }
 }

@@ -41,6 +41,10 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
         name: "Master Data",
         description: "Master Data Management Endpoints",
       },
+      {
+        name: "Auth",
+        description: "Authentication Endpoints",
+      },
     ],
   },
   provider: "scalar",

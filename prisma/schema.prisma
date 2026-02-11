@@ -224,3 +224,17 @@ model AcademicPosition {
 
   @@map("academic_positions")
 }
+
+model ForgetPasswordCredential {
+  id             Int       @id @default(autoincrement()) @map("id")
+  refferenceCode String    @unique @default(uuid()) @map("reference_code") @db.Uuid
+  userID         Int       @map("user_id")
+  expiredAt      DateTime  @default(dbgenerated("NOW() + INTERVAL '5 minutes'")) @map("expired_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+  createdBy      Int       @map("created_by")
+  updatedBy      Int       @map("updated_by")
+
+  @@map("forget_password_credentials")
+}

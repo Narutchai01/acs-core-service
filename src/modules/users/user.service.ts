@@ -1,9 +1,9 @@
-import { CreateUserDTO, UserDTO } from "./domain/user";
+import { CreateSuperUserDTO, UserDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
 import { IUserFactory } from "./user.factory";
 
 export abstract class IUserService {
-  abstract createSuperUser(data: CreateUserDTO): Promise<UserDTO>;
+  abstract createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
   abstract getUsers(): Promise<UserDTO[]>;
 }
 
@@ -13,12 +13,14 @@ export class UserService implements IUserService {
     private readonly userFactory: IUserFactory,
   ) {}
 
-  async createSuperUser(data: CreateUserDTO): Promise<UserDTO> {
+  async createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO> {
+    const hashedPassword = Bun.hash(data.password);
     const user = await this.userRepository.createUser({
       ...data,
-      firstNameEn: (data.firstNameEn as string) ?? null,
-      lastNameEn: (data.lastNameEn as string) ?? null,
-      nickName: (data.nickName as string) ?? null,
+      password:
+        hashedPassword !== undefined && hashedPassword !== null
+          ? String(hashedPassword)
+          : null,
       createdBy: 0,
       updatedBy: 0,
     });
