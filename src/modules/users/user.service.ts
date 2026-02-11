@@ -47,7 +47,6 @@ export class UserService implements IUserService {
     if (!user) {
       return null;
     }
-    console.log(user);
 
     return this.userFactory.mapUserToDTO(user);
   }
