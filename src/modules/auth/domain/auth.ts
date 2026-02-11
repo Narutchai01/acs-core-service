@@ -31,7 +31,19 @@ export const CredentialsDTO = t.Object({
   ...CommonForgetPasswordCedentialsFields,
 });
 
+export const ResetPasswordDTO = t.Object({
+  newPassword: t.String(),
+});
+
+export const AuthResponseDTO = t.Intersect([
+  t.Object({
+    accessToken: t.String(),
+    refreshToken: t.String(),
+  }),
+]);
+
 export type AuthRequestDTO = Static<typeof AuthRequestDTO>;
 export type ForgetPasswordSchema = Static<typeof ForgetPasswordSchema>;
 export type CreateCredentialsDTO = Static<typeof CreateCredentialsDTO>;
 export type CredentialsDTO = Static<typeof CredentialsDTO>;
+export type AuthResponseDTO = Static<typeof AuthResponseDTO>;

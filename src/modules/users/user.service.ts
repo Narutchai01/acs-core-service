@@ -14,13 +14,10 @@ export class UserService implements IUserService {
   ) {}
 
   async createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO> {
-    const hashedPassword = Bun.hash(data.password);
+    const hashedPassword = await Bun.password.hash(data.password);
     const user = await this.userRepository.createUser({
       ...data,
-      password:
-        hashedPassword !== undefined && hashedPassword !== null
-          ? String(hashedPassword)
-          : null,
+      password: hashedPassword ?? null,
       createdBy: 0,
       updatedBy: 0,
     });

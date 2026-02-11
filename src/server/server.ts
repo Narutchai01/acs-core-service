@@ -5,6 +5,7 @@ import { responseEnhancer } from "../core/interceptor/response";
 import { errorPlugin } from "../core/interceptor/error";
 import { openapiConfig } from "./openapi.config";
 import { RouteSetup } from "../routes/routes";
+import jwt from "@elysiajs/jwt";
 
 export class Server {
   constructor(
@@ -14,6 +15,13 @@ export class Server {
   start() {
     const app = new Elysia({ prefix: "/api" })
       .use(openapi(openapiConfig))
+      .use(
+        jwt({
+          secret: "dadasd",
+          name: "jwt",
+          exp: "7d",
+        }),
+      )
       .use(responseEnhancer)
       .use(errorPlugin)
       .use(logger())
