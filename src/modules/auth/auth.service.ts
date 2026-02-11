@@ -44,7 +44,6 @@ export class AuthService implements IAuthService {
         );
       }
 
-      // Assuming user.password is the hashed password stored in the database
       const isPasswordValid = await Bun.password.verify(
         data.password,
         user.password,
@@ -53,9 +52,11 @@ export class AuthService implements IAuthService {
         throw new AppError(ErrorCode.AUTHENTICATION_ERROR, "Invalid password");
       }
 
-      const roles = user.userRoles?.map((ur) => ur.role.name);
+      const roles = Array.isArray(user.userRoles)
+        ? user.userRoles.map((ur) => ur.role.name)
+        : [];
 
-      return { userID: user.id, roles: roles || [] };
+      return { userID: user.id, roles };
     } catch (error) {
       throw new AppError(
         ErrorCode.DATABASE_ERROR,

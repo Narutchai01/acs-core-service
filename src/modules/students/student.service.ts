@@ -63,8 +63,8 @@ export class StudentService implements IStudentService {
         lastNameEn,
         password: null,
         imageUrl: imagePath,
-        createdBy,
-        updatedBy: createdBy,
+        createdBy: createdBy || 0,
+        updatedBy: createdBy || 0,
       };
 
       const user = await this.userRepository.createUser(rawUserData);
@@ -79,8 +79,8 @@ export class StudentService implements IStudentService {
       const role = await this.userRepository.assignUserRole({
         userID: user.id,
         roleID: 2,
-        createdBy,
-        updatedBy: createdBy,
+        createdBy: createdBy || 0,
+        updatedBy: createdBy || 0,
       });
 
       if (!role) {
@@ -92,8 +92,8 @@ export class StudentService implements IStudentService {
 
       const rawStudentData: Prisma.StudentUncheckedCreateInput = {
         ...studentData,
-        createdBy,
-        updatedBy: createdBy,
+        createdBy: createdBy || 0,
+        updatedBy: createdBy || 0,
         userID: user.id,
       };
 

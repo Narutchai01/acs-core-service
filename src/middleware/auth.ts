@@ -16,15 +16,19 @@ export const authMiddleware = (app: Elysia) =>
       );
     }
 
-    const userID = await jwt.verify(token.value as string);
+    const payload = await jwt.verify(token.value as string);
 
-    if (!userID) {
+    if (!payload) {
       throw new AppError(
         ErrorCode.AUTHENTICATION_ERROR,
         "Invalid token",
         HttpStatusCode.UNAUTHORIZED,
       );
     }
+    const user = {
+      userID: payload.userID as number,
+      roles: payload.roles,
+    };
 
-    return { userID: (userID as { id: number }).id };
+    return user;
   });

@@ -10,6 +10,7 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { UserFactory } from "../users/user.factory";
 import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const userFactory = new UserFactory();
 const studentRepository = new StudentRepository(prisma);
@@ -24,14 +25,19 @@ const studentService = new StudentService(
   studentFactory,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const StudentController = new Elysia({ prefix: "/students" })
   .decorate("studentService", studentService)
   .guard({}, (privateApp) =>
     privateApp
       .use(authMiddleware)
+      .use(roleMacro)
       .post(
         "/",
-        async ({ body, studentService, set, userID }) => {
+        async ({ body, studentService, set, userID, roles }) => {
           const student = await studentService.createStudent(body, userID);
           set.status = HttpStatusCode.CREATED;
           return success(
@@ -40,20 +46,25 @@ export const StudentController = new Elysia({ prefix: "/students" })
             HttpStatusCode.CREATED,
           );
         },
-        StudentDocs.createStudent,
+        {
+          ...StudentDocs.createStudent,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        },
       )
       .post(
         "/batch",
         async ({ body, studentService }) => {
           const students = await studentService.createStudentBatch(body);
-
           return success(
             students,
             "Students created successfully",
             HttpStatusCode.CREATED,
           );
         },
-        StudentDocs.createStudentBatch,
+        {
+          ...StudentDocs.createStudentBatch,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        },
       )
       .delete(
         "/:id",
@@ -61,7 +72,10 @@ export const StudentController = new Elysia({ prefix: "/students" })
           const student = await studentService.deleteStudent(Number(params.id));
           return success(student, "Student deleted successfully");
         },
-        StudentDocs.deleteStudent,
+        {
+          ...StudentDocs.deleteStudent,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        },
       )
       .patch(
         "/:id",
@@ -69,29 +83,30 @@ export const StudentController = new Elysia({ prefix: "/students" })
           const student = await studentService.updateStudent(params.id, body);
           return success(student, "Student updated successfully");
         },
-        StudentDocs.updateStudent,
-      )
-      .get(
-        "/",
-        async ({ studentService, set, query }) => {
-          const students = await studentService.getStudents(query);
-          set.status = HttpStatusCode.OK;
-          return success(students, "Students retrieved successfully");
+        {
+          ...StudentDocs.updateStudent,
+          checkRole: PERMISSION.ADMINPERSMISSION,
         },
-        StudentDocs.getStudents,
-      )
-      .get(
-        "/:id",
-        async ({ studentService, params, set }) => {
-          const student = await studentService.getStudentById(
-            Number(params.id),
-          );
-          if (!student) {
-            set.status = HttpStatusCode.NOT_FOUND;
-            return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
-          }
-          return success(student, "Student retrieved successfully");
-        },
-        StudentDocs.getStudentById,
       ),
+  )
+  .get(
+    "/",
+    async ({ studentService, set, query }) => {
+      const students = await studentService.getStudents(query);
+      set.status = HttpStatusCode.OK;
+      return success(students, "Students retrieved successfully");
+    },
+    StudentDocs.getStudents,
+  )
+  .get(
+    "/:id",
+    async ({ studentService, params, set }) => {
+      const student = await studentService.getStudentById(Number(params.id));
+      if (!student) {
+        set.status = HttpStatusCode.NOT_FOUND;
+        return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
+      }
+      return success(student, "Student retrieved successfully");
+    },
+    StudentDocs.getStudentById,
   );
