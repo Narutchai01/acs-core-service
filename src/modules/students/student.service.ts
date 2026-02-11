@@ -17,7 +17,7 @@ import { IStudentFactory } from "./student.factory";
 import { HttpStatusCode } from "../../core/types/http";
 
 interface IStudentService {
-  createStudent(data: CreateStudentDTO): Promise<StudentDTO>;
+  createStudent(data: CreateStudentDTO, createdBy: number): Promise<StudentDTO>;
   getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
@@ -34,7 +34,10 @@ export class StudentService implements IStudentService {
     // private readonly uowRepository: IUnitOfWork,
   ) {}
 
-  async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
+  async createStudent(
+    data: CreateStudentDTO,
+    createdBy: number,
+  ): Promise<StudentDTO> {
     const {
       imageFile,
       email,
@@ -60,8 +63,8 @@ export class StudentService implements IStudentService {
         lastNameEn,
         password: null,
         imageUrl: imagePath,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy,
+        updatedBy: createdBy,
       };
 
       const user = await this.userRepository.createUser(rawUserData);
@@ -76,8 +79,8 @@ export class StudentService implements IStudentService {
       const role = await this.userRepository.assignUserRole({
         userID: user.id,
         roleID: 2,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy,
+        updatedBy: createdBy,
       });
 
       if (!role) {
@@ -89,8 +92,8 @@ export class StudentService implements IStudentService {
 
       const rawStudentData: Prisma.StudentUncheckedCreateInput = {
         ...studentData,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy,
+        updatedBy: createdBy,
         userID: user.id,
       };
 

@@ -6,15 +6,15 @@ import {
   CreateCredentialsDTO,
   CredentialsDTO,
   ForgetPasswordSchema,
+  AuthPayload,
 } from "./domain/auth";
 import { IAuthRepository } from "./domain/auth.repository";
 import { IAuthFactory } from "./auth.factory";
 import { HttpStatusCode } from "../../core/types/http";
-import { UserDTO } from "../users/domain/user";
 import { IUserFactory } from "../users/user.factory";
 
 export interface IAuthService {
-  authenticate(data: AuthRequestDTO): Promise<UserDTO>;
+  authenticate(data: AuthRequestDTO): Promise<AuthPayload>;
   createCredentials(data: CreateCredentialsDTO): Promise<CredentialsDTO>;
   getCredentialsByReferenceCode(
     referenceCode: string,
@@ -30,7 +30,7 @@ export class AuthService implements IAuthService {
     private readonly userFactory: IUserFactory,
   ) {}
 
-  async authenticate(data: AuthRequestDTO): Promise<UserDTO> {
+  async authenticate(data: AuthRequestDTO): Promise<AuthPayload> {
     try {
       const user = await this.usersRepository.getUserByEmail(data.email);
       if (!user) {
@@ -53,7 +53,9 @@ export class AuthService implements IAuthService {
         throw new AppError(ErrorCode.AUTHENTICATION_ERROR, "Invalid password");
       }
 
-      return this.userFactory.mapUserToDTO(user);
+      const roles = user.userRoles?.map((ur) => ur.role.name);
+
+      return { userID: user.id, roles: roles || [] };
     } catch (error) {
       throw new AppError(
         ErrorCode.DATABASE_ERROR,

@@ -23,8 +23,9 @@ export class UserRepository implements IUserRepository {
     data: Prisma.UserRoleUncheckedCreateInput,
   ): Promise<UserRole> {
     const userRole = await this.db.userRole.create({ data });
-    return userRole;
+    return userRole as UserRole;
   }
+
   async updateUser(
     userID: number,
     data: Prisma.UserUncheckedUpdateInput,
@@ -39,6 +40,11 @@ export class UserRepository implements IUserRepository {
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.db.user.findFirst({
       where: { email: email, deletedAt: null },
+      include: {
+        userRoles: {
+          include: { role: true },
+        },
+      },
     });
 
     return user as User | null;

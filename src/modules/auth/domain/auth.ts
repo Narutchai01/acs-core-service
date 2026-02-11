@@ -42,8 +42,14 @@ export const AuthResponseDTO = t.Intersect([
   }),
 ]);
 
+export const AuthPayload = t.Object({
+  userID: t.Number(),
+  roles: t.ArrayString(t.String()),
+});
+
 export type AuthRequestDTO = Static<typeof AuthRequestDTO>;
 export type ForgetPasswordSchema = Static<typeof ForgetPasswordSchema>;
 export type CreateCredentialsDTO = Static<typeof CreateCredentialsDTO>;
 export type CredentialsDTO = Static<typeof CredentialsDTO>;
 export type AuthResponseDTO = Static<typeof AuthResponseDTO>;
+export type AuthPayload = Static<typeof AuthPayload>;

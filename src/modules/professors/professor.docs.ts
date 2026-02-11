@@ -15,6 +15,11 @@ export const ProfessorDocs = {
         "This endpoint allows for the creation of a new professor by accepting the necessary data and returning the created professor's details.",
       tags: ["Professors"],
     },
+    transform({ body }: { body: ProfessorUpdateDTO }) {
+      if (body.expertFields != "" || body.expertFields != null) {
+        body.expertFields = body.expertFields?.replaceAll(",", "/");
+      }
+    },
     body: CreateProfessorDTO,
     responses: {
       201: mapResponse(ProfessorDTO),

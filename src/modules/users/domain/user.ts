@@ -1,5 +1,6 @@
 import { BaseModelSchema } from "../../../core/models";
 import { Static, t } from "elysia";
+import { RoleSchema } from "../../../core/models/role";
 
 export const CommonUserFields = {
   firstNameTh: t.String({
@@ -37,12 +38,29 @@ export const CreateSuperUserDTO = t.Object({
   }),
 });
 
+export const CommonUserRoleFields = {
+  id: t.Number(),
+  userID: t.Number(),
+  roleID: t.Number(),
+};
+
+export const UserRoleSchema = t.Intersect([
+  t.Object({
+    ...CommonUserRoleFields,
+    role: RoleSchema,
+  }),
+  BaseModelSchema,
+]);
+
+export type UserRole = Static<typeof UserRoleSchema>;
+
 export const UserSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonUserFields,
     password: t.Optional(t.Nullable(t.String())),
     imageUrl: t.Optional(t.Nullable(t.String())),
+    userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
   BaseModelSchema,
 ]);
@@ -66,18 +84,3 @@ export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
 export type UserDTO = Static<typeof UserDTO>;
 export type CreateSuperUserDTO = Static<typeof CreateSuperUserDTO>;
-
-export const CommonUserRoleFields = {
-  id: t.Number(),
-  userID: t.Number(),
-  roleID: t.Number(),
-};
-
-export const UserRoleSchema = t.Intersect([
-  t.Object({
-    ...CommonUserRoleFields,
-  }),
-  BaseModelSchema,
-]);
-
-export type UserRole = Static<typeof UserRoleSchema>;

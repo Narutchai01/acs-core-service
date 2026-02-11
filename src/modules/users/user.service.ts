@@ -22,6 +22,18 @@ export class UserService implements IUserService {
       createdBy: 0,
       updatedBy: 0,
     });
+
+    const userRoles = await this.userRepository.assignUserRole({
+      userID: user.id,
+      roleID: 1,
+      createdBy: 0,
+      updatedBy: 0,
+    });
+
+    if (!userRoles) {
+      throw new Error("Failed to assign superuser role");
+    }
+
     return this.userFactory.mapUserToDTO(user);
   }
 

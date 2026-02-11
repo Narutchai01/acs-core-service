@@ -33,7 +33,7 @@ export const CreateProfessorDTO = t.Object({
   expertFields: t.Optional(
     t.Nullable(
       t.String({
-        examples: ["Computer Science, Data Science, AI,Machine Learning"],
+        examples: ["Computer Science/Data Science/AI/Machine Learning"],
       }),
     ),
   ),
@@ -41,7 +41,7 @@ export const CreateProfessorDTO = t.Object({
     t.Nullable(
       t.String({
         examples: [
-          "Ph.D. in Computer Science / M.Sc. in Data Science / B.Eng. in Software Engineering",
+          "Ph.D. in Computer Science/M.Sc. in Data Science/B.Eng. in Software Engineering",
         ],
       }),
     ),

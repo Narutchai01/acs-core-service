@@ -30,7 +30,7 @@ export const AuthController = new Elysia({ prefix: "/auth" })
     async ({ body, set, jwt, cookie: { accessToken } }) => {
       const user = await authService.authenticate(body);
 
-      const token = await jwt.sign({ id: user.id });
+      const token = await jwt.sign({ id: user.userID, roles: user.roles });
 
       set.status = HttpStatusCode.OK;
 

@@ -31,8 +31,8 @@ export const StudentController = new Elysia({ prefix: "/students" })
       .use(authMiddleware)
       .post(
         "/",
-        async ({ body, studentService, set }) => {
-          const student = await studentService.createStudent(body);
+        async ({ body, studentService, set, userID }) => {
+          const student = await studentService.createStudent(body, userID);
           set.status = HttpStatusCode.CREATED;
           return success(
             student,
