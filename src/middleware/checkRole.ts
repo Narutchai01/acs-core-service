@@ -6,7 +6,15 @@ export const roleMacro = new Elysia().use(authMiddleware).macro({
   checkRole(requireRoles: string[]) {
     return {
       beforeHandle({ roles, set }) {
-        if (!roles || !(Array.isArray(roles) && roles.includes(requireRoles))) {
+        if (
+          !roles ||
+          !(
+            Array.isArray(roles) &&
+            roles
+              .filter((role): role is string => typeof role === "string")
+              .some((role) => requireRoles.includes(role))
+          )
+        ) {
           set.status = HttpStatusCode.FORBIDDEN;
           return {
             status: HttpStatusCode.FORBIDDEN,
@@ -19,3 +27,5 @@ export const roleMacro = new Elysia().use(authMiddleware).macro({
     };
   },
 });
+
+console.log();
