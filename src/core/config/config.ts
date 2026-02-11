@@ -7,6 +7,7 @@ export interface Config {
   SECURE?: boolean;
   ENVIRONMENT: string;
   SECRET_JWT: string;
+  APP_HOST: string;
 }
 
 export const config: Config = {
@@ -20,4 +21,5 @@ export const config: Config = {
   SECURE: process.env.SECURE === "true" || true,
   ENVIRONMENT: process.env.ENVIRONMENT || "development",
   SECRET_JWT: String(process.env.SECRET_JWT),
+  APP_HOST: process.env.APP_HOST || "0,0,0,0",
 };
