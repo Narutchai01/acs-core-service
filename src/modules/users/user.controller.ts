@@ -6,8 +6,6 @@ import { User } from "./domain/user";
 import { success } from "../../core/interceptor/response";
 import { userDocs } from "./user.docs";
 import { UserFactory } from "./user.factory";
-// import { authMiddleware } from "../../middleware/auth";
-import { jwtPlugin } from "../../core/plugins/jwt";
 import { authMiddleware } from "../../middleware/auth";
 import { HttpStatusCode } from "../../core/types/http";
 
@@ -17,7 +15,6 @@ const userService = new UserService(userRepository, userFactory);
 
 export const userController = new Elysia({ prefix: "/users" })
   .decorate("userService", userService)
-  // .use(jwtPlugin)
   .get(
     "/",
     async ({ userService, set }) => {
