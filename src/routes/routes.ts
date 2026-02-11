@@ -10,9 +10,7 @@ import { MasterDataController } from "../modules/master-data/master-data.control
 import { ClassBookController } from "../modules/class-book/class-book.controller";
 import { AuthController } from "../modules/auth/auth.controller";
 
-export const RouteSetup = new Elysia();
-
-RouteSetup.group("/v1", (app) =>
+export const RouteSetup = new Elysia().group("/v1", (app) =>
   app
     .use(healthContoller)
     .use(newsController)
