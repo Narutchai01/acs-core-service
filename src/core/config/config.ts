@@ -5,6 +5,7 @@ export interface Config {
   BUCKET_NAME: string;
   HTTPONLY?: boolean;
   SECURE?: boolean;
+  ENVIRONMENT: string;
 }
 
 export const config: Config = {
@@ -16,4 +17,5 @@ export const config: Config = {
   BUCKET_NAME: String(process.env.SUPABASE_BUCKET),
   HTTPONLY: process.env.HTTPONLY === "true" || true,
   SECURE: process.env.SECURE === "true" || true,
+  ENVIRONMENT: process.env.ENVIRONMENT || "development",
 };

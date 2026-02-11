@@ -37,7 +37,7 @@ export const AuthController = new Elysia({ prefix: "/auth" })
       accessToken.set({
         value: token,
         httpOnly: true,
-        secure: false,
+        secure: config.ENVIRONMENT === "production",
       });
       return success(
         { accessToken: token, refreshToken: token },
