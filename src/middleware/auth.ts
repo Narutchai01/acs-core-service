@@ -26,7 +26,7 @@ export const authMiddleware = (app: Elysia) =>
       );
     }
     const user = {
-      userID: payload.userID as number,
+      userID: payload.id as number,
       roles: payload.roles,
     };
 

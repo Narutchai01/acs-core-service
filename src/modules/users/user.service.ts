@@ -43,11 +43,12 @@ export class UserService implements IUserService {
   }
 
   async getUserById(id: number): Promise<UserDTO | null> {
-    return this.userRepository.getUserById(id).then((user) => {
-      if (!user) {
-        return null;
-      }
-      return this.userFactory.mapUserToDTO(user);
-    });
+    const user = await this.userRepository.getUserById(id);
+    if (!user) {
+      return null;
+    }
+    console.log(user);
+
+    return this.userFactory.mapUserToDTO(user);
   }
 }
