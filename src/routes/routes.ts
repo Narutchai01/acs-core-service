@@ -10,16 +10,17 @@ import { MasterDataController } from "../modules/master-data/master-data.control
 import { ClassBookController } from "../modules/class-book/class-book.controller";
 import { AuthController } from "../modules/auth/auth.controller";
 
-export const RouteSetup = new Elysia().group("/v1", (app) =>
-  app
-    .use(healthContoller)
-    .use(newsController)
-    .use(userController)
-    .use(StudentController)
-    .use(CurriculumController)
-    .use(ProfessorController)
-    .use(CourseController)
-    .use(MasterDataController)
-    .use(ClassBookController)
-    .use(AuthController),
-);
+export const RouteSetup = (app: Elysia) =>
+  app.group("/v1", (app) =>
+    app
+      .use(healthContoller)
+      .use(newsController)
+      .use(userController)
+      .use(StudentController)
+      .use(CurriculumController)
+      .use(ProfessorController)
+      .use(CourseController)
+      .use(MasterDataController)
+      .use(ClassBookController)
+      .use(AuthController),
+  );

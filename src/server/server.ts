@@ -2,11 +2,10 @@ import { Elysia } from "elysia";
 import { logger } from "elysia-logger";
 import { openapi } from "@elysiajs/openapi";
 import { responseEnhancer } from "../core/interceptor/response";
-import { errorPlugin } from "../core/interceptor/error";
 import { openapiConfig } from "./openapi.config";
 import { RouteSetup } from "../routes/routes";
 import jwt from "@elysiajs/jwt";
-
+import { errorPlugin } from "../core/plugins/error";
 export class Server {
   constructor(
     private readonly port: number,
