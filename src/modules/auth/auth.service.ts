@@ -5,7 +5,6 @@ import {
   AuthRequestDTO,
   CreateCredentialsDTO,
   CredentialsDTO,
-  ForgetPasswordSchema,
   AuthPayload,
 } from "./domain/auth";
 import { IAuthRepository } from "./domain/auth.repository";
@@ -86,9 +85,8 @@ export class AuthService implements IAuthService {
   async getCredentialsByReferenceCode(
     referenceCode: string,
   ): Promise<CredentialsDTO | null> {
-    let credentials: ForgetPasswordSchema | null = null;
     try {
-      credentials =
+      const credentials =
         await this.authRepository.getCredentialsByReferenceCode(referenceCode);
       if (!credentials) {
         return null;
@@ -125,7 +123,6 @@ export class AuthService implements IAuthService {
         password: hashedPassword,
       });
     } catch (error) {
-      console.log(error);
       throw new AppError(
         ErrorCode.DATABASE_ERROR,
         error instanceof Error ? error.message : "Failed to reset password",

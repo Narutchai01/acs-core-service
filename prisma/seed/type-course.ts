@@ -1,3 +1,5 @@
+import { PrismaClient } from "../../src/generated/prisma/client";
+
 export const typeCourses = [
   {
     id: 1,
@@ -31,7 +33,7 @@ export const typeCourses = [
   },
 ];
 
-export const excuteSeedTypeCourses = async (prisma: any) => {
+export const excuteSeedTypeCourses = async (prisma: PrismaClient) => {
   for (const typeCourse of typeCourses) {
     await prisma.typeCourse.upsert({
       where: { id: typeCourse.id },

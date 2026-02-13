@@ -24,8 +24,8 @@ export class CurriculumService implements ICurriculumService {
 
   async createCurriculum(data: CreateCurriculumDTO): Promise<CurriculumDTO> {
     const { thumbnailFile, ...rest } = data;
-    let uploadedThumbnailPath: string | null = null;
     try {
+      let uploadedThumbnailPath: string | null = null;
       if (!thumbnailFile) {
         throw new AppError(
           ErrorCode.VALIDATION_ERROR,

@@ -204,7 +204,7 @@ export class StudentService implements IStudentService {
 
   async createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]> {
     const { classBookID, students } = data;
-    let studentsDB: Student[] = [];
+    const studentsDB: Student[] = [];
     try {
       for (const studentData of students) {
         const {

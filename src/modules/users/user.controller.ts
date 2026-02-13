@@ -18,7 +18,7 @@ export const userController = (app: Elysia) =>
     app
       .get(
         "/",
-        async ({ userService, set }) => {
+        async ({ userService }) => {
           const users = await userService.getUsers();
           return success<User[]>(users, "Users retrieved successfully");
         },

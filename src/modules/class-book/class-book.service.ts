@@ -24,8 +24,8 @@ export class ClassBookService implements IClassBookService {
 
   async createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO> {
     const { thumbnailFile, ...rest } = data;
-    let thumbnailPath: string | null = null;
     try {
+      let thumbnailPath: string | null = null;
       if (!thumbnailFile) {
         throw new AppError(
           ErrorCode.VALIDATION_ERROR,
