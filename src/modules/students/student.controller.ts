@@ -29,84 +29,87 @@ const PERMISSION = {
   ADMINPERSMISSION: ["admin"],
 };
 
-export const StudentController = new Elysia({ prefix: "/students" })
-  .decorate("studentService", studentService)
-  .guard({}, (privateApp) =>
-    privateApp
-      .use(authMiddleware)
-      .use(roleMacro)
-      .post(
-        "/",
-        async ({ body, studentService, set, userID, roles }) => {
-          const student = await studentService.createStudent(body, userID);
-          set.status = HttpStatusCode.CREATED;
-          return success(
-            student,
-            "Student created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        {
-          ...StudentDocs.createStudent,
-          checkRole: PERMISSION.ADMINPERSMISSION,
-        },
-      )
-      .post(
-        "/batch",
-        async ({ body, studentService }) => {
-          const students = await studentService.createStudentBatch(body);
-          return success(
-            students,
-            "Students created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        {
-          ...StudentDocs.createStudentBatch,
-          checkRole: PERMISSION.ADMINPERSMISSION,
-        },
-      )
-      .delete(
-        "/:id",
-        async ({ studentService, params }) => {
-          const student = await studentService.deleteStudent(Number(params.id));
-          return success(student, "Student deleted successfully");
-        },
-        {
-          ...StudentDocs.deleteStudent,
-          checkRole: PERMISSION.ADMINPERSMISSION,
-        },
-      )
-      .patch(
-        "/:id",
-        async ({ studentService, params, body }) => {
-          const student = await studentService.updateStudent(params.id, body);
-          return success(student, "Student updated successfully");
-        },
-        {
-          ...StudentDocs.updateStudent,
-          checkRole: PERMISSION.ADMINPERSMISSION,
-        },
-      ),
-  )
-  .get(
-    "/",
-    async ({ studentService, set, query }) => {
-      const students = await studentService.getStudents(query);
-      set.status = HttpStatusCode.OK;
-      return success(students, "Students retrieved successfully");
-    },
-    StudentDocs.getStudents,
-  )
-  .get(
-    "/:id",
-    async ({ studentService, params, set }) => {
-      const student = await studentService.getStudentById(Number(params.id));
-      if (!student) {
-        set.status = HttpStatusCode.NOT_FOUND;
-        return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
-      }
-      return success(student, "Student retrieved successfully");
-    },
-    StudentDocs.getStudentById,
-  );
+export const StudentController = (app: Elysia) =>
+  app
+    .decorate("studentService", studentService)
+    .guard({}, (privateApp) =>
+      privateApp
+        .use(authMiddleware)
+        .use(roleMacro)
+        .post(
+          "/",
+          async ({ body, studentService, set, userID, roles }) => {
+            const student = await studentService.createStudent(body, userID);
+            set.status = HttpStatusCode.CREATED;
+            return success(
+              student,
+              "Student created successfully",
+              HttpStatusCode.CREATED,
+            );
+          },
+          {
+            ...StudentDocs.createStudent,
+            checkRole: PERMISSION.ADMINPERSMISSION,
+          },
+        )
+        .post(
+          "/batch",
+          async ({ body, studentService }) => {
+            const students = await studentService.createStudentBatch(body);
+            return success(
+              students,
+              "Students created successfully",
+              HttpStatusCode.CREATED,
+            );
+          },
+          {
+            ...StudentDocs.createStudentBatch,
+            checkRole: PERMISSION.ADMINPERSMISSION,
+          },
+        )
+        .delete(
+          "/:id",
+          async ({ studentService, params }) => {
+            const student = await studentService.deleteStudent(
+              Number(params.id),
+            );
+            return success(student, "Student deleted successfully");
+          },
+          {
+            ...StudentDocs.deleteStudent,
+            checkRole: PERMISSION.ADMINPERSMISSION,
+          },
+        )
+        .patch(
+          "/:id",
+          async ({ studentService, params, body }) => {
+            const student = await studentService.updateStudent(params.id, body);
+            return success(student, "Student updated successfully");
+          },
+          {
+            ...StudentDocs.updateStudent,
+            checkRole: PERMISSION.ADMINPERSMISSION,
+          },
+        ),
+    )
+    .get(
+      "/",
+      async ({ studentService, set, query }) => {
+        const students = await studentService.getStudents(query);
+        set.status = HttpStatusCode.OK;
+        return success(students, "Students retrieved successfully");
+      },
+      StudentDocs.getStudents,
+    )
+    .get(
+      "/:id",
+      async ({ studentService, params, set }) => {
+        const student = await studentService.getStudentById(Number(params.id));
+        if (!student) {
+          set.status = HttpStatusCode.NOT_FOUND;
+          return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
+        }
+        return success(student, "Student retrieved successfully");
+      },
+      StudentDocs.getStudentById,
+    );

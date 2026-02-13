@@ -8,6 +8,7 @@ import { userDocs } from "./user.docs";
 import { UserFactory } from "./user.factory";
 import { authMiddleware } from "../../middleware/auth";
 import { HttpStatusCode } from "../../core/types/http";
+import { errorPlugin } from "../../core/interceptor/error";
 
 const userFactory = new UserFactory();
 const userRepository = new UserRepository(prisma);
