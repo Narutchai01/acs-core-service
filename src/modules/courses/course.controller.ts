@@ -11,46 +11,49 @@ const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
 const courseService = new CourseService(courseRepository, courseFactory);
 
-export const CourseController = new Elysia({ prefix: "/courses" })
-  .decorate("courseService", courseService)
-  .post(
-    "/",
-    async ({ courseService, body, set }) => {
-      const course = await courseService.createCourse(body);
-      set.status = HttpStatusCode.CREATED;
-      return success(
-        course,
-        "Course created successfully",
-        HttpStatusCode.CREATED,
-      );
-    },
-    CourseDocs.creteCourse,
-  )
-  .get(
-    "/",
-    async ({ courseService, query, set }) => {
-      const courses = await courseService.getCourses(query);
-      if (!courses) {
-        return success([], "No courses found", HttpStatusCode.OK);
-      }
-      set.status = HttpStatusCode.OK;
-      return success(
-        courses,
-        "Courses retrieved successfully",
-        HttpStatusCode.OK,
-      );
-    },
-    CourseDocs.getCourses,
-  )
-  .get(
-    "/:id",
-    async ({ courseService, params, set }) => {
-      const course = await courseService.getCourseByID(Number(params.id));
-      if (!course) {
-        set.status = HttpStatusCode.NOT_FOUND;
-        return success(null, "Course not found", HttpStatusCode.NOT_FOUND);
-      }
-      return success(course, "Course retrieved successfully");
-    },
-    CourseDocs.getCourseById,
+export const CourseController = (app: Elysia) =>
+  app.group("/courses", (app) =>
+    app
+      .decorate("courseService", courseService)
+      .post(
+        "/",
+        async ({ courseService, body, set }) => {
+          const course = await courseService.createCourse(body);
+          set.status = HttpStatusCode.CREATED;
+          return success(
+            course,
+            "Course created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        CourseDocs.creteCourse,
+      )
+      .get(
+        "/",
+        async ({ courseService, query, set }) => {
+          const courses = await courseService.getCourses(query);
+          if (!courses) {
+            return success([], "No courses found", HttpStatusCode.OK);
+          }
+          set.status = HttpStatusCode.OK;
+          return success(
+            courses,
+            "Courses retrieved successfully",
+            HttpStatusCode.OK,
+          );
+        },
+        CourseDocs.getCourses,
+      )
+      .get(
+        "/:id",
+        async ({ courseService, params, set }) => {
+          const course = await courseService.getCourseByID(Number(params.id));
+          if (!course) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(null, "Course not found", HttpStatusCode.NOT_FOUND);
+          }
+          return success(course, "Course retrieved successfully");
+        },
+        CourseDocs.getCourseById,
+      ),
   );

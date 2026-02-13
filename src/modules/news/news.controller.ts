@@ -17,39 +17,41 @@ const newsService = new NewsService(
   supabaseService,
 );
 
-export const newsController = new Elysia({ prefix: "/news" }).decorate(
-  "newsService",
-  newsService,
-);
-
-newsController
-  .post(
-    "/",
-    async ({ newsService, body, set }) => {
-      const news = await newsService.createNews(body);
-      set.status = HttpStatusCode.CREATED;
-      return success(news, "News created successfully", HttpStatusCode.CREATED);
-    },
-    NewsDocs.createNews,
-  )
-  .get(
-    "/",
-    async ({ newsService, query, set }) => {
-      const newsList = await newsService.getNews(query);
-      set.status = HttpStatusCode.OK;
-      return success(newsList, "News retrieved successfully");
-    },
-    NewsDocs.getNews,
-  )
-  .get(
-    "/:id",
-    async ({ newsService, params, set }) => {
-      const news = await newsService.getNewsById(Number(params.id));
-      if (!news) {
-        set.status = HttpStatusCode.NOT_FOUND;
-        return success(null, "News not found", HttpStatusCode.NOT_FOUND);
-      }
-      return success(news, "News retrieved successfully");
-    },
-    NewsDocs.getNewsById,
+export const newsController = (app: Elysia) =>
+  app.decorate("newsService", newsService).group("/news", (app) =>
+    app
+      .post(
+        "/",
+        async ({ newsService, body, set }) => {
+          const news = await newsService.createNews(body);
+          set.status = HttpStatusCode.CREATED;
+          return success(
+            news,
+            "News created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        NewsDocs.createNews,
+      )
+      .get(
+        "/",
+        async ({ newsService, query, set }) => {
+          const newsList = await newsService.getNews(query);
+          set.status = HttpStatusCode.OK;
+          return success(newsList, "News retrieved successfully");
+        },
+        NewsDocs.getNews,
+      )
+      .get(
+        "/:id",
+        async ({ newsService, params, set }) => {
+          const news = await newsService.getNewsById(Number(params.id));
+          if (!news) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(null, "News not found", HttpStatusCode.NOT_FOUND);
+          }
+          return success(news, "News retrieved successfully");
+        },
+        NewsDocs.getNewsById,
+      ),
   );

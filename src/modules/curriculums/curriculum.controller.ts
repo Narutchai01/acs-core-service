@@ -17,27 +17,33 @@ const curriculumService = new CurriculumService(
   supabaseService,
 );
 
-export const CurriculumController = new Elysia({ prefix: "/curriculums" })
-  .decorate("curriculumService", curriculumService)
-  .post(
-    "/",
-    async ({ curriculumService, body, set }) => {
-      const curriculum = await curriculumService.createCurriculum(body);
-      set.status = HttpStatusCode.CREATED;
-      return success(
-        curriculum,
-        "Curriculum created successfully",
-        HttpStatusCode.CREATED,
-      );
-    },
-    CurriculumDocs.createCurruculum,
-  )
-  .get(
-    "/",
-    async ({ curriculumService, query, set }) => {
-      const curriculums = await curriculumService.getCurriculums(query);
-      set.status = HttpStatusCode.OK;
-      return success(curriculums ?? [], "Curriculums retrieved successfully");
-    },
-    CurriculumDocs.getCurriculums,
+export const CurriculumController = (app: Elysia) =>
+  app.group("/curriculums", (app) =>
+    app
+      .decorate("curriculumService", curriculumService)
+      .post(
+        "/",
+        async ({ curriculumService, body, set }) => {
+          const curriculum = await curriculumService.createCurriculum(body);
+          set.status = HttpStatusCode.CREATED;
+          return success(
+            curriculum,
+            "Curriculum created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        CurriculumDocs.createCurruculum,
+      )
+      .get(
+        "/",
+        async ({ curriculumService, query, set }) => {
+          const curriculums = await curriculumService.getCurriculums(query);
+          set.status = HttpStatusCode.OK;
+          return success(
+            curriculums ?? [],
+            "Curriculums retrieved successfully",
+          );
+        },
+        CurriculumDocs.getCurriculums,
+      ),
   );

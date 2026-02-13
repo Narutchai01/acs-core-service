@@ -17,47 +17,52 @@ const classBookService = new ClassBookService(
   supabaseService,
 );
 
-export const ClassBookController = new Elysia({ prefix: "/class-books" })
-  .decorate("classBookService", classBookService)
-  .post(
-    "/",
-    async ({ classBookService, body, set }) => {
-      const classBook = await classBookService.createClassBook(body);
-      set.status = HttpStatusCode.CREATED;
-      return success(
-        classBook,
-        "Class book created successfully",
-        HttpStatusCode.CREATED,
-      );
-    },
-    ClassBookDocs.createClassBook,
-  )
-  .get(
-    "/",
-    async ({ classBookService, query, set }) => {
-      const classBooks = await classBookService.getClassBooks(query);
-      set.status = HttpStatusCode.OK;
-      return success(classBooks, "Class books retrieved successfully");
-    },
-    ClassBookDocs.getClassBooks,
-  )
-  .get(
-    "/:id",
-    async ({ classBookService, params, set }) => {
-      try {
-        const classBook = await classBookService.getClassBookById(params.id);
-        if (!classBook) {
-          set.status = HttpStatusCode.NOT_FOUND;
+export const ClassBookController = (app: Elysia) =>
+  app.group("/class-books", (app) =>
+    app
+      .decorate("classBookService", classBookService)
+      .post(
+        "/",
+        async ({ classBookService, body, set }) => {
+          const classBook = await classBookService.createClassBook(body);
+          set.status = HttpStatusCode.CREATED;
           return success(
-            null,
-            "Class book not found",
-            HttpStatusCode.NOT_FOUND,
+            classBook,
+            "Class book created successfully",
+            HttpStatusCode.CREATED,
           );
-        }
-        return success(classBook, "Class book retrieved successfully");
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    ClassBookDocs.getClassBookById,
+        },
+        ClassBookDocs.createClassBook,
+      )
+      .get(
+        "/",
+        async ({ classBookService, query, set }) => {
+          const classBooks = await classBookService.getClassBooks(query);
+          set.status = HttpStatusCode.OK;
+          return success(classBooks, "Class books retrieved successfully");
+        },
+        ClassBookDocs.getClassBooks,
+      )
+      .get(
+        "/:id",
+        async ({ classBookService, params, set }) => {
+          try {
+            const classBook = await classBookService.getClassBookById(
+              params.id,
+            );
+            if (!classBook) {
+              set.status = HttpStatusCode.NOT_FOUND;
+              return success(
+                null,
+                "Class book not found",
+                HttpStatusCode.NOT_FOUND,
+              );
+            }
+            return success(classBook, "Class book retrieved successfully");
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        ClassBookDocs.getClassBookById,
+      ),
   );
