@@ -17,7 +17,7 @@ export const userController = (app: Elysia) =>
   app.decorate("userService", userService).group("/users", (app) =>
     app
       .get(
-        "/",
+        "",
         async ({ userService }) => {
           const users = await userService.getUsers();
           return success<User[]>(users, "Users retrieved successfully");

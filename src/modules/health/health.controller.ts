@@ -6,7 +6,7 @@ const healthService = new HealthService();
 export const healthContoller = (app: Elysia) =>
   app.decorate("healthService", healthService).group("health", (app) =>
     app.get(
-      "/",
+      "",
       async () => {
         return healthService.getHealthStatus();
       },

@@ -22,7 +22,7 @@ export const CurriculumController = (app: Elysia) =>
     app
       .decorate("curriculumService", curriculumService)
       .post(
-        "/",
+        "",
         async ({ curriculumService, body, set }) => {
           const curriculum = await curriculumService.createCurriculum(body);
           set.status = HttpStatusCode.CREATED;
@@ -35,7 +35,7 @@ export const CurriculumController = (app: Elysia) =>
         CurriculumDocs.createCurruculum,
       )
       .get(
-        "/",
+        "",
         async ({ curriculumService, query, set }) => {
           const curriculums = await curriculumService.getCurriculums(query);
           set.status = HttpStatusCode.OK;

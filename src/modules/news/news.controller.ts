@@ -21,7 +21,7 @@ export const newsController = (app: Elysia) =>
   app.decorate("newsService", newsService).group("/news", (app) =>
     app
       .post(
-        "/",
+        "",
         async ({ newsService, body, set }) => {
           const news = await newsService.createNews(body);
           set.status = HttpStatusCode.CREATED;
@@ -34,7 +34,7 @@ export const newsController = (app: Elysia) =>
         NewsDocs.createNews,
       )
       .get(
-        "/",
+        "",
         async ({ newsService, query, set }) => {
           const newsList = await newsService.getNews(query);
           set.status = HttpStatusCode.OK;
@@ -56,7 +56,7 @@ export const newsController = (app: Elysia) =>
       )
       .group("/news-features", (app) =>
         app.put(
-          "/",
+          "",
           async ({ newsService, body, set }) => {
             const newsFeature = await newsService.upsertNewsFeature(body);
             set.status = HttpStatusCode.OK;

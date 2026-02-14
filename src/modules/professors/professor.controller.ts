@@ -27,7 +27,7 @@ export const ProfessorController = (app: Elysia) =>
     app
       .decorate("professorService", professorService)
       .post(
-        "/",
+        "",
         async ({ professorService, body, set }) => {
           const professor = await professorService.createProfessor(body);
           if (!professor) {
@@ -48,7 +48,7 @@ export const ProfessorController = (app: Elysia) =>
         ProfessorDocs.createProfessor,
       )
       .get(
-        "/",
+        "",
         async ({ professorService, query, set }) => {
           const professors = await professorService.getProfessors(query);
           if (!professors) {

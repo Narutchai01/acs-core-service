@@ -22,7 +22,7 @@ export const ClassBookController = (app: Elysia) =>
     app
       .decorate("classBookService", classBookService)
       .post(
-        "/",
+        "",
         async ({ classBookService, body, set }) => {
           const classBook = await classBookService.createClassBook(body);
           set.status = HttpStatusCode.CREATED;
@@ -35,7 +35,7 @@ export const ClassBookController = (app: Elysia) =>
         ClassBookDocs.createClassBook,
       )
       .get(
-        "/",
+        "",
         async ({ classBookService, query, set }) => {
           const classBooks = await classBookService.getClassBooks(query);
           set.status = HttpStatusCode.OK;

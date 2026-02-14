@@ -10,7 +10,7 @@ const masterDataService = new MasterDataService(masterDataRepository);
 export const MasterDataController = (app: Elysia) =>
   app.group("/master-data", (app) =>
     app.decorate("masterDataService", masterDataService).get(
-      "/",
+      "",
       async ({ masterDataService, set }) => {
         const masterData = await masterDataService.getMasterData();
         set.status = 200;

@@ -16,7 +16,7 @@ export const CourseController = (app: Elysia) =>
     app
       .decorate("courseService", courseService)
       .post(
-        "/",
+        "",
         async ({ courseService, body, set }) => {
           const course = await courseService.createCourse(body);
           set.status = HttpStatusCode.CREATED;
@@ -29,7 +29,7 @@ export const CourseController = (app: Elysia) =>
         CourseDocs.creteCourse,
       )
       .get(
-        "/",
+        "",
         async ({ courseService, query, set }) => {
           const courses = await courseService.getCourses(query);
           if (!courses) {
