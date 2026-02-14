@@ -62,6 +62,11 @@ export const NewsFeatureDTO = t.Object({
   news: NewsDTO,
 });
 
+export const QueryNewsFeatureParams = t.Object({
+  tagID: t.Optional(t.Numeric()),
+  ...CommonQueryParams,
+});
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
@@ -69,3 +74,4 @@ export type NewsQueryParams = Static<typeof NewsQueryParams>;
 export type UpsertNewsFeatureDTO = Static<typeof UpsertNewsFeatureDTO>;
 export type NewsFeature = Static<typeof NewsFeatureSchema>;
 export type NewsFeatureDTO = Static<typeof NewsFeatureDTO>;
+export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;

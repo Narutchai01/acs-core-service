@@ -1,5 +1,10 @@
 import { Prisma } from "../../../generated/prisma/client";
-import { News, NewsQueryParams, NewsFeature } from "./news";
+import {
+  News,
+  NewsQueryParams,
+  NewsFeature,
+  QueryNewsFeatureParams,
+} from "./news";
 
 export interface INewsRepository {
   createNews(data: Prisma.NewsUncheckedCreateInput): Promise<News>;
@@ -8,4 +13,5 @@ export interface INewsRepository {
   upsertNewsFeature(
     newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput,
   ): Promise<NewsFeature>;
+  getNewsFeaturesBy(query: QueryNewsFeatureParams): Promise<NewsFeature[]>;
 }

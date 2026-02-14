@@ -9,6 +9,7 @@ import {
   NewsQueryParams,
   NewsFeatureDTO,
   UpsertNewsFeatureDTO,
+  QueryNewsFeatureParams,
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -18,6 +19,7 @@ interface INewsService {
   getNews(query: NewsQueryParams): Promise<NewsDTO[]>;
   getNewsById(id: number): Promise<NewsDTO | null>;
   upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO>;
+  getNewsFeatures(query: QueryNewsFeatureParams): Promise<NewsFeatureDTO[]>;
 }
 
 export class NewsService implements INewsService {
@@ -125,5 +127,15 @@ export class NewsService implements INewsService {
         500,
       );
     }
+  }
+
+  async getNewsFeatures(
+    query: QueryNewsFeatureParams,
+  ): Promise<NewsFeatureDTO[]> {
+    const newsFeatures = await this.newsRepository.getNewsFeaturesBy(query);
+    if (!newsFeatures || newsFeatures.length === 0) {
+      return [];
+    }
+    return this.newsFactory.mapNewsFeatureListToDTO(newsFeatures);
   }
 }

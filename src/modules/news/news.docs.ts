@@ -5,6 +5,7 @@ import {
   NewsFeatureDTO,
   NewsQueryParams,
   UpsertNewsFeatureDTO,
+  QueryNewsFeatureParams,
 } from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
 export const NewsDocs = {
@@ -61,6 +62,17 @@ export const NewsDocs = {
     body: UpsertNewsFeatureDTO,
     response: {
       200: mapResponse(NewsFeatureDTO),
+    },
+  },
+  getNewsFeatures: {
+    detail: {
+      summary: "Get news features",
+      description: "Retrieve a list of news features based on query parameters",
+      tags: ["News"],
+    },
+    query: QueryNewsFeatureParams,
+    response: {
+      200: mapResponse(t.Array(NewsFeatureDTO)),
     },
   },
 };

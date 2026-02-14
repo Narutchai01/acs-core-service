@@ -55,14 +55,27 @@ export const newsController = (app: Elysia) =>
         NewsDocs.getNewsById,
       )
       .group("/news-features", (app) =>
-        app.put(
-          "",
-          async ({ newsService, body, set }) => {
-            const newsFeature = await newsService.upsertNewsFeature(body);
-            set.status = HttpStatusCode.OK;
-            return success(newsFeature, "News feature upserted successfully");
-          },
-          NewsDocs.upsertNewsFeature,
-        ),
+        app
+          .put(
+            "",
+            async ({ newsService, body, set }) => {
+              const newsFeature = await newsService.upsertNewsFeature(body);
+              set.status = HttpStatusCode.OK;
+              return success(newsFeature, "News feature upserted successfully");
+            },
+            NewsDocs.upsertNewsFeature,
+          )
+          .get(
+            "",
+            async ({ newsService, query, set }) => {
+              const newsFeatures = await newsService.getNewsFeatures(query);
+              set.status = HttpStatusCode.OK;
+              return success(
+                newsFeatures,
+                "News features retrieved successfully",
+              );
+            },
+            NewsDocs.getNewsFeatures,
+          ),
       ),
   );

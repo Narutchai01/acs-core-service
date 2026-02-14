@@ -4,6 +4,7 @@ import {
   News,
   NewsFeature,
   NewsQueryParams,
+  QueryNewsFeatureParams,
 } from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
@@ -87,5 +88,24 @@ export class NewsRepository implements INewsRepository {
       },
     });
     return newsFeature;
+  }
+
+  async getNewsFeaturesBy(
+    query: QueryNewsFeatureParams,
+  ): Promise<NewsFeature[]> {
+    const newsFeatures = await this.prisma.newsFeatures.findMany({
+      where: {
+        ...(query.tagID && { tagID: query.tagID }),
+        deletedAt: null,
+      },
+      include: {
+        news: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+    return newsFeatures;
   }
 }
