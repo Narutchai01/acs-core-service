@@ -47,6 +47,7 @@ export const UpsertNewsFeatureDTO = t.Object({
 
 export const NewsFeatureSchema = t.Intersect([
   t.Object({
+    id: t.Number(),
     ...CommonNewsFeatureFields,
     thumbnailURL: t.String(),
     news: NewsSchema,
