@@ -18,6 +18,10 @@ export const tagGroups: Array<Omit<TagGroup, "tags">> = [
     id: 4,
     name: "news",
   },
+  {
+    id: 5,
+    name: "news-feature",
+  },
 ];
 
 export const tags: Array<Omit<Tag, "id">> = [
@@ -125,6 +129,14 @@ export const tags: Array<Omit<Tag, "id">> = [
   {
     name: "Agricultural",
     tagsGroupsId: 3,
+  },
+  {
+    name: "announcement-feature",
+    tagsGroupsId: 5,
+  },
+  {
+    name: "newshighlight-feature",
+    tagsGroupsId: 5,
   },
 ];
 

@@ -60,7 +60,6 @@ export const newsController = (app: Elysia) =>
           async ({ newsService, body, set }) => {
             const newsFeature = await newsService.upsertNewsFeature(body);
             set.status = HttpStatusCode.OK;
-            console.log(newsFeature);
             return success(newsFeature, "News feature upserted successfully");
           },
           NewsDocs.upsertNewsFeature,
