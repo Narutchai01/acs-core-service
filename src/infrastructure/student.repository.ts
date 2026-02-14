@@ -52,14 +52,14 @@ export class StudentRepository implements IStudentRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          throw new AppError(
-            ErrorCode.NOT_FOUND_ERROR,
-            "Student not found",
-            404,
-          );
+          return null;
         }
       }
-      throw error;
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "An error occurred while fetching the student",
+        500,
+      );
     }
   }
 
