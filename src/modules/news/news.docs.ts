@@ -75,4 +75,19 @@ export const NewsDocs = {
       200: mapResponse(t.Array(NewsFeatureDTO)),
     },
   },
+
+  getNewsFeatureById: {
+    detail: {
+      summary: "Get news feature by ID",
+      description: "Retrieve a news feature by its ID",
+      tags: ["News"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    response: {
+      200: mapResponse(NewsFeatureDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };

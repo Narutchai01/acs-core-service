@@ -76,6 +76,27 @@ export const newsController = (app: Elysia) =>
               );
             },
             NewsDocs.getNewsFeatures,
+          )
+          .get(
+            "/:id",
+            async ({ newsService, params, set }) => {
+              const newsFeature = await newsService.getNewsFeatureById(
+                Number(params.id),
+              );
+              if (!newsFeature) {
+                set.status = HttpStatusCode.NOT_FOUND;
+                return success(
+                  null,
+                  "News feature not found",
+                  HttpStatusCode.NOT_FOUND,
+                );
+              }
+              return success(
+                newsFeature,
+                "News feature retrieved successfully",
+              );
+            },
+            NewsDocs.getNewsFeatureById,
           ),
       ),
   );

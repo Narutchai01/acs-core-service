@@ -20,6 +20,7 @@ interface INewsService {
   getNewsById(id: number): Promise<NewsDTO | null>;
   upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO>;
   getNewsFeatures(query: QueryNewsFeatureParams): Promise<NewsFeatureDTO[]>;
+  getNewsFeatureById(id: number): Promise<NewsFeatureDTO | null>;
 }
 
 export class NewsService implements INewsService {
@@ -137,5 +138,24 @@ export class NewsService implements INewsService {
       return [];
     }
     return this.newsFactory.mapNewsFeatureListToDTO(newsFeatures);
+  }
+
+  async getNewsFeatureById(id: number): Promise<NewsFeatureDTO | null> {
+    try {
+      const newsFeature = await this.newsRepository.getNewsFeatureById(id);
+
+      if (!newsFeature) {
+        return null;
+      }
+      return this.newsFactory.mapNewsFeatureToDTO(newsFeature);
+    } catch (error) {
+      if (
+        error instanceof AppError &&
+        error.statusCode === HttpStatusCode.NOT_FOUND
+      ) {
+        return null;
+      }
+      throw error;
+    }
   }
 }

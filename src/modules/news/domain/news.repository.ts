@@ -14,4 +14,5 @@ export interface INewsRepository {
     newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput,
   ): Promise<NewsFeature>;
   getNewsFeaturesBy(query: QueryNewsFeatureParams): Promise<NewsFeature[]>;
+  getNewsFeatureById(id: number): Promise<NewsFeature | null>;
 }

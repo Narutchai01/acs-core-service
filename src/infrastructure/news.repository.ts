@@ -9,6 +9,7 @@ import {
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { calculatePagination } from "../core/utils/calculator";
+import { HttpStatusCode } from "../core/types/http";
 export class NewsRepository implements INewsRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -107,5 +108,29 @@ export class NewsRepository implements INewsRepository {
       },
     });
     return newsFeatures;
+  }
+
+  async getNewsFeatureById(id: number): Promise<NewsFeature | null> {
+    try {
+      const newsFeature = await this.prisma.newsFeatures.findUnique({
+        where: { id, deletedAt: null },
+        include: {
+          news: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      });
+
+      if (!newsFeature) {
+        return null;
+      }
+
+      return newsFeature;
+    } catch (error) {
+      return null;
+      console.error(error);
+    }
   }
 }
