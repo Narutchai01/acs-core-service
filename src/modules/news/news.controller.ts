@@ -53,5 +53,17 @@ export const newsController = (app: Elysia) =>
           return success(news, "News retrieved successfully");
         },
         NewsDocs.getNewsById,
+      )
+      .group("/news-features", (app) =>
+        app.put(
+          "/",
+          async ({ newsService, body, set }) => {
+            const newsFeature = await newsService.upsertNewsFeature(body);
+            set.status = HttpStatusCode.OK;
+            console.log(newsFeature);
+            return success(newsFeature, "News feature upserted successfully");
+          },
+          NewsDocs.upsertNewsFeature,
+        ),
       ),
   );

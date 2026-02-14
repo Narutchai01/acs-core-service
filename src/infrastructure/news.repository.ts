@@ -1,6 +1,10 @@
 import { PrismaClient, Prisma } from "../generated/prisma/client";
 import { INewsRepository } from "../modules/news/domain/news.repository";
-import { News, NewsQueryParams } from "../modules/news/domain/news";
+import {
+  News,
+  NewsFeature,
+  NewsQueryParams,
+} from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { calculatePagination } from "../core/utils/calculator";
@@ -57,5 +61,31 @@ export class NewsRepository implements INewsRepository {
         500,
       );
     }
+  }
+
+  async upsertNewsFeature(
+    newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput,
+  ): Promise<NewsFeature> {
+    const newsFeature = await this.prisma.newsFeatures.upsert({
+      where: {
+        newsID_tagID: {
+          newsID: newsFeatureData.newsID,
+          tagID: newsFeatureData.tagID,
+        },
+      },
+      update: {
+        thumbnailURL: newsFeatureData.thumbnailURL,
+        updatedBy: newsFeatureData.updatedBy,
+      },
+      create: newsFeatureData,
+      include: {
+        news: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+    return newsFeature;
   }
 }

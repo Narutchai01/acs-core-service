@@ -1,5 +1,11 @@
 import { t } from "elysia";
-import { CreateNewsDTO, NewsDTO, NewsQueryParams } from "./domain/news";
+import {
+  CreateNewsDTO,
+  NewsDTO,
+  NewsFeatureDTO,
+  NewsQueryParams,
+  UpsertNewsFeatureDTO,
+} from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
 export const NewsDocs = {
   createNews: {
@@ -43,6 +49,18 @@ export const NewsDocs = {
     response: {
       200: mapResponse(NewsDTO),
       404: mapResponse(t.Null()),
+    },
+  },
+  upsertNewsFeature: {
+    detail: {
+      summary: "Upsert news feature",
+      description:
+        "Create or update a news feature with the provided information",
+      tags: ["News"],
+    },
+    body: UpsertNewsFeatureDTO,
+    response: {
+      200: mapResponse(NewsFeatureDTO),
     },
   },
 };

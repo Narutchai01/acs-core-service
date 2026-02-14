@@ -32,7 +32,39 @@ export const NewsQueryParams = t.Object({
   ...CommonQueryParams,
 });
 
+export const CommonNewsFeatureFields = {
+  newsID: t.Numeric(),
+  tagID: t.Numeric(),
+};
+
+export const UpsertNewsFeatureDTO = t.Object({
+  id: t.Optional(t.Numeric()),
+  ...CommonNewsFeatureFields,
+  thumbnail: t.File({
+    errorMessage: "Invalid file type. Only image files are allowed.",
+  }),
+});
+
+export const NewsFeatureSchema = t.Intersect([
+  t.Object({
+    ...CommonNewsFeatureFields,
+    thumbnailURL: t.String(),
+    news: NewsSchema,
+  }),
+  BaseModelSchema,
+]);
+
+export const NewsFeatureDTO = t.Object({
+  id: t.Number(),
+  // ...CommonNewsFeatureFields,
+  thumbnailURL: t.String(),
+  news: NewsDTO,
+});
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
 export type NewsQueryParams = Static<typeof NewsQueryParams>;
+export type UpsertNewsFeatureDTO = Static<typeof UpsertNewsFeatureDTO>;
+export type NewsFeature = Static<typeof NewsFeatureSchema>;
+export type NewsFeatureDTO = Static<typeof NewsFeatureDTO>;

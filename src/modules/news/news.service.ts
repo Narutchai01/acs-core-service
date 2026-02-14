@@ -2,7 +2,14 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { SupabaseService } from "../../core/utils/supabase";
-import { CreateNewsDTO, NewsDTO, NewsQueryParams } from "./domain/news";
+import { Prisma } from "../../generated/prisma/client";
+import {
+  CreateNewsDTO,
+  NewsDTO,
+  NewsQueryParams,
+  NewsFeatureDTO,
+  UpsertNewsFeatureDTO,
+} from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
 
@@ -10,6 +17,7 @@ interface INewsService {
   createNews(data: CreateNewsDTO): Promise<NewsDTO>;
   getNews(query: NewsQueryParams): Promise<NewsDTO[]>;
   getNewsById(id: number): Promise<NewsDTO | null>;
+  upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO>;
 }
 
 export class NewsService implements INewsService {
@@ -78,6 +86,44 @@ export class NewsService implements INewsService {
         return null;
       }
       throw error;
+    }
+  }
+
+  async upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO> {
+    try {
+      const { thumbnail, ...rest } = data;
+      let uploadedThumbnailPath: string | null = null;
+
+      if (!thumbnail) {
+        throw new AppError(
+          ErrorCode.VALIDATION_ERROR,
+          "Thumbnail file is required",
+          400,
+        );
+      }
+      uploadedThumbnailPath = await this.storageService.uploadFile(
+        thumbnail,
+        "news-features",
+      );
+
+      const newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput = {
+        ...rest,
+        thumbnailURL: uploadedThumbnailPath,
+        createdBy: 0,
+        updatedBy: 0,
+      };
+
+      const newsFeature =
+        await this.newsRepository.upsertNewsFeature(newsFeatureData);
+      return this.newsFactory.mapNewsFeatureToDTO(newsFeature);
+    } catch (error) {
+      console.error("🔥 Error in upsertNewsFeature:", error);
+
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Failed to upsert news feature",
+        500,
+      );
     }
   }
 }
