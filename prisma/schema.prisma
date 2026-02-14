@@ -69,29 +69,31 @@ model TageGroups {
 }
 
 model Tag {
-  id           Int         @id @default(autoincrement()) @map("id")
-  name         String      @unique @map("name")
-  tageGroups   TageGroups? @relation(fields: [tageGroupsId], references: [id])
-  tageGroupsId Int         @map("tage_groups_id")
+  id           Int            @id @default(autoincrement()) @map("id")
+  name         String         @unique @map("name")
+  tageGroups   TageGroups?    @relation(fields: [tageGroupsId], references: [id])
+  tageGroupsId Int            @map("tage_groups_id")
   news         News[]
+  newsFeatures NewsFeatures[]
 
   @@map("tags")
 }
 
 model News {
-  id        Int       @id @default(autoincrement()) @map("id")
-  title     String    @map("title")
-  image     String    @map("image")
-  detail    String    @map("detail")
-  startDate DateTime  @map("start_date")
-  dueDate   DateTime? @map("due_date")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  createdBy Int       @map("created_by")
-  updatedBy Int       @map("updated_by")
-  tagID     Int       @map("tag_id")
-  tag       Tag       @relation(fields: [tagID], references: [id])
+  id           Int            @id @default(autoincrement()) @map("id")
+  title        String         @map("title")
+  image        String         @map("image")
+  detail       String         @map("detail")
+  startDate    DateTime       @map("start_date")
+  dueDate      DateTime?      @map("due_date")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at")
+  deletedAt    DateTime?      @map("deleted_at")
+  createdBy    Int            @map("created_by")
+  updatedBy    Int            @map("updated_by")
+  tagID        Int            @map("tag_id")
+  tag          Tag            @relation(fields: [tagID], references: [id])
+  newsFeatures NewsFeatures[]
 
   @@map("news")
 }
@@ -237,4 +239,21 @@ model ForgetPasswordCredential {
   updatedBy      Int       @map("updated_by")
 
   @@map("forget_password_credentials")
+}
+
+model NewsFeatures {
+  id           Int       @id @default(autoincrement()) @map("id")
+  thumbnailURL String    @map("thumbnail_url")
+  newsID       Int       @map("news_id")
+  tagID        Int       @map("type_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+  createdBy    Int       @map("created_by")
+  updatedBy    Int       @map("updated_by")
+  news         News      @relation(fields: [newsID], references: [id])
+  tag          Tag       @relation(fields: [tagID], references: [id])
+
+  @@unique([newsID, tagID])
+  @@map("news_features")
 }
