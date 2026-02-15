@@ -7,6 +7,8 @@ import { success } from "../../core/interceptor/response";
 import { NewsFactory } from "./news.factory";
 import { SupabaseService } from "../../core/utils/supabase";
 import { HttpStatusCode } from "../../core/types/http";
+import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const newsRepository = new NewsRepository(prisma);
 const newsFactory = new NewsFactory();
@@ -20,18 +22,38 @@ const newsService = new NewsService(
 export const newsController = (app: Elysia) =>
   app.decorate("newsService", newsService).group("/news", (app) =>
     app
-      .post(
-        "",
-        async ({ newsService, body, set }) => {
-          const news = await newsService.createNews(body);
-          set.status = HttpStatusCode.CREATED;
-          return success(
-            news,
-            "News created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        NewsDocs.createNews,
+      .guard({}, (admin) =>
+        admin
+          .use(authMiddleware)
+          .use(roleMacro)
+          .post(
+            "",
+            async ({ newsService, body, set }) => {
+              const news = await newsService.createNews(body);
+              set.status = HttpStatusCode.CREATED;
+              return success(
+                news,
+                "News created successfully",
+                HttpStatusCode.CREATED,
+              );
+            },
+            {
+              ...NewsDocs.createNews,
+              checkRole: ["admin"],
+            },
+          )
+          .put(
+            "/news-features",
+            async ({ newsService, body, set }) => {
+              const newsFeature = await newsService.upsertNewsFeature(body);
+              set.status = HttpStatusCode.OK;
+              return success(newsFeature, "News feature upserted successfully");
+            },
+            {
+              ...NewsDocs.upsertNewsFeature,
+              checkRole: ["admin"],
+            },
+          ),
       )
       .get(
         "",
@@ -56,15 +78,6 @@ export const newsController = (app: Elysia) =>
       )
       .group("/news-features", (app) =>
         app
-          .put(
-            "",
-            async ({ newsService, body, set }) => {
-              const newsFeature = await newsService.upsertNewsFeature(body);
-              set.status = HttpStatusCode.OK;
-              return success(newsFeature, "News feature upserted successfully");
-            },
-            NewsDocs.upsertNewsFeature,
-          )
           .get(
             "",
             async ({ newsService, query, set }) => {

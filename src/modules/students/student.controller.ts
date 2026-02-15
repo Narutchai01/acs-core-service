@@ -38,7 +38,7 @@ export const StudentController = (app: Elysia) =>
         .use(roleMacro)
         .post(
           "",
-          async ({ body, studentService, set, userID, roles }) => {
+          async ({ body, studentService, set, userID }) => {
             const student = await studentService.createStudent(body, userID);
             set.status = HttpStatusCode.CREATED;
             return success(
