@@ -16,6 +16,8 @@ export const ProjectSchema = t.Intersect([
     id: t.Number(),
     ...CommonProjectFields,
     thumbnailURL: t.String(),
+    assetsURL: t.Optional(t.String()),
+    techStacks: t.String(),
   }),
   BaseModelSchema,
 ]);
@@ -30,6 +32,8 @@ export const CreateProjectDTO = t.Object({
   ...CommonProjectFields,
   tagsID: t.Array(t.Number()),
   members: t.Array(t.Object(ProjectMemberFields)),
+  assets: t.Files(),
+  techStacks: t.Array(t.String()),
 });
 
 export const ProjectDTO = t.Intersect([
@@ -37,6 +41,8 @@ export const ProjectDTO = t.Intersect([
     id: t.Number(),
     thumbnailURL: t.String(),
     ...CommonProjectFields,
+    assetsURL: t.Array(t.String()),
+    techStacks: t.Array(t.String()),
   }),
 ]);
 

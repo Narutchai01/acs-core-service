@@ -17,12 +17,28 @@ export class ProjectService implements IProjectService {
   ) {}
 
   async createProject(projectData: CreateProjectDTO): Promise<ProjectDTO> {
-    const { thumbnailFile, tagsID, members, ...projectFields } = projectData;
+    const {
+      thumbnailFile,
+      assets,
+      tagsID,
+      techStacks,
+      members,
+      ...projectFields
+    } = projectData;
+
+    const assetURLs: string[] = [];
 
     if (!thumbnailFile) {
       throw new AppError(
         ErrorCode.VALIDATION_ERROR,
         "Thumbnail file is required",
+      );
+    }
+
+    if (assets.length === 0) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "At least one asset file is required",
       );
     }
 
@@ -38,9 +54,25 @@ export class ProjectService implements IProjectService {
       );
     }
 
+    for (const asset of assets) {
+      const assetURL = await this.storageService.uploadFile(
+        asset,
+        "project-assets",
+      );
+      if (!assetURL) {
+        throw new AppError(ErrorCode.DATABASE_ERROR, "Failed to upload asset");
+      }
+      assetURLs.push(assetURL);
+    }
+
+    const assetsURLString = assetURLs.join(",");
+    const techStackString = techStacks.join(",");
+
     const createdProject = await this.projectRepository.createProject({
       ...projectFields,
       thumbnailURL: thumbnailURL,
+      assetsURL: assetsURLString,
+      techStacks: techStackString,
       createdBy: 0,
       updatedBy: 0,
     });

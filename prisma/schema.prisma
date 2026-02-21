@@ -265,6 +265,8 @@ model Project {
   id              Int             @id @default(autoincrement()) @map("id")
   title           String          @map("title")
   thumbnailURL    String          @map("thumbnail_url")
+  assetsURL       String?         @map("assets_url")
+  techStacks      String?         @map("tech_stacks")
   details         String          @map("details")
   githubURL       String?         @map("github_url")
   presentationURL String?         @map("presentation_url")

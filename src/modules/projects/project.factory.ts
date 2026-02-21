@@ -16,6 +16,8 @@ export class ProjectFactory implements IProjectFactory {
       documentURL: project.documentURL,
       figmaURL: project.figmaURL,
       youtubeURL: project.youtubeURL,
+      assetsURL: project.assetsURL ? project.assetsURL.split(",") : [],
+      techStacks: project.techStacks ? project.techStacks.split(",") : [],
     };
   }
 
