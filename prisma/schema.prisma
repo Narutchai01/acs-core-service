@@ -123,6 +123,7 @@ model Student {
 
 model Curriculum {
   id           Int         @id @default(autoincrement()) @map("id")
+  title        String      @map("title")
   year         String      @map("year")
   documentURL  String      @map("document_url")
   description  String      @map("description")

@@ -2,6 +2,7 @@ import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 
 export const CommonCurriculumField = {
+  title: t.String(),
   year: t.String(),
   documentURL: t.String(),
   description: t.String(),

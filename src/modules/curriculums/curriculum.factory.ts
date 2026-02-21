@@ -8,6 +8,7 @@ export class CurriculumFactory implements ICurriculumFactory {
   mapCurriculumToDTO(curriculum: Curriculum): CurriculumDTO {
     return {
       id: curriculum.id,
+      title: curriculum.title,
       year: curriculum.year,
       description: curriculum.description,
       thumbnailURL: curriculum.thumbnailURL,
