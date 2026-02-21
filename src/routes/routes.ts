@@ -9,7 +9,7 @@ import { CourseController } from "../modules/courses/course.controller";
 import { MasterDataController } from "../modules/master-data/master-data.controller";
 import { ClassBookController } from "../modules/class-book/class-book.controller";
 import { AuthController } from "../modules/auth/auth.controller";
-
+import { ProjectController } from "../modules/projects/orject.controller";
 export const RouteSetup = (app: Elysia) =>
   app.group("/v1", (app) =>
     app
@@ -22,5 +22,6 @@ export const RouteSetup = (app: Elysia) =>
       .use(CourseController)
       .use(MasterDataController)
       .use(ClassBookController)
-      .use(AuthController),
+      .use(AuthController)
+      .use(ProjectController),
   );

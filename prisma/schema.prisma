@@ -257,3 +257,22 @@ model NewsFeatures {
   @@unique([newsID, tagID])
   @@map("news_features")
 }
+
+model Project {
+  id              Int       @id @default(autoincrement()) @map("id")
+  title           String    @map("title")
+  thumbnailURL    String    @map("thumbnail_url")
+  details         String    @map("details")
+  githubURL       String?   @map("github_url")
+  presentationURL String?   @map("presentation_url")
+  documentURL     String?   @map("document_url")
+  figmaURL        String?   @map("figma_url")
+  youtubeURL      String?   @map("youtube_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+  createdBy       Int       @map("created_by")
+  updatedBy       Int       @map("updated_by")
+
+  @@map("projects")
+}

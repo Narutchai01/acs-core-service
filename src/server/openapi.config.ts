@@ -54,6 +54,10 @@ export const openapiConfig: ElysiaOpenAPIConfig = {
         name: "Auth",
         description: "Authentication Endpoints",
       },
+      {
+        name: "Projects",
+        description: "Projects Management Endpoints",
+      },
     ],
   },
   provider: "scalar",
