@@ -17,7 +17,7 @@ export class ProjectService implements IProjectService {
   ) {}
 
   async createProject(projectData: CreateProjectDTO): Promise<ProjectDTO> {
-    const { thumbnailFile, ...projectFields } = projectData;
+    const { thumbnailFile, tagsID, members, ...projectFields } = projectData;
 
     if (!thumbnailFile) {
       throw new AppError(
@@ -44,6 +44,25 @@ export class ProjectService implements IProjectService {
       createdBy: 0,
       updatedBy: 0,
     });
+
+    const projectTagsData = Array.from(new Set(tagsID)).map((tagID) => ({
+      projectID: createdProject.id,
+      tagID,
+      createdBy: 0,
+      updatedBy: 0,
+    }));
+
+    const projectMembersData = members.map((member) => ({
+      projectID: createdProject.id,
+      userID: member.userID,
+      roleID: member.roleID,
+      createdBy: 0,
+      updatedBy: 0,
+    }));
+
+    await this.projectRepository.createProjectMember(projectMembersData);
+
+    await this.projectRepository.createProjectTag(projectTagsData);
 
     return this.projectFactory.mapProjectToDTO(createdProject);
   }

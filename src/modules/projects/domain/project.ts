@@ -20,9 +20,16 @@ export const ProjectSchema = t.Intersect([
   BaseModelSchema,
 ]);
 
+const ProjectMemberFields = {
+  userID: t.Numeric(),
+  roleID: t.Numeric(),
+};
+
 export const CreateProjectDTO = t.Object({
   thumbnailFile: t.File(),
   ...CommonProjectFields,
+  tagsID: t.Array(t.Number()),
+  members: t.Array(t.Object(ProjectMemberFields)),
 });
 
 export const ProjectDTO = t.Intersect([

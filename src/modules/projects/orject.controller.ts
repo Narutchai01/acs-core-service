@@ -5,6 +5,7 @@ import { SupabaseService } from "../../core/utils/supabase";
 import { ProjectFactory } from "./project.factory";
 import Elysia from "elysia";
 import { ProjectDocs } from "./project.docs";
+import { success } from "../../core/interceptor/response";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
@@ -21,7 +22,7 @@ export const ProjectController = (app: Elysia) =>
       "",
       async ({ body, projectService }) => {
         const project = await projectService.createProject(body);
-        return project;
+        return success(project);
       },
       {
         ...ProjectDocs.createProject,

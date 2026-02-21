@@ -14,9 +14,10 @@ datasource db {
 }
 
 model Role {
-  id        Int        @id @default(autoincrement()) @map("id")
-  name      String     @unique @map("name")
-  userRoles UserRole[]
+  id             Int             @id @default(autoincrement()) @map("id")
+  name           String          @unique @map("name")
+  userRoles      UserRole[]
+  projectMembers ProjectMember[]
 
   @@map("roles")
 }
@@ -53,9 +54,10 @@ model User {
   deletedAt   DateTime? @map("deleted_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  userRoles UserRole[]
-  student   Student?
-  professor Professor?
+  userRoles      UserRole[]
+  student        Student?
+  professor      Professor?
+  projectMembers ProjectMember[]
 
   @@map("users")
 }
@@ -75,6 +77,7 @@ model Tag {
   tageGroupsId Int            @map("tage_groups_id")
   news         News[]
   newsFeatures NewsFeatures[]
+  projectTags  ProjectTag[]
 
   @@map("tags")
 }
@@ -259,20 +262,58 @@ model NewsFeatures {
 }
 
 model Project {
-  id              Int       @id @default(autoincrement()) @map("id")
-  title           String    @map("title")
-  thumbnailURL    String    @map("thumbnail_url")
-  details         String    @map("details")
-  githubURL       String?   @map("github_url")
-  presentationURL String?   @map("presentation_url")
-  documentURL     String?   @map("document_url")
-  figmaURL        String?   @map("figma_url")
-  youtubeURL      String?   @map("youtube_url")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
-  createdBy       Int       @map("created_by")
-  updatedBy       Int       @map("updated_by")
+  id              Int             @id @default(autoincrement()) @map("id")
+  title           String          @map("title")
+  thumbnailURL    String          @map("thumbnail_url")
+  details         String          @map("details")
+  githubURL       String?         @map("github_url")
+  presentationURL String?         @map("presentation_url")
+  documentURL     String?         @map("document_url")
+  figmaURL        String?         @map("figma_url")
+  youtubeURL      String?         @map("youtube_url")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  deletedAt       DateTime?       @map("deleted_at")
+  createdBy       Int             @map("created_by")
+  updatedBy       Int             @map("updated_by")
+  projectTags     ProjectTag[]
+  projectMembers  ProjectMember[]
 
   @@map("projects")
+}
+
+model ProjectTag {
+  id        Int       @id @default(autoincrement()) @map("id")
+  projectID Int       @map("project_id")
+  tagID     Int       @map("tag_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  createdBy Int       @map("created_by")
+  updatedBy Int       @map("updated_by")
+
+  project Project @relation(fields: [projectID], references: [id])
+  tag     Tag     @relation(fields: [tagID], references: [id])
+
+  @@unique([projectID, tagID])
+  @@map("project_tags")
+}
+
+model ProjectMember {
+  id        Int       @id @default(autoincrement()) @map("id")
+  projectID Int       @map("project_id")
+  userID    Int       @map("user_id")
+  roleID    Int       @map("role_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  createdBy Int       @map("created_by")
+  updatedBy Int       @map("updated_by")
+
+  project Project @relation(fields: [projectID], references: [id])
+  user    User    @relation(fields: [userID], references: [id])
+  role    Role    @relation(fields: [roleID], references: [id])
+
+  @@unique([projectID, userID])
+  @@map("project_members")
 }

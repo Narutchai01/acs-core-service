@@ -5,4 +5,10 @@ export interface IProjectRepository {
   createProject(
     proejctData: Prisma.ProjectUncheckedCreateInput,
   ): Promise<Project>;
+  createProjectTag(
+    data: Prisma.ProjectTagUncheckedCreateInput[],
+  ): Promise<void>;
+  createProjectMember(
+    data: Prisma.ProjectMemberUncheckedCreateInput[],
+  ): Promise<void>;
 }
