@@ -14,9 +14,12 @@ import { Prisma } from "../../generated/prisma/client";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
+import { PageableType } from "../../core/models";
 interface IProfessorService {
   createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
-  getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]>;
+  getProfessors(
+    query: ProfessorQueryParams,
+  ): Promise<PageableType<typeof ProfessorDTO>>;
   getProfessorById(id: number): Promise<ProfessorDTO | null>;
   updateProfessor(
     professorID: number,
@@ -119,9 +122,20 @@ export class ProfessorService implements IProfessorService {
     }
   }
 
-  async getProfessors(query: ProfessorQueryParams): Promise<ProfessorDTO[]> {
-    const professors = await this.professorRepository.getProfessors(query);
-    return this.professorFactory.mapPrfessorListToDTO(professors);
+  async getProfessors(
+    query: ProfessorQueryParams,
+  ): Promise<PageableType<typeof ProfessorDTO>> {
+    const [professors, countProfessors] = await Promise.all([
+      this.professorRepository.getProfessors(query),
+      this.professorRepository.countProfessors(query),
+    ]);
+
+    return {
+      rows: this.professorFactory.mapPrfessorListToDTO(professors),
+      totalRecords: countProfessors,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getProfessorById(id: number): Promise<ProfessorDTO | null> {

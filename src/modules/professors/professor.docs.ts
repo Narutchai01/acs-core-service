@@ -6,6 +6,7 @@ import {
   ProfessorUpdateDTO,
   CreateProfessorDTO,
 } from "./domain/professor";
+import { Pageable } from "../../core/models";
 
 export const ProfessorDocs = {
   createProfessor: {
@@ -34,7 +35,8 @@ export const ProfessorDocs = {
     },
     query: ProfessorQueryParams,
     responses: {
-      200: mapResponse(t.Array(ProfessorDTO)),
+      200: mapResponse(Pageable(ProfessorDTO)),
+      500: mapResponse(t.Null()),
     },
   },
   getProfessorById: {

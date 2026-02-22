@@ -98,4 +98,13 @@ export class ProfessorRepository implements IProfessorRepository {
   //   });
   //   return education;
   // }
+
+  async countProfessors(query: ProfessorQueryParams): Promise<number> {
+    const count = await this.prisma.professor.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+    return count;
+  }
 }
