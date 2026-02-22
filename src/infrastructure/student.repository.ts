@@ -28,6 +28,7 @@ export class StudentRepository implements IStudentRepository {
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       where: {
+        ...(query.classBookID && { classBookID: query.classBookID }),
         deletedAt: null,
       },
       orderBy: {
@@ -119,6 +120,7 @@ export class StudentRepository implements IStudentRepository {
   async countStudents(query: StudentQueryParams): Promise<number> {
     const count = await this.prisma.student.count({
       where: {
+        ...(query.classBookID && { classBookID: query.classBookID }),
         deletedAt: null,
       },
     });
