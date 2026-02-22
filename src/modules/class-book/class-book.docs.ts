@@ -5,6 +5,7 @@ import {
   ClassBookDTO,
   ClassBookQueryParams,
 } from "./domain/class-book";
+import { Pageable } from "../../core/models";
 
 export const ClassBookDocs = {
   createClassBook: {
@@ -28,7 +29,7 @@ export const ClassBookDocs = {
     },
     query: ClassBookQueryParams,
     Response: {
-      200: mapResponse(ClassBookDTO),
+      200: mapResponse(Pageable(ClassBookDTO)),
       500: mapResponse(t.Null()),
     },
   },

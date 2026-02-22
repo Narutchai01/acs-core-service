@@ -70,4 +70,21 @@ export class ClassBookRepository implements IClassBookRepository {
       );
     }
   }
+  async countClassBooks(query: ClassBookQueryParams): Promise<number> {
+    const { searchBy, search, curriculumID } = query;
+    const count = await this.prisma.classBook.count({
+      where: {
+        ...(curriculumID && { curriculumID }),
+        ...(search &&
+          searchBy && {
+            [searchBy]: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
+        deletedAt: null,
+      },
+    });
+    return count;
+  }
 }

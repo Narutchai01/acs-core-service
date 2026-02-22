@@ -7,4 +7,5 @@ export interface IClassBookRepository {
   ): Promise<ClassBook>;
   getClassBooks(query: ClassBookQueryParams): Promise<ClassBook[]>;
   getClassBookById(id: number): Promise<ClassBook | null>;
+  countClassBooks(query: ClassBookQueryParams): Promise<number>;
 }

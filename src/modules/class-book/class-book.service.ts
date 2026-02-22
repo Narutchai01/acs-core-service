@@ -8,10 +8,13 @@ import { IClassBookRepository } from "./domain/class-book.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
+import { PageableType } from "../../core/models";
 
 interface IClassBookService {
   createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO>;
-  getClassBooks(query: ClassBookQueryParams): Promise<ClassBookDTO[]>;
+  getClassBooks(
+    query: ClassBookQueryParams,
+  ): Promise<PageableType<typeof ClassBookDTO>>;
   getClassBookById(id: number): Promise<ClassBookDTO | null>;
 }
 
@@ -55,9 +58,20 @@ export class ClassBookService implements IClassBookService {
     }
   }
 
-  async getClassBooks(query: ClassBookQueryParams): Promise<ClassBookDTO[]> {
-    const classBooks = await this.classBookRepository.getClassBooks(query);
-    return this.classBookFactory.mapClassBookListToDTO(classBooks);
+  async getClassBooks(
+    query: ClassBookQueryParams,
+  ): Promise<PageableType<typeof ClassBookDTO>> {
+    const [classBooks, totalRecords] = await Promise.all([
+      this.classBookRepository.getClassBooks(query),
+      this.classBookRepository.countClassBooks(query),
+    ]);
+
+    return {
+      rows: this.classBookFactory.mapClassBookListToDTO(classBooks),
+      totalRecords,
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 10,
+    };
   }
 
   async getClassBookById(id: number): Promise<ClassBookDTO | null> {
