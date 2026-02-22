@@ -85,4 +85,24 @@ export class CourseRepository implements ICourseRepository {
       );
     }
   }
+
+  async countCourse(query: CourseQueryParams): Promise<number> {
+    const { typeCourseID, curriculumID, search, searchBy } = query;
+    const count = await this.prisma.course.count({
+      where: {
+        deletedAt: null,
+        ...(typeCourseID && { typeCourseID }),
+        ...(curriculumID && { curriculumID }),
+        ...(search &&
+          searchBy &&
+          typeof searchBy === "string" && {
+            [searchBy]: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
+      },
+    });
+    return count;
+  }
 }

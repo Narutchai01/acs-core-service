@@ -1,10 +1,11 @@
 import { CreateCourseDTO, CourseDTO, CourseQueryParams } from "./domain/course";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
+import { PageableType } from "../../core/models";
 
 interface ICourseService {
   createCourse(data: CreateCourseDTO): Promise<CourseDTO>;
-  getCourses(query: CourseQueryParams): Promise<CourseDTO[]>;
+  getCourses(query: CourseQueryParams): Promise<PageableType<typeof CourseDTO>>;
   getCourseByID(id: number): Promise<CourseDTO | null>;
 }
 
@@ -23,9 +24,20 @@ export class CourseService implements ICourseService {
     return this.courseFactory.mapCourseToDTO(course);
   }
 
-  async getCourses(query: CourseQueryParams): Promise<CourseDTO[]> {
-    const courses = await this.courseRepository.getCoures(query);
-    return this.courseFactory.mapCourseListToDTO(courses);
+  async getCourses(
+    query: CourseQueryParams,
+  ): Promise<PageableType<typeof CourseDTO>> {
+    const [courses, total] = await Promise.all([
+      this.courseRepository.getCoures(query),
+      this.courseRepository.countCourse(query),
+    ]);
+
+    return {
+      rows: this.courseFactory.mapCourseListToDTO(courses),
+      totalRecords: total,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getCourseByID(id: number): Promise<CourseDTO | null> {

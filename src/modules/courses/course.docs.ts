@@ -1,4 +1,5 @@
 import { mapResponse } from "../../core/interceptor/response";
+import { Pageable } from "../../core/models";
 import { CourseDTO, CourseQueryParams, CreateCourseDTO } from "./domain/course";
 import { t } from "elysia";
 
@@ -23,7 +24,7 @@ export const CourseDocs = {
     },
     query: CourseQueryParams,
     response: {
-      200: mapResponse(t.Array(CourseDTO)),
+      200: mapResponse(Pageable(CourseDTO)),
     },
   },
   getCourseById: {
