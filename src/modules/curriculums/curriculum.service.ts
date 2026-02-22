@@ -9,10 +9,12 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { ICurriculumFactory } from "./curriculum.factory";
-
+import { PageableType } from "../../core/models";
 interface ICurriculumService {
   createCurriculum(data: CreateCurriculumDTO): Promise<CurriculumDTO>;
-  getCurriculums(querry: CurriculumQueryParams): Promise<CurriculumDTO[]>;
+  getCurriculums(
+    query: CurriculumQueryParams,
+  ): Promise<PageableType<typeof CurriculumDTO>>;
 }
 
 export class CurriculumService implements ICurriculumService {
@@ -57,9 +59,18 @@ export class CurriculumService implements ICurriculumService {
   }
 
   async getCurriculums(
-    querry: CurriculumQueryParams,
-  ): Promise<CurriculumDTO[]> {
-    const curriculums = await this.curriculumRepository.getCurriculums(querry);
-    return this.curriculumFactory.mapCurriculumsToDTOs(curriculums);
+    query: CurriculumQueryParams,
+  ): Promise<PageableType<typeof CurriculumDTO>> {
+    const [curriculums, countCurriculums] = await Promise.all([
+      this.curriculumRepository.getCurriculums(query),
+      this.curriculumRepository.countCurriculums(query),
+    ]);
+
+    return {
+      rows: this.curriculumFactory.mapCurriculumsToDTOs(curriculums),
+      totalRecords: countCurriculums,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 }

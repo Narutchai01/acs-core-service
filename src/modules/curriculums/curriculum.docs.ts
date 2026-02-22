@@ -5,6 +5,7 @@ import {
   CurriculumDTO,
   CurriculumQueryParams,
 } from "./domain/curriculum";
+import { Pageable } from "../../core/models";
 
 export const CurriculumDocs = {
   createCurruculum: {
@@ -27,7 +28,7 @@ export const CurriculumDocs = {
     },
     query: CurriculumQueryParams,
     response: {
-      200: mapResponse(t.Array(CurriculumDTO)),
+      200: mapResponse(Pageable(CurriculumDTO)),
       500: mapResponse(t.Null()),
     },
   },

@@ -25,11 +25,22 @@ export class CurriculumRepository implements ICurriculumRepository {
       take: pageSize,
       where: {
         deletedAt: null,
+        ...(query.year && { year: query.year }),
       },
       orderBy: {
         [orderBy]: sortBy,
       },
     });
     return curriculums;
+  }
+
+  async countCurriculums(query: CurriculumQueryParams): Promise<number> {
+    const count = await this.prisma.curriculum.count({
+      where: {
+        ...(query.year && { year: query.year }),
+        deletedAt: null,
+      },
+    });
+    return count;
   }
 }
