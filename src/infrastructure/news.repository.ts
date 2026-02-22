@@ -9,7 +9,6 @@ import {
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { calculatePagination } from "../core/utils/calculator";
-import { HttpStatusCode } from "../core/types/http";
 export class NewsRepository implements INewsRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -20,7 +19,17 @@ export class NewsRepository implements INewsRepository {
         tag: true,
       },
     });
-    return news;
+    return {
+      ...news,
+      tag: news.tag
+        ? {
+            ...news.tag,
+            tagsGroupsId: news.tag.tageGroupsId,
+            // Remove the incorrect property if present
+            // Optionally: ...news.tag without 'tageGroupsId'
+          }
+        : undefined,
+    };
   }
 
   async getNews(query: NewsQueryParams): Promise<News[]> {
@@ -36,10 +45,18 @@ export class NewsRepository implements INewsRepository {
         deletedAt: null,
       },
       include: {
-        tag: false,
+        tag: true,
       },
     });
-    return newsList;
+    return newsList.map((news) => ({
+      ...news,
+      tag: news.tag
+        ? {
+            ...news.tag,
+            tagsGroupsId: news.tag.tageGroupsId,
+          }
+        : undefined,
+    }));
   }
 
   async getNewsById(id: number): Promise<News | null> {
@@ -50,7 +67,16 @@ export class NewsRepository implements INewsRepository {
           tag: true,
         },
       });
-      return news;
+      if (!news) return null;
+      return {
+        ...news,
+        tag: news.tag
+          ? {
+              ...news.tag,
+              tagsGroupsId: news.tag.tageGroupsId,
+            }
+          : undefined,
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -88,7 +114,18 @@ export class NewsRepository implements INewsRepository {
         },
       },
     });
-    return newsFeature;
+    return {
+      ...newsFeature,
+      news: {
+        ...newsFeature.news,
+        tag: newsFeature.news.tag
+          ? {
+              ...newsFeature.news.tag,
+              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+            }
+          : undefined,
+      },
+    };
   }
 
   async getNewsFeaturesBy(
@@ -107,7 +144,18 @@ export class NewsRepository implements INewsRepository {
         },
       },
     });
-    return newsFeatures;
+    return newsFeatures.map((newsFeature) => ({
+      ...newsFeature,
+      news: {
+        ...newsFeature.news,
+        tag: newsFeature.news.tag
+          ? {
+              ...newsFeature.news.tag,
+              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+            }
+          : undefined,
+      },
+    }));
   }
 
   async getNewsFeatureById(id: number): Promise<NewsFeature | null> {
@@ -122,15 +170,23 @@ export class NewsRepository implements INewsRepository {
           },
         },
       });
-
       if (!newsFeature) {
         return null;
       }
-
-      return newsFeature;
+      return {
+        ...newsFeature,
+        news: {
+          ...newsFeature.news,
+          tag: newsFeature.news.tag
+            ? {
+                ...newsFeature.news.tag,
+                tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+              }
+            : undefined,
+        },
+      };
     } catch (error) {
       return null;
-      console.error(error);
     }
   }
 

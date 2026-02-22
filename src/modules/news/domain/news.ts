@@ -1,5 +1,6 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
+import { Tag } from "../../../core/models/tag";
 
 const CommonNewsFields = {
   title: t.String(),
@@ -18,6 +19,8 @@ export const NewsSchema = t.Intersect([
     id: t.Number(),
     ...CommonNewsFields,
     image: t.String(),
+    tagID: t.Numeric(),
+    tag: t.Optional(Tag),
   }),
   BaseModelSchema,
 ]);
@@ -26,6 +29,7 @@ export const NewsDTO = t.Object({
   id: t.Number(),
   image: t.String(),
   ...CommonNewsFields,
+  tag: t.Optional(Tag),
 });
 
 export const NewsQueryParams = t.Object({
