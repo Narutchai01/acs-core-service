@@ -133,4 +133,24 @@ export class NewsRepository implements INewsRepository {
       console.error(error);
     }
   }
+
+  async countNews(query: NewsQueryParams): Promise<number> {
+    const count = await this.prisma.news.count({
+      where: {
+        ...(query.tagID && { tagID: query.tagID }),
+        deletedAt: null,
+      },
+    });
+    return count;
+  }
+
+  async countNewsFeatures(query: QueryNewsFeatureParams): Promise<number> {
+    const count = await this.prisma.newsFeatures.count({
+      where: {
+        ...(query.tagID && { tagID: query.tagID }),
+        deletedAt: null,
+      },
+    });
+    return count;
+  }
 }

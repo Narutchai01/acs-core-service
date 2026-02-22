@@ -8,6 +8,7 @@ import {
   QueryNewsFeatureParams,
 } from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
+import { Pageable } from "../../core/models";
 export const NewsDocs = {
   createNews: {
     detail: {
@@ -38,7 +39,7 @@ export const NewsDocs = {
     },
     query: NewsQueryParams,
     response: {
-      200: mapResponse(t.Array(NewsDTO)),
+      200: mapResponse(Pageable(NewsDTO)),
     },
   },
   getNewsById: {
@@ -72,7 +73,7 @@ export const NewsDocs = {
     },
     query: QueryNewsFeatureParams,
     response: {
-      200: mapResponse(t.Array(NewsFeatureDTO)),
+      200: mapResponse(Pageable(NewsFeatureDTO)),
     },
   },
 

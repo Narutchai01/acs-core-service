@@ -13,13 +13,16 @@ import {
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
+import { PageableType } from "../../core/models";
 
 interface INewsService {
   createNews(data: CreateNewsDTO): Promise<NewsDTO>;
-  getNews(query: NewsQueryParams): Promise<NewsDTO[]>;
+  getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>>;
   getNewsById(id: number): Promise<NewsDTO | null>;
   upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO>;
-  getNewsFeatures(query: QueryNewsFeatureParams): Promise<NewsFeatureDTO[]>;
+  getNewsFeatures(
+    query: QueryNewsFeatureParams,
+  ): Promise<PageableType<typeof NewsFeatureDTO>>;
   getNewsFeatureById(id: number): Promise<NewsFeatureDTO | null>;
 }
 
@@ -65,12 +68,18 @@ export class NewsService implements INewsService {
     }
   }
 
-  async getNews(query: NewsQueryParams): Promise<NewsDTO[]> {
-    const newsList = await this.newsRepository.getNews(query);
-    if (!newsList || newsList.length === 0) {
-      return [];
-    }
-    return this.newsFactory.mapNewsListToDTO(newsList);
+  async getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>> {
+    const [newsList, countNews] = await Promise.all([
+      this.newsRepository.getNews(query),
+      this.newsRepository.countNews(query),
+    ]);
+
+    return {
+      rows: this.newsFactory.mapNewsListToDTO(newsList),
+      totalRecords: countNews,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getNewsById(id: number): Promise<NewsDTO | null> {
@@ -132,12 +141,18 @@ export class NewsService implements INewsService {
 
   async getNewsFeatures(
     query: QueryNewsFeatureParams,
-  ): Promise<NewsFeatureDTO[]> {
-    const newsFeatures = await this.newsRepository.getNewsFeaturesBy(query);
-    if (!newsFeatures || newsFeatures.length === 0) {
-      return [];
-    }
-    return this.newsFactory.mapNewsFeatureListToDTO(newsFeatures);
+  ): Promise<PageableType<typeof NewsFeatureDTO>> {
+    const [newsFeatures, countNewsFeatures] = await Promise.all([
+      this.newsRepository.getNewsFeaturesBy(query),
+      this.newsRepository.countNewsFeatures(query),
+    ]);
+
+    return {
+      rows: this.newsFactory.mapNewsFeatureListToDTO(newsFeatures),
+      totalRecords: countNewsFeatures,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getNewsFeatureById(id: number): Promise<NewsFeatureDTO | null> {
