@@ -15,10 +15,13 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
 import { HttpStatusCode } from "../../core/types/http";
+import { PageableType } from "../../core/models";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO, createdBy: number): Promise<StudentDTO>;
-  getStudents(query: StudentQueryParams): Promise<StudentDTO[]>;
+  getStudents(
+    query: StudentQueryParams,
+  ): Promise<PageableType<typeof StudentDTO>>;
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
   updateStudent(studentID: number, data: StudentUpdateDTO): Promise<StudentDTO>;
@@ -114,11 +117,22 @@ export class StudentService implements IStudentService {
     }
   }
 
-  async getStudents(query: StudentQueryParams): Promise<StudentDTO[]> {
-    const students = await this.studentRepository.getStudents(query);
-    return students.map((student) =>
-      this.studentFactory.MapStudentToDTO(student),
-    );
+  async getStudents(
+    query: StudentQueryParams,
+  ): Promise<PageableType<typeof StudentDTO>> {
+    const [students, countStudents] = await Promise.all([
+      this.studentRepository.getStudents(query),
+      this.studentRepository.countStudents(query),
+    ]);
+
+    return {
+      rows: students.map((student) =>
+        this.studentFactory.MapStudentToDTO(student),
+      ),
+      totalRecords: countStudents,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getStudentById(id: number): Promise<StudentDTO | null> {

@@ -8,6 +8,7 @@ import {
 import { mapResponse } from "../../core/interceptor/response";
 
 import { t } from "elysia";
+import { Pageable } from "../../core/models";
 export const StudentDocs = {
   createStudent: {
     detail: {
@@ -28,7 +29,7 @@ export const StudentDocs = {
     },
     query: StudentQueryParams,
     response: {
-      200: mapResponse(t.Array(StudentDTO)),
+      200: mapResponse(Pageable(StudentDTO)),
     },
   },
   getStudentById: {

@@ -10,4 +10,5 @@ export interface IStudentRepository {
     studentID: number,
     data: Prisma.StudentUncheckedUpdateInput,
   ): Promise<Student>;
+  countStudents(query: StudentQueryParams): Promise<number>;
 }

@@ -115,4 +115,13 @@ export class StudentRepository implements IStudentRepository {
       throw error;
     }
   }
+
+  async countStudents(query: StudentQueryParams): Promise<number> {
+    const count = await this.prisma.student.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+    return count;
+  }
 }

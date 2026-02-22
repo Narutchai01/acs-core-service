@@ -1,6 +1,6 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
-import { UserSchema, CommonUserFields } from "../../users/domain/user";
+import { UserSchema, CommonUserFields, UserDTO } from "../../users/domain/user";
 
 export const CommonStudentFields = {
   studentCode: t.String(),
@@ -37,7 +37,7 @@ export const CreateStudentDTO = t.Object({
 export const StudentDTO = t.Object({
   id: t.Number(),
   ...CommonStudentFields,
-  user: UserSchema,
+  user: UserDTO,
 });
 
 export const StudentQueryParams = t.Object({
