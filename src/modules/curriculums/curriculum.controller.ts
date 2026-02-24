@@ -45,5 +45,18 @@ export const CurriculumController = (app: Elysia) =>
           );
         },
         CurriculumDocs.getCurriculums,
-      ),
+      )
+      .get(
+        "/:id",
+        async ({ curriculumService, params: { id }, set }) => {
+          const curriculum = await curriculumService.getCurriculumById(id);
+          
+          set.status = HttpStatusCode.OK;
+          return success(
+            curriculum,
+            "Curriculum retrieved successfully",
+          );
+        },
+        CurriculumDocs.getCurriculumById,
+      )
   );

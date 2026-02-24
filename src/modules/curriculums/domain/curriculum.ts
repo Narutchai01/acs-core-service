@@ -33,7 +33,12 @@ export const CurriculumQueryParams = t.Object({
   year: t.Optional(t.String()),
 });
 
+export const CurriculumIdParam = t.Object({
+  id: t.Number(),
+});
+
 export type Curriculum = Static<typeof CurriculumSchema>;
 export type CreateCurriculumDTO = Static<typeof CreateCurriculumDTO>;
 export type CurriculumDTO = Static<typeof CurriculumDTO>;
 export type CurriculumQueryParams = Static<typeof CurriculumQueryParams>;
+export type CurriculumIdParam = Static<typeof CurriculumIdParam>;
