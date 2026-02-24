@@ -32,7 +32,20 @@ export class ProfessorRepository implements IProfessorRepository {
       orderBy = "createdAt",
       sortBy = "asc",
       academicPosition,
+      search,
+      searchBy,
     } = query;
+
+    let searchCondition = {};
+    if (search && searchBy && searchBy === "firstNameTh") {
+      searchCondition = {
+        user: { firstNameTh: { contains: search, mode: "insensitive" } },
+      };
+    } else if (search && searchBy) {
+      searchCondition = {
+        [searchBy]: { contains: search, mode: "insensitive" },
+      };
+    }
 
     const professors = await this.prisma.professor.findMany({
       skip: calculatePagination(page, pageSize),
@@ -42,6 +55,7 @@ export class ProfessorRepository implements IProfessorRepository {
       },
       where: {
         deletedAt: null,
+        ...searchCondition,
       },
       include: {
         user: true,
