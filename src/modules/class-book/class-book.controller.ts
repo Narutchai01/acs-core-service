@@ -7,10 +7,12 @@ import { SupabaseService } from "../../core/utils/supabase";
 import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { ClassBookDocs } from "./class-book.docs";
+import { CurriculumFactory } from "../curriculums/curriculum.factory";
 
+const curriculumFactory = new CurriculumFactory();
 const supabaseService = new SupabaseService();
 const classBookRepository = new ClassBookRepository(prisma);
-const classBookFactory = new ClassBookFactory();
+const classBookFactory = new ClassBookFactory(curriculumFactory);
 const classBookService = new ClassBookService(
   classBookRepository,
   classBookFactory,
