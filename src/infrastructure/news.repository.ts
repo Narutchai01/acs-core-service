@@ -209,4 +209,38 @@ export class NewsRepository implements INewsRepository {
     });
     return count;
   }
+
+  async deleteNews(id: number): Promise<News> {
+    try {
+      const news = await this.prisma.news.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+        include: {
+          tag: true,
+        },
+      });
+      return {
+        ...news,
+        tag: news.tag
+          ? {
+              ...news.tag,
+              tagsGroupsId: news.tag.tageGroupsId,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(ErrorCode.NOT_FOUND_ERROR, "News not found", 404);
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Database error occurred",
+        500,
+      );
+    }
+  }
 }

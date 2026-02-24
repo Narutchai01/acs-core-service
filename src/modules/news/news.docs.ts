@@ -91,4 +91,19 @@ export const NewsDocs = {
       404: mapResponse(t.Null()),
     },
   },
+
+  deleteNews: {
+    detail: {
+      summary: "Delete news by ID.",
+      description: "Delete a specific news by ID.",
+      tags: ["News"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    responses: {
+      200: mapResponse(NewsDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };
