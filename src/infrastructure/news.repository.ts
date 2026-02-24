@@ -33,7 +33,14 @@ export class NewsRepository implements INewsRepository {
   }
 
   async getNews(query: NewsQueryParams): Promise<News[]> {
-    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
+    const {
+      page = 1,
+      pageSize = 10,
+      orderBy = "createdAt",
+      sortBy,
+      search,
+      searchBy,
+    } = query;
     const newsList = await this.prisma.news.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
@@ -42,6 +49,10 @@ export class NewsRepository implements INewsRepository {
       },
       where: {
         ...(query.tagID && { tagID: query.tagID }),
+        ...(search &&
+          searchBy && {
+            [searchBy]: { contains: search, mode: "insensitive" },
+          }),
         deletedAt: null,
       },
       include: {
