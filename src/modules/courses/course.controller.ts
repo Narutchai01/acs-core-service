@@ -84,6 +84,29 @@ export const CourseController = (app: Elysia) =>
           ...CourseDocs.updateCourse,
           checkRole: PERMISSION.ADMINPERSMISSION,
         },
-        
+      )
+      .delete(
+       "/:id",
+       async ({ courseService, params, set}) => {
+          const course = await courseService.deleteCourse(
+            Number(params.id),
+          );
+          if (!course) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(
+              null, 
+              "Course not found", 
+              HttpStatusCode.NOT_FOUND
+            );
+          }
+          return success(
+            course, 
+            "Delete course successfully", 
+            HttpStatusCode.OK,);
+        },
+        {
+          ...CourseDocs.DeleteCourse,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        }
       )
   );
