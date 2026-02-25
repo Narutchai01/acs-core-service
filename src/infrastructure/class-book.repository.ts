@@ -9,7 +9,7 @@ import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 
 export class ClassBookRepository implements IClassBookRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   async createClassBook(
     data: Prisma.ClassBookUncheckedCreateInput,
@@ -43,11 +43,11 @@ export class ClassBookRepository implements IClassBookRepository {
         ...(curriculumID && { curriculumID }),
         ...(search &&
           searchBy && {
-            [searchBy]: {
-              contains: search,
-              mode: "insensitive",
-            },
-          }),
+          [searchBy]: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
         deletedAt: null,
       },
       include: {
@@ -86,14 +86,39 @@ export class ClassBookRepository implements IClassBookRepository {
         ...(curriculumID && { curriculumID }),
         ...(search &&
           searchBy && {
-            [searchBy]: {
-              contains: search,
-              mode: "insensitive",
-            },
-          }),
+          [searchBy]: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
         deletedAt: null,
       },
     });
     return count;
+  }
+
+  async updateClassBook(classBookID: number, data: Prisma.ClassBookUncheckedUpdateInput
+  ): Promise<ClassBook> {
+    try {
+      const classBook = await this.prisma.classBook.update({
+        where: { id: classBookID },
+        data,
+        include: {
+          curriculum: true,
+        },
+      });
+      return classBook as ClassBook;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "ClassBook not found",
+            404,
+          );
+        }
+      }
+      throw error;
+    }
   }
 }

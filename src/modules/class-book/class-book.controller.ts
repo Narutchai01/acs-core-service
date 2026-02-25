@@ -19,6 +19,10 @@ const classBookService = new ClassBookService(
   supabaseService,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const ClassBookController = (app: Elysia) =>
   app.group("/class-books", (app) =>
     app
@@ -66,5 +70,22 @@ export const ClassBookController = (app: Elysia) =>
           }
         },
         ClassBookDocs.getClassBookById,
+      )
+      .patch(
+        "/:id",
+        async ({ classBookService, params, body }) => {
+          const classBook = await classBookService.updateClassBook(
+            Number(params.id),
+            body,
+          );
+          return success(
+            classBook,
+            "ClassBook update successfully",
+            HttpStatusCode.OK,);
+        },
+        {
+          ...ClassBookDocs.updateClassBook,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        },
       ),
   );

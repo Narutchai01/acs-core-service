@@ -8,4 +8,8 @@ export interface IClassBookRepository {
   getClassBooks(query: ClassBookQueryParams): Promise<ClassBook[]>;
   getClassBookById(id: number): Promise<ClassBook | null>;
   countClassBooks(query: ClassBookQueryParams): Promise<number>;
+  updateClassBook(
+    classBookID: number,
+    data: Prisma.ClassBookUncheckedUpdateInput
+  ): Promise<ClassBook>;
 }

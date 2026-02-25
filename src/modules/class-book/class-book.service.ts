@@ -3,12 +3,15 @@ import {
   CreateClassBookDTO,
   ClassBookDTO,
   ClassBookQueryParams,
+  UpdateClassBookDTO,
+  ClassBook
 } from "./domain/class-book";
 import { IClassBookRepository } from "./domain/class-book.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { PageableType } from "../../core/models";
+import { Prisma } from "../../generated/prisma/client";
 
 interface IClassBookService {
   createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO>;
@@ -23,7 +26,7 @@ export class ClassBookService implements IClassBookService {
     private readonly classBookRepository: IClassBookRepository,
     private readonly classBookFactory: IClassBookFactory,
     private readonly storage: SupabaseService,
-  ) {}
+  ) { }
 
   async createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO> {
     const { thumbnailFile, ...rest } = data;
@@ -80,5 +83,37 @@ export class ClassBookService implements IClassBookService {
       return null;
     }
     return this.classBookFactory.mapClassBookToDTO(classBook);
+  }
+
+  async updateClassBook(classBookID: number, data: UpdateClassBookDTO): Promise<ClassBookDTO> {
+    const {
+      thumbnailFile,
+      classof,
+      firstYearAcademic,
+      curriculumID,
+
+    } = data;
+    let thumbnailPath: string | undefined = undefined;
+    let classBook: ClassBook;
+    try {
+
+      if (thumbnailFile) {
+        thumbnailPath = await this.storage.uploadFile(thumbnailFile, "class-books");
+      }
+
+      const updateClassBookData: Prisma.ClassBookUncheckedUpdateInput = {
+        ...(thumbnailPath && { thumbnailURL: thumbnailPath }),
+        classof,
+        firstYearAcademic,
+        curriculumID,
+        updatedBy: 0,
+      };
+
+      classBook = await this.classBookRepository.updateClassBook(classBookID, updateClassBookData);
+      return this.classBookFactory.mapClassBookToDTO(classBook);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }
