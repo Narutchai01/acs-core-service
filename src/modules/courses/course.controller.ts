@@ -6,6 +6,7 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { CourseDocs } from "./course.docs";
 import { CourseFactory } from "./course.factory";
+import { UpdateCourseDTO } from "./domain/course";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
@@ -55,5 +56,27 @@ export const CourseController = (app: Elysia) =>
           return success(course, "Course retrieved successfully");
         },
         CourseDocs.getCourseById,
-      ),
+      )
+      .patch(
+       "/:id",
+       async ({ courseService, params, body, set}) => {
+          const course = await courseService.updateCourse(
+            Number(params.id),
+            body,
+          );
+          if (!course) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(
+              null, 
+              "Course not found", 
+              HttpStatusCode.NOT_FOUND
+            );
+          }
+          return success(
+            course, 
+            "Course update successfully", 
+            HttpStatusCode.OK,);
+        },
+        CourseDocs.updateCourse,
+      )
   );
