@@ -6,7 +6,6 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { CourseDocs } from "./course.docs";
 import { CourseFactory } from "./course.factory";
-import { UpdateCourseDTO } from "./domain/course";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
