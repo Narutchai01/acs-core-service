@@ -11,6 +11,10 @@ const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
 const courseService = new CourseService(courseRepository, courseFactory);
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const CourseController = (app: Elysia) =>
   app.group("/courses", (app) =>
     app
@@ -76,6 +80,10 @@ export const CourseController = (app: Elysia) =>
             "Course update successfully", 
             HttpStatusCode.OK,);
         },
-        CourseDocs.updateCourse,
+        {
+          ...CourseDocs.updateCourse,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        },
+        
       )
   );
