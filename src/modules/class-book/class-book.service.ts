@@ -116,4 +116,9 @@ export class ClassBookService implements IClassBookService {
       throw error;
     }
   }
+
+  async deleteClassBook(id: number): Promise<ClassBookDTO> {
+    const classBook = await this.classBookRepository.deleteClassBook(id);
+    return this.classBookFactory.mapClassBookToDTO(classBook);
+  }
 }

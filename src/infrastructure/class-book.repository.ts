@@ -121,4 +121,30 @@ export class ClassBookRepository implements IClassBookRepository {
       throw error;
     }
   }
+
+  async deleteClassBook(id: number): Promise<ClassBook> {
+    try {
+      const classBook = await this.prisma.classBook.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+        include: {
+          curriculum: true,
+        },
+      });
+      return classBook as ClassBook;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "ClassBook not found",
+            404,
+          );
+        }
+      }
+      throw error;
+    }
+  }
 }
