@@ -67,6 +67,8 @@ export const ProfessorQueryParams = t.Object({
       description: "Include academic position details",
     }),
   ),
+  search: t.Optional(t.String()),
+  searchBy: t.Optional(t.String()),
 });
 
 export const ProfessorUpdateDTO = t.Partial(
