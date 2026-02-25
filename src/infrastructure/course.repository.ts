@@ -122,4 +122,23 @@ export class CourseRepository implements ICourseRepository {
       throw error;
     }
   }
+
+  async deleteCourse(courseId :number): Promise<Course> {
+    try {
+          const course = await this.prisma.course.update({
+            where: { id: courseId },
+            data: {
+              deletedAt: new Date(),
+            },
+            include: {
+              typeCourse: true,
+              curriculum: true,
+            },
+          });
+          return course as Course;
+        } catch (error) {
+          console.log(error);
+          throw error;
+        }
+  }
 }
