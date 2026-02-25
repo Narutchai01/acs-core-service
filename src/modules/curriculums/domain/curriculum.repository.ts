@@ -5,4 +5,5 @@ export interface ICurriculumRepository {
   createCurriculum(data: Prisma.CurriculumCreateInput): Promise<Curriculum>;
   getCurriculums(query: CurriculumQueryParams): Promise<Curriculum[]>;
   countCurriculums(query: CurriculumQueryParams): Promise<number>;
+  getCurriculumById(id: number): Promise<Curriculum | null>;
 }

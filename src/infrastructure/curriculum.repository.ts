@@ -43,4 +43,14 @@ export class CurriculumRepository implements ICurriculumRepository {
     });
     return count;
   }
+
+  async getCurriculumById(id: number): Promise<Curriculum | null> {
+    const curriculum = await this.prisma.curriculum.findFirst({
+      where: {
+        id: id,
+        deletedAt: null,
+      },
+    });
+    return curriculum;
+  }
 }

@@ -15,6 +15,7 @@ interface ICurriculumService {
   getCurriculums(
     query: CurriculumQueryParams,
   ): Promise<PageableType<typeof CurriculumDTO>>;
+  getCurriculumById(id: number): Promise<CurriculumDTO>;
 }
 
 export class CurriculumService implements ICurriculumService {
@@ -73,4 +74,18 @@ export class CurriculumService implements ICurriculumService {
       pageSize: query.pageSize || 10,
     };
   }
+
+  async getCurriculumById(id: number): Promise<CurriculumDTO> {
+  const curriculum = await this.curriculumRepository.getCurriculumById(id);
+  
+  if (!curriculum) {
+    throw new AppError(
+      ErrorCode.NOT_FOUND_ERROR,
+      "Curriculum not found",
+      HttpStatusCode.NOT_FOUND,
+    );
+  }
+
+  return this.curriculumFactory.mapCurriculumToDTO(curriculum);
+}
 }

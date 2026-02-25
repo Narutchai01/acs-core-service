@@ -3,6 +3,7 @@ import { mapResponse } from "../../core/interceptor/response";
 import {
   CreateCurriculumDTO,
   CurriculumDTO,
+  CurriculumIdParam,
   CurriculumQueryParams,
 } from "./domain/curriculum";
 import { Pageable } from "../../core/models";
@@ -30,6 +31,19 @@ export const CurriculumDocs = {
     response: {
       200: mapResponse(Pageable(CurriculumDTO)),
       500: mapResponse(t.Null()),
+    },
+  },
+
+  getCurriculumById: {
+    detail: {
+      summary: "Get curriculum by ID",
+      description: "Retrieve a specific curriculum by its unique ID",
+      tags: ["Curriculum"],
+    },
+    params: CurriculumIdParam,
+    response: {
+      200: mapResponse(CurriculumDTO),
+      404: mapResponse(t.Null()),
     },
   },
 };
