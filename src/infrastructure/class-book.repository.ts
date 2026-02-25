@@ -16,6 +16,9 @@ export class ClassBookRepository implements IClassBookRepository {
   ): Promise<ClassBook> {
     const classBook = await this.prisma.classBook.create({
       data,
+      include: {
+        curriculum: true,
+      },
     });
     return classBook;
   }
@@ -47,6 +50,9 @@ export class ClassBookRepository implements IClassBookRepository {
           }),
         deletedAt: null,
       },
+      include: {
+        curriculum: true,
+      },
     });
     return classBooks;
   }
@@ -55,6 +61,9 @@ export class ClassBookRepository implements IClassBookRepository {
     try {
       const classBook = await this.prisma.classBook.findUnique({
         where: { id, deletedAt: null },
+        include: {
+          curriculum: true,
+        },
       });
       return classBook;
     } catch (error) {

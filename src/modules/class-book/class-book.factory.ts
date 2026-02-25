@@ -1,3 +1,4 @@
+import { ICurriculumFactory } from "../curriculums/curriculum.factory";
 import { ClassBook, ClassBookDTO } from "./domain/class-book";
 
 export interface IClassBookFactory {
@@ -6,14 +7,20 @@ export interface IClassBookFactory {
 }
 
 export class ClassBookFactory implements IClassBookFactory {
+  constructor(private readonly curriculumFactory: ICurriculumFactory) {}
   mapClassBookToDTO(classBook: ClassBook): ClassBookDTO {
     return {
       id: classBook.id,
-      thumbnailURL: classBook.thumbnailURL,
       classof: classBook.classof,
       firstYearAcademic: classBook.firstYearAcademic,
+      thumbnailURL: classBook.thumbnailURL,
+      curriculumID: classBook.curriculumID,
+      curriculum: this.curriculumFactory.mapCurriculumToDTO(
+        classBook.curriculum,
+      ),
     };
   }
+
   mapClassBookListToDTO(classBooks: ClassBook[]): ClassBookDTO[] {
     return classBooks.map((classBook) => this.mapClassBookToDTO(classBook));
   }
