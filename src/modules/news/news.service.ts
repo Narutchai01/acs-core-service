@@ -173,4 +173,9 @@ export class NewsService implements INewsService {
       throw error;
     }
   }
+
+  async deleteNews(id: number): Promise<NewsDTO> {
+    const news = await this.newsRepository.deleteNews(id);
+    return this.newsFactory.mapNewsToDTO(news);
+  }
 }

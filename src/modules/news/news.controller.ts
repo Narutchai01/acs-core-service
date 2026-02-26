@@ -76,6 +76,19 @@ export const newsController = (app: Elysia) =>
         },
         NewsDocs.getNewsById,
       )
+      .delete(
+        "/:id",
+        async ({ newsService, params, set }) => {
+          const news = await newsService.deleteNews(Number(params.id));
+          if (!news) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(null, "News not found", HttpStatusCode.NOT_FOUND);
+          }
+          set.status = HttpStatusCode.OK;
+          return success(news, "News deleted successfully", HttpStatusCode.OK);
+        },
+        NewsDocs.deleteNews,
+      )
       .group("/news-features", (app) =>
         app
           .get(
