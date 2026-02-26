@@ -61,4 +61,17 @@ export const CurriculumController = (app: Elysia) =>
         },
         CurriculumDocs.createCurruculum,
       )
+      .patch(
+        "/:id",
+        async ({ curriculumService, params: { id }, body, set, userID }) => {
+          const curriculum = await curriculumService.updateCurriculum(id, body, userID);
+          
+          set.status = HttpStatusCode.OK;
+          return success(
+            curriculum,
+            "Curriculum updated successfully",
+          );
+        },
+        CurriculumDocs.updateCurriculum, 
+      )
   );

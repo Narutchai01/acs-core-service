@@ -2,6 +2,7 @@ import {
   CreateCurriculumDTO,
   CurriculumDTO,
   CurriculumQueryParams,
+  UpdateCurriculumDTO,
 } from "./domain/curriculum";
 import { ICurriculumRepository } from "./domain/curriculum.repository";
 import { SupabaseService } from "../../core/utils/supabase";
@@ -16,6 +17,7 @@ interface ICurriculumService {
     query: CurriculumQueryParams,
   ): Promise<PageableType<typeof CurriculumDTO>>;
   getCurriculumById(id: number): Promise<CurriculumDTO>;
+  updateCurriculum(id: number, data: UpdateCurriculumDTO, userId: number): Promise<CurriculumDTO>;
 }
 
 export class CurriculumService implements ICurriculumService {
@@ -76,16 +78,70 @@ export class CurriculumService implements ICurriculumService {
   }
 
   async getCurriculumById(id: number): Promise<CurriculumDTO> {
-  const curriculum = await this.curriculumRepository.getCurriculumById(id);
-  
-  if (!curriculum) {
-    throw new AppError(
-      ErrorCode.NOT_FOUND_ERROR,
-      "Curriculum not found",
-      HttpStatusCode.NOT_FOUND,
-    );
+    const curriculum = await this.curriculumRepository.getCurriculumById(id);
+    
+    if (!curriculum) {
+      throw new AppError(
+        ErrorCode.NOT_FOUND_ERROR,
+        "Curriculum not found",
+        HttpStatusCode.NOT_FOUND,
+      );
+    }
+
+    return this.curriculumFactory.mapCurriculumToDTO(curriculum);
   }
 
-  return this.curriculumFactory.mapCurriculumToDTO(curriculum);
-}
+  async updateCurriculum(
+    id: number,
+    data: UpdateCurriculumDTO,
+    userId: number
+  ): Promise<CurriculumDTO> {
+    const existingCurriculum = await this.curriculumRepository.getCurriculumById(id);
+    
+    if (!existingCurriculum) {
+      throw new AppError(
+        ErrorCode.NOT_FOUND_ERROR,
+        "Curriculum not found",
+        HttpStatusCode.NOT_FOUND,
+      );
+    }
+
+    const { thumbnailFile, ...rest } = data;
+    let updatedThumbnailPath = existingCurriculum.thumbnailURL;
+
+    try {
+      if (thumbnailFile) {
+        updatedThumbnailPath = await this.storageService.uploadFile(
+          thumbnailFile,
+          "curriculums",
+        );
+
+        if (existingCurriculum.thumbnailURL) {
+          try {
+            const match = existingCurriculum.thumbnailURL.match(/(curriculums\/.*)/);
+            
+            if (match && match[1]) {
+              const oldFilePath = match[1];
+              await this.storageService.deleteFile(oldFilePath);
+            }
+          } catch (deleteError) {
+            console.error("Failed to delete old thumbnail from Supabase:", deleteError);
+          }
+        }
+      }
+
+      const updatedData = {
+        ...rest,
+        thumbnailURL: updatedThumbnailPath,
+        updatedBy: userId, 
+      };
+
+      const updatedCurriculum = await this.curriculumRepository.updateCurriculum(id, updatedData);
+
+      return this.curriculumFactory.mapCurriculumToDTO(updatedCurriculum);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
