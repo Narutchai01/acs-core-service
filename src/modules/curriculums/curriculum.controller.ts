@@ -7,6 +7,7 @@ import { Elysia } from "elysia";
 import { HttpStatusCode } from "../../core/types/http";
 import { CurriculumDocs } from "./curriculum.docs";
 import { success } from "../../core/interceptor/response";
+import { authMiddleware } from "../../middleware/auth";
 
 const curriculumRepository = new CurriculumRepository(prisma);
 const curriculumFactory = new CurriculumFactory();
@@ -21,19 +22,6 @@ export const CurriculumController = (app: Elysia) =>
   app.group("/curriculums", (app) =>
     app
       .decorate("curriculumService", curriculumService)
-      .post(
-        "",
-        async ({ curriculumService, body, set }) => {
-          const curriculum = await curriculumService.createCurriculum(body);
-          set.status = HttpStatusCode.CREATED;
-          return success(
-            curriculum,
-            "Curriculum created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        CurriculumDocs.createCurruculum,
-      )
       .get(
         "",
         async ({ curriculumService, query, set }) => {
@@ -58,5 +46,19 @@ export const CurriculumController = (app: Elysia) =>
           );
         },
         CurriculumDocs.getCurriculumById,
+      )
+      .use(authMiddleware)
+      .post(
+        "",
+        async ({ curriculumService, body, set }) => {
+          const curriculum = await curriculumService.createCurriculum(body);
+          set.status = HttpStatusCode.CREATED;
+          return success(
+            curriculum,
+            "Curriculum created successfully",
+            HttpStatusCode.CREATED,
+          );
+        },
+        CurriculumDocs.createCurruculum,
       )
   );
