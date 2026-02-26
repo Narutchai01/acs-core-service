@@ -11,7 +11,7 @@ import { HttpStatusCode } from "../../core/types/http";
 import { ICurriculumFactory } from "./curriculum.factory";
 import { PageableType } from "../../core/models";
 interface ICurriculumService {
-  createCurriculum(data: CreateCurriculumDTO): Promise<CurriculumDTO>;
+  createCurriculum(data: CreateCurriculumDTO, userId: number): Promise<CurriculumDTO>;
   getCurriculums(
     query: CurriculumQueryParams,
   ): Promise<PageableType<typeof CurriculumDTO>>;
@@ -25,7 +25,7 @@ export class CurriculumService implements ICurriculumService {
     private readonly storageService: SupabaseService,
   ) {}
 
-  async createCurriculum(data: CreateCurriculumDTO): Promise<CurriculumDTO> {
+  async createCurriculum(data: CreateCurriculumDTO, userId: number): Promise<CurriculumDTO> {
     const { thumbnailFile, ...rest } = data;
     try {
       let uploadedThumbnailPath: string | null = null;
@@ -45,8 +45,8 @@ export class CurriculumService implements ICurriculumService {
       const curriculumData = {
         ...rest,
         thumbnailURL: uploadedThumbnailPath,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userId,
+        updatedBy: userId,
       };
 
       const curriculum =

@@ -50,8 +50,8 @@ export const CurriculumController = (app: Elysia) =>
       .use(authMiddleware)
       .post(
         "",
-        async ({ curriculumService, body, set }) => {
-          const curriculum = await curriculumService.createCurriculum(body);
+        async ({ curriculumService, body, set, userID }) => {
+          const curriculum = await curriculumService.createCurriculum(body, userID);
           set.status = HttpStatusCode.CREATED;
           return success(
             curriculum,
