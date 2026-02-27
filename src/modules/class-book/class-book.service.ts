@@ -11,7 +11,7 @@ import { ErrorCode } from "../../core/types/errors";
 import { PageableType } from "../../core/models";
 
 interface IClassBookService {
-  createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO>;
+  createClassBook(data: CreateClassBookDTO, createdBy: number): Promise<ClassBookDTO>;
   getClassBooks(
     query: ClassBookQueryParams,
   ): Promise<PageableType<typeof ClassBookDTO>>;
@@ -23,9 +23,9 @@ export class ClassBookService implements IClassBookService {
     private readonly classBookRepository: IClassBookRepository,
     private readonly classBookFactory: IClassBookFactory,
     private readonly storage: SupabaseService,
-  ) {}
+  ) { }
 
-  async createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO> {
+  async createClassBook(data: CreateClassBookDTO, createdBy: number): Promise<ClassBookDTO> {
     const { thumbnailFile, ...rest } = data;
     try {
       let thumbnailPath: string | null = null;
@@ -45,8 +45,8 @@ export class ClassBookService implements IClassBookService {
       const classBookData = {
         ...rest,
         thumbnailURL: thumbnailPath,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: createdBy || 0,
+        updatedBy: createdBy || 0,
       };
 
       const classBook =
