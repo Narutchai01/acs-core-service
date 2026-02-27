@@ -1,4 +1,4 @@
-import { CreateCourseDTO, CourseDTO, CourseQueryParams, UpdateCourseDTO } from "./domain/course";
+import { CreateCourseDTO, CourseDTO, CourseQueryParams } from "./domain/course";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
 import { PageableType } from "../../core/models";
@@ -45,16 +45,6 @@ export class CourseService implements ICourseService {
       return null;
     }
     return this.courseFactory.mapCourseToDTO(course);
-  }
-
-  async updateCourse(courseId : number , data: UpdateCourseDTO): Promise<CourseDTO | null>{
-      const course = await this.courseRepository.updateCourse(
-              courseId,
-              data,
-            );
-      if (!course) return null;
-
-      return this.courseFactory.mapCourseToDTO(course);
   }
 
   async deleteCourse(courseId: number): Promise<CourseDTO | null>{

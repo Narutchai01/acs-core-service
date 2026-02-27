@@ -47,16 +47,7 @@ export const CourseQueryParams = t.Object({
   curriculumID: t.Optional(t.Number()),
 });
 
-export const UpdateCourseDTO = t.Partial(
-  t.Object({
-    ...CommonCourseField,
-    typeCourseID: t.Number(),
-    curriculumID: t.Number(),
-  })
-);
-
 export type CourseQueryParams = Static<typeof CourseQueryParams>;
 export type Course = Static<typeof CourseSchema>;
 export type CreateCourseDTO = Static<typeof CreateCourseDTO>;
 export type CourseDTO = Static<typeof CourseDTO>;
-export type UpdateCourseDTO = Static<typeof UpdateCourseDTO>

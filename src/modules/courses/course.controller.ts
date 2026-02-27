@@ -60,31 +60,6 @@ export const CourseController = (app: Elysia) =>
         },
         CourseDocs.getCourseById,
       )
-      .patch(
-       "/:id",
-       async ({ courseService, params, body, set}) => {
-          const course = await courseService.updateCourse(
-            Number(params.id),
-            body,
-          );
-          if (!course) {
-            set.status = HttpStatusCode.NOT_FOUND;
-            return success(
-              null, 
-              "Course not found", 
-              HttpStatusCode.NOT_FOUND
-            );
-          }
-          return success(
-            course, 
-            "Course update successfully", 
-            HttpStatusCode.OK,);
-        },
-        {
-          ...CourseDocs.updateCourse,
-          checkRole: PERMISSION.ADMINPERSMISSION,
-        },
-      )
       .delete(
        "/:id",
        async ({ courseService, params, set}) => {

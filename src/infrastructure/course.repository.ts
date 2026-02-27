@@ -105,23 +105,6 @@ export class CourseRepository implements ICourseRepository {
     });
     return count;
   }
- 
-  async updateCourse(courseId: number, data: Prisma.CourseUncheckedUpdateInput): Promise<Course> {
-     try {
-      const course = await this.prisma.course.update({
-        where: { id: courseId},
-        data,
-        include: {
-          typeCourse: true,
-          curriculum: true,
-        },
-      });
-      return course as unknown as Course;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
 
   async deleteCourse(courseId :number): Promise<Course> {
     try {
