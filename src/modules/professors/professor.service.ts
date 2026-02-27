@@ -223,4 +223,9 @@ export class ProfessorService implements IProfessorService {
       );
     }
   }
+
+  async deleteProfessor(id: number): Promise<ProfessorDTO> {
+    const professor = await this.professorRepository.deleteProfessor(id);
+    return this.professorFactory.mapProfessorToDTO(professor);
+  }
 }
