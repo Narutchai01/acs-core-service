@@ -106,12 +106,13 @@ export class CourseRepository implements ICourseRepository {
     return count;
   }
 
-  async deleteCourse(courseId :number): Promise<Course> {
+  async deleteCourse(courseId :number, updatedBy: number): Promise<Course> {
     try {
           const course = await this.prisma.course.update({
             where: { id: courseId },
             data: {
               deletedAt: new Date(),
+              updatedBy: updatedBy
             },
             include: {
               typeCourse: true,

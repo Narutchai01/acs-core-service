@@ -6,6 +6,8 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { CourseDocs } from "./course.docs";
 import { CourseFactory } from "./course.factory";
+import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
@@ -60,11 +62,16 @@ export const CourseController = (app: Elysia) =>
         },
         CourseDocs.getCourseById,
       )
+      .guard({}, (privateApp) =>
+              privateApp
+                .use(authMiddleware)
+                .use(roleMacro)
       .delete(
        "/:id",
-       async ({ courseService, params, set}) => {
+       async ({ courseService, params, set, userID}) => {
           const course = await courseService.deleteCourse(
             Number(params.id),
+            userID,
           );
           if (!course) {
             set.status = HttpStatusCode.NOT_FOUND;
@@ -84,4 +91,5 @@ export const CourseController = (app: Elysia) =>
           checkRole: PERMISSION.ADMINPERSMISSION,
         }
       )
+    )
   );

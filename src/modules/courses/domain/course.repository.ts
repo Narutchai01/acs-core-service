@@ -6,5 +6,5 @@ export interface ICourseRepository {
   getCoures(query: CourseQueryParams): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | null>;
   countCourse(query: CourseQueryParams): Promise<number>;
-  deleteCourse(courseId:number):Promise<Course | null>
+  deleteCourse(courseId:number, updatedBy: number):Promise<Course | null>
 }
