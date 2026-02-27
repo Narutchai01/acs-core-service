@@ -6,6 +6,8 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { CourseDocs } from "./course.docs";
 import { CourseFactory } from "./course.factory";
+import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
@@ -60,12 +62,17 @@ export const CourseController = (app: Elysia) =>
         },
         CourseDocs.getCourseById,
       )
+      .guard({}, (privateApp) =>
+              privateApp
+                .use(authMiddleware)
+                .use(roleMacro)
       .patch(
        "/:id",
-       async ({ courseService, params, body, set}) => {
+       async ({ courseService, params, body, set ,userID}) => {
           const course = await courseService.updateCourse(
             Number(params.id),
             body,
+            userID,
           );
           if (!course) {
             set.status = HttpStatusCode.NOT_FOUND;
@@ -86,4 +93,5 @@ export const CourseController = (app: Elysia) =>
         },
         
       )
+    )
   );

@@ -47,10 +47,13 @@ export class CourseService implements ICourseService {
     return this.courseFactory.mapCourseToDTO(course);
   }
 
-  async updateCourse(courseId : number , data: UpdateCourseDTO): Promise<CourseDTO | null>{
+  async updateCourse(courseId : number , data: UpdateCourseDTO , updatedBy: number): Promise<CourseDTO | null>{
       const course = await this.courseRepository.updateCourse(
               courseId,
-              data,
+              {
+                ...data,
+                updatedBy: updatedBy || 0,
+              }
             );
       if (!course) return null;
 
