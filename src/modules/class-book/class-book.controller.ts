@@ -48,6 +48,24 @@ export const ClassBookController = (app: Elysia) =>
               checkRole: PERMISSION.ADMINPERSMISSION,
             }
           )
+          .patch(
+            "/:id",
+            async ({ classBookService, params, body, userID }) => {
+              const classBook = await classBookService.updateClassBook(
+                Number(params.id),
+                body,
+                userID,
+              );
+              return success(
+                classBook,
+                "ClassBook update successfully",
+                HttpStatusCode.OK,);
+            },
+            {
+              ...ClassBookDocs.updateClassBook,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            },
+          ),
       )
       .get(
         "",
