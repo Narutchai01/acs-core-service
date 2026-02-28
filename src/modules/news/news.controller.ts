@@ -73,7 +73,10 @@ export const newsController = (app: Elysia) =>
                 HttpStatusCode.OK,
               );
             },
-            NewsDocs.deleteNews,
+            {
+              ...NewsDocs.deleteNews,
+              checkRole: ["admin"],
+            },
           ),
       )
       .get(
