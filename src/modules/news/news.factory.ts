@@ -3,7 +3,13 @@ import { News, NewsDTO, NewsFeatureDTO, NewsFeature } from "./domain/news";
 export class NewsFactory {
   mapNewsToDTO(news: News): NewsDTO {
     return {
-      ...news,
+      id: news.id,
+      title: news.title,
+      image: news.image,
+      detail: news.detail,
+      startDate: news.startDate,
+      dueDate: news.dueDate,
+      tag: news.tag,
     };
   }
 
