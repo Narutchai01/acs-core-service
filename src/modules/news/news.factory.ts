@@ -9,7 +9,13 @@ export class NewsFactory {
       detail: news.detail,
       startDate: news.startDate,
       dueDate: news.dueDate,
-      tag: news.tag,
+      tag: news.tag
+        ? {
+            id: news.tag.id,
+            name: news.tag.name,
+            tagsGroupsId: news.tag.tagsGroupsId,
+          }
+        : undefined,
     };
   }
 
