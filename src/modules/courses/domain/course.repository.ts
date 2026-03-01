@@ -6,4 +6,8 @@ export interface ICourseRepository {
   getCoures(query: CourseQueryParams): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | null>;
   countCourse(query: CourseQueryParams): Promise<number>;
+  updateCourse(
+    courseId: number,
+    data: Prisma.CourseUncheckedUpdateInput
+  ): Promise<Course | null>
 }
