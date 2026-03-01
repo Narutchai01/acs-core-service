@@ -1,6 +1,6 @@
 services:
   database:
-    container_name: acs-core-database
+    container_name: acs-core-database-dev
     image: postgres:18
     environment:
       POSTGRES_USER: ${DB_USER}
