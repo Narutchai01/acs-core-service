@@ -61,4 +61,17 @@ export const CurriculumDocs = {
       404: mapResponse(t.Null()),
     },
   },
+
+  deleteCurriculum: {
+    detail: {
+      summary: "Delete a curriculum",
+      description: "Delete a specific curriculum by its unique ID",
+      tags: ["Curriculum"],
+    },
+    params: CurriculumIdParam,
+    response: {
+      200: mapResponse(CurriculumDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };
