@@ -66,12 +66,7 @@ export const newsController = (app: Elysia) =>
                   HttpStatusCode.NOT_FOUND,
                 );
               }
-              set.status = HttpStatusCode.OK;
-              return success(
-                news,
-                "News deleted successfully",
-                HttpStatusCode.OK,
-              );
+              return success(news, "News deleted successfully");
             },
             {
               ...NewsDocs.deleteNews,
