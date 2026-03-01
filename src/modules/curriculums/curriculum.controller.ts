@@ -62,6 +62,22 @@ export const CurriculumController = (app: Elysia) =>
               checkRole: PERMISSION.ADMINPERSMISSION,
             }
           )
+          .delete(
+            "/:id",
+            async ({ curriculumService, params: { id }, set }) => {
+              const curriculum = await curriculumService.deleteCurriculum(id);
+              
+              set.status = HttpStatusCode.OK;
+              return success(
+                curriculum,
+                "Curriculum deleted successfully",
+              );
+            },
+            {
+              ...CurriculumDocs.deleteCurriculum,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
       )
       .get(
         "",
