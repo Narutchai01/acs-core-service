@@ -8,4 +8,7 @@ COPY . ./
 RUN bun install --production
 
 
+ENTRYPOINT [ "/usr/src/app/entrypoint/setup.sh" ]
+
+
 CMD ["bun", "run", "src/index.ts"]
