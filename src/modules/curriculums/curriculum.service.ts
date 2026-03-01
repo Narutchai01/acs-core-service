@@ -122,7 +122,7 @@ export class CurriculumService implements ICurriculumService {
             const match = existingCurriculum.thumbnailURL.match(urlPattern);
             
             if (match) {
-              const oldFilePath = match[1];
+              const oldFilePath = decodeURI(match[1]);
               await this.storageService.deleteFile(oldFilePath);
             }
           } catch (deleteError) {
