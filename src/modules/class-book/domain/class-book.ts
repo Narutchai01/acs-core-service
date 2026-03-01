@@ -42,7 +42,16 @@ export const ClassBookDTO = t.Object({
   curriculum: CurriculumDTO,
 });
 
+export const UpdateClassBookDTO = t.Partial(
+  t.Object({
+    ...CommonClassBookFields,
+    thumbnailFile: t.File(),
+    curriculumID: t.Numeric(),
+  }),
+);
+
 export type ClassBook = Static<typeof ClassBookSchema>;
 export type ClassBookDTO = Static<typeof ClassBookDTO>;
 export type CreateClassBookDTO = Static<typeof CreateClassBookDTO>;
 export type ClassBookQueryParams = Static<typeof ClassBookQueryParams>;
+export type UpdateClassBookDTO = Static<typeof UpdateClassBookDTO>;
