@@ -26,7 +26,7 @@ if [ "$SKIP_MIGRATE" = "true" ]; then
   echo "Skipping Prisma migrate deploy (SKIP_MIGRATE=true)"
 else
   echo "Running Prisma migrations..."
-  npx prisma migrate deploy
+  bunx --bun prisma migrate deploy
 fi
 
 # === (Optional) seed ===
