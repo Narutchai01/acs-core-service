@@ -118,9 +118,10 @@ export class CurriculumService implements ICurriculumService {
 
         if (existingCurriculum.thumbnailURL) {
           try {
-            const match = existingCurriculum.thumbnailURL.match(/(curriculums\/.*)/);
+            const urlPattern = /\/public\/[^/]+\/(.+)$/;
+            const match = existingCurriculum.thumbnailURL.match(urlPattern);
             
-            if (match && match[1]) {
+            if (match) {
               const oldFilePath = match[1];
               await this.storageService.deleteFile(oldFilePath);
             }
