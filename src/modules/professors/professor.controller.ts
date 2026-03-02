@@ -141,14 +141,6 @@ export const ProfessorController = (app: Elysia) =>
               const professor = await professorService.deleteProfessor(
                 Number(params.id),
               );
-              if (!professor) {
-                set.status = HttpStatusCode.NOT_FOUND;
-                return success(
-                  null,
-                  "Professor not found",
-                  HttpStatusCode.NOT_FOUND,
-                );
-              }
               set.status = HttpStatusCode.OK;
               return success(
                 professor,

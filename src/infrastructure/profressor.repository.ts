@@ -122,7 +122,7 @@ export class ProfessorRepository implements IProfessorRepository {
     return count;
   }
 
-  async deleteProfessor(professorID: number): Promise<Professor> {
+  async deleteProfessor(professorID: number): Promise<Professor | null> {
     try {
       const professor = await this.prisma.professor.update({
         where: { id: professorID },
@@ -138,11 +138,7 @@ export class ProfessorRepository implements IProfessorRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          throw new AppError(
-            ErrorCode.NOT_FOUND_ERROR,
-            "Professor not found",
-            404,
-          );
+          return null;
         }
       }
       throw new AppError(
