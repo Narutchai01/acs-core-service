@@ -226,6 +226,9 @@ export class ProfessorService implements IProfessorService {
 
   async deleteProfessor(id: number): Promise<ProfessorDTO> {
     const professor = await this.professorRepository.deleteProfessor(id);
+    if (!professor) {
+      throw new AppError(ErrorCode.NOT_FOUND_ERROR, "Professor not found", 404);
+    }
     return this.professorFactory.mapProfessorToDTO(professor);
   }
 }
