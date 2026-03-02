@@ -177,7 +177,11 @@ export class NewsService implements INewsService {
   async deleteNews(id: number): Promise<NewsDTO | null> {
     const news = await this.newsRepository.deleteNews(id);
     if (!news) {
-      return null;
+      throw new AppError(
+        ErrorCode.NOT_FOUND_ERROR,
+        "News not found",
+        HttpStatusCode.NOT_FOUND,
+      );
     }
     return this.newsFactory.mapNewsToDTO(news);
   }
