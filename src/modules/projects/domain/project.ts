@@ -46,6 +46,11 @@ export const ProjectDTO = t.Intersect([
   }),
 ]);
 
+export const ProjectIdParam = t.Object({
+  id: t.Numeric(), 
+});
+
 export type Project = Static<typeof ProjectSchema>;
 export type CreateProjectDTO = Static<typeof CreateProjectDTO>;
 export type ProjectDTO = Static<typeof ProjectDTO>;
+export type ProjectIdParam = Static<typeof ProjectIdParam>;
