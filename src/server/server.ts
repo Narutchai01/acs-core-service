@@ -27,9 +27,15 @@ export class Server {
       .use(errorPlugin)
       .use(
         cors({
-          origin: [config.ALLOW_ORIGIN ?? "*"],
+          origin:
+            config.ALLOW_ORIGIN === "*"
+              ? true
+              : config.ALLOW_ORIGIN.split(",").map((o) => o.trim()),
+          methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+          allowedHeaders: ["Content-Type", "Authorization"],
+          credentials: true,
         }),
-      ) // Enable CORS with custom origin
+      )
       .use(logger())
       .use(RouteSetup);
 

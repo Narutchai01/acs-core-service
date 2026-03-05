@@ -8,7 +8,7 @@ export interface Config {
   ENVIRONMENT: string;
   SECRET_JWT: string;
   APP_HOST: string;
-  ALLOW_ORIGIN?: string;
+  ALLOW_ORIGIN: string;
 }
 
 export const config: Config = {
@@ -23,5 +23,5 @@ export const config: Config = {
   ENVIRONMENT: process.env.ENVIRONMENT || "development",
   SECRET_JWT: String(process.env.SECRET_JWT),
   APP_HOST: process.env.APP_HOST || "0,0,0,0",
-  ALLOW_ORIGIN: String(process.env.ALLOW_ORIGIN) || "*",
+  ALLOW_ORIGIN: process.env.ALLOW_ORIGIN || "*",
 };
