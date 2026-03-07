@@ -11,4 +11,5 @@ export interface IProjectRepository {
   createProjectMember(
     data: Prisma.ProjectMemberUncheckedCreateInput[],
   ): Promise<void>;
+  getProjectById(id: number): Promise<Project | null>;
 }
