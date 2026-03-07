@@ -19,6 +19,10 @@ const newsService = new NewsService(
   supabaseService,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const newsController = (app: Elysia) =>
   app.decorate("newsService", newsService).group("/news", (app) =>
     app
@@ -52,6 +56,21 @@ export const newsController = (app: Elysia) =>
             {
               ...NewsDocs.upsertNewsFeature,
               checkRole: ["admin"],
+            },
+          )
+          .patch(
+            "/:id",
+            async ({ newsService, params, body, userID }) => {
+              const news = await newsService.updateNews(
+                params.id,
+                body,
+                userID,
+              );
+              return success(news, "News updated successfully");
+            },
+            {
+              ...NewsDocs.updateNews,
+              checkRole: PERMISSION.ADMINPERSMISSION,
             },
           ),
       )
