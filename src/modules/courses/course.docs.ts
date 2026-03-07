@@ -64,5 +64,19 @@ export const CourseDocs = {
           200: mapResponse(CourseDTO),
           404: mapResponse(t.Null()),
         },
-  }
+  },
+  DeleteCourse:{
+     detail: {
+      summary: "Delete course",
+      description: "Delete a course by ID",
+      tags: ["Courses"],
+    },
+    params: t.Object({
+        id: t.Number(),
+    }),
+    response: {
+      200: mapResponse(CourseDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };
