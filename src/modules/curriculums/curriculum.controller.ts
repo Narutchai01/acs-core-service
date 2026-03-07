@@ -7,6 +7,8 @@ import { Elysia } from "elysia";
 import { HttpStatusCode } from "../../core/types/http";
 import { CurriculumDocs } from "./curriculum.docs";
 import { success } from "../../core/interceptor/response";
+import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const curriculumRepository = new CurriculumRepository(prisma);
 const curriculumFactory = new CurriculumFactory();
@@ -17,22 +19,65 @@ const curriculumService = new CurriculumService(
   supabaseService,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const CurriculumController = (app: Elysia) =>
-  app.group("/curriculums", (app) =>
+  app.decorate("curriculumService", curriculumService).group("/curriculums", (app) =>
     app
-      .decorate("curriculumService", curriculumService)
-      .post(
-        "",
-        async ({ curriculumService, body, set }) => {
-          const curriculum = await curriculumService.createCurriculum(body);
-          set.status = HttpStatusCode.CREATED;
-          return success(
-            curriculum,
-            "Curriculum created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        CurriculumDocs.createCurruculum,
+      .guard({}, (privateApp) =>
+        privateApp
+          .use(authMiddleware)
+          .use(roleMacro)
+          .post(
+            "",
+            async ({ curriculumService, body, set, userID }) => {
+              const curriculum = await curriculumService.createCurriculum(body, userID);
+              set.status = HttpStatusCode.CREATED;
+              return success(
+                curriculum,
+                "Curriculum created successfully",
+                HttpStatusCode.CREATED,
+              );
+            },
+            {
+              ...CurriculumDocs.createCurruculum,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
+          .patch(
+            "/:id",
+            async ({ curriculumService, params: { id }, body, set, userID }) => {
+              const curriculum = await curriculumService.updateCurriculum(id, body, userID);
+              
+              set.status = HttpStatusCode.OK;
+              return success(
+                curriculum,
+                "Curriculum updated successfully",
+              );
+            },
+            {
+              ...CurriculumDocs.updateCurriculum,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
+          .delete(
+            "/:id",
+            async ({ curriculumService, params: { id }, set }) => {
+              const curriculum = await curriculumService.deleteCurriculum(id);
+              
+              set.status = HttpStatusCode.OK;
+              return success(
+                curriculum,
+                "Curriculum deleted successfully",
+              );
+            },
+            {
+              ...CurriculumDocs.deleteCurriculum,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
       )
       .get(
         "",

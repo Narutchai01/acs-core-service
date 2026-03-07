@@ -5,6 +5,7 @@ import {
   CurriculumDTO,
   CurriculumIdParam,
   CurriculumQueryParams,
+  UpdateCurriculumDTO,
 } from "./domain/curriculum";
 import { Pageable } from "../../core/models";
 
@@ -38,6 +39,33 @@ export const CurriculumDocs = {
     detail: {
       summary: "Get curriculum by ID",
       description: "Retrieve a specific curriculum by its unique ID",
+      tags: ["Curriculum"],
+    },
+    params: CurriculumIdParam,
+    response: {
+      200: mapResponse(CurriculumDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
+
+  updateCurriculum: {
+    detail: {
+      summary: "Update an existing curriculum",
+      description: "Update curriculum details. All fields are optional.",
+      tags: ["Curriculum"],
+    },
+    params: CurriculumIdParam,
+    body: UpdateCurriculumDTO,
+    response: {
+      200: mapResponse(CurriculumDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
+
+  deleteCurriculum: {
+    detail: {
+      summary: "Delete a curriculum",
+      description: "Delete a specific curriculum by its unique ID",
       tags: ["Curriculum"],
     },
     params: CurriculumIdParam,
