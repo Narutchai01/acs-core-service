@@ -10,4 +10,5 @@ export interface ICourseRepository {
     courseId: number,
     data: Prisma.CourseUncheckedUpdateInput
   ): Promise<Course | null>
+  deleteCourse(courseId:number, updatedBy: number):Promise<Course | null>
 }
