@@ -33,7 +33,14 @@ export class NewsRepository implements INewsRepository {
   }
 
   async getNews(query: NewsQueryParams): Promise<News[]> {
-    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
+    const {
+      page = 1,
+      pageSize = 10,
+      orderBy = "createdAt",
+      sortBy,
+      search,
+      searchBy,
+    } = query;
     const newsList = await this.prisma.news.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
@@ -42,6 +49,10 @@ export class NewsRepository implements INewsRepository {
       },
       where: {
         ...(query.tagID && { tagID: query.tagID }),
+        ...(search &&
+          searchBy && {
+            [searchBy]: { contains: search, mode: "insensitive" },
+          }),
         deletedAt: null,
       },
       include: {
@@ -208,5 +219,39 @@ export class NewsRepository implements INewsRepository {
       },
     });
     return count;
+  }
+
+  async deleteNews(id: number): Promise<News> {
+    try {
+      const news = await this.prisma.news.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+        include: {
+          tag: true,
+        },
+      });
+      return {
+        ...news,
+        tag: news.tag
+          ? {
+              ...news.tag,
+              tagsGroupsId: news.tag.tageGroupsId,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(ErrorCode.NOT_FOUND_ERROR, "News not found", 404);
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Database error occurred",
+        500,
+      );
+    }
   }
 }

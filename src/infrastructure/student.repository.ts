@@ -23,12 +23,36 @@ export class StudentRepository implements IStudentRepository {
   }
 
   async getStudents(query: StudentQueryParams): Promise<Student[]> {
-    const { page = 1, pageSize = 10, orderBy = "createdAt", sortBy } = query;
+    const {
+      page = 1,
+      pageSize = 10,
+      orderBy = "createdAt",
+      sortBy,
+      search,
+      searchBy,
+      classBookID,
+    } = query;
+    let searchCondition = {};
+    if (search && searchBy) {
+      if (searchBy === "firstNameTh") {
+        searchCondition = {
+          user: {
+            firstNameTh: { contains: search, mode: "insensitive" },
+          },
+        };
+      } else {
+        searchCondition = {
+          [searchBy]: { contains: search, mode: "insensitive" },
+        };
+      }
+    }
+
     const students = await this.prisma.student.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       where: {
-        ...(query.classBookID && { classBookID: query.classBookID }),
+        ...(classBookID && { classBookID }),
+        ...searchCondition,
         deletedAt: null,
       },
       orderBy: {

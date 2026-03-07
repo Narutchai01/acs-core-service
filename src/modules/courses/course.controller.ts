@@ -66,9 +66,39 @@ export const CourseController = (app: Elysia) =>
               privateApp
                 .use(authMiddleware)
                 .use(roleMacro)
-      .delete(
+      .patch(
        "/:id",
-       async ({ courseService, params, set, userID}) => {
+       async ({ courseService, params, body, set ,userID}) => {
+          const course = await courseService.updateCourse(
+            Number(params.id),
+            body,
+             userID,
+          );
+          if (!course) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(
+              null, 
+              "Course not found", 
+              HttpStatusCode.NOT_FOUND
+            );
+          }
+          return success(
+            course, 
+            "Update course successfully", 
+            HttpStatusCode.OK,);
+        },
+        {
+          ...CourseDocs.UpdateCourse,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        }
+      )
+        .guard({}, (privateApp) =>
+              privateApp
+                .use(authMiddleware)
+                .use(roleMacro)    
+        .delete(
+        "/:id",
+        async ({ courseService, params, set, userID}) => {
           const course = await courseService.deleteCourse(
             Number(params.id),
             userID,
@@ -92,4 +122,5 @@ export const CourseController = (app: Elysia) =>
         }
       )
     )
+  )
   );

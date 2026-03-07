@@ -35,6 +35,8 @@ export const NewsDTO = t.Object({
 export const NewsQueryParams = t.Object({
   tagID: t.Optional(t.Numeric()),
   ...CommonQueryParams,
+  search: t.Optional(t.String()),
+  searchBy: t.Optional(t.String()),
 });
 
 export const CommonNewsFeatureFields = {

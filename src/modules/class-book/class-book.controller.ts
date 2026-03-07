@@ -8,6 +8,8 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { ClassBookDocs } from "./class-book.docs";
 import { CurriculumFactory } from "../curriculums/curriculum.factory";
+import { authMiddleware } from "../../middleware/auth";
+import { roleMacro } from "../../middleware/checkRole";
 
 const curriculumFactory = new CurriculumFactory();
 const supabaseService = new SupabaseService();
@@ -19,22 +21,51 @@ const classBookService = new ClassBookService(
   supabaseService,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const ClassBookController = (app: Elysia) =>
-  app.group("/class-books", (app) =>
+  app.decorate("classBookService", classBookService).group("/class-books", (app) =>
     app
-      .decorate("classBookService", classBookService)
-      .post(
-        "",
-        async ({ classBookService, body, set }) => {
-          const classBook = await classBookService.createClassBook(body);
-          set.status = HttpStatusCode.CREATED;
-          return success(
-            classBook,
-            "Class book created successfully",
-            HttpStatusCode.CREATED,
-          );
-        },
-        ClassBookDocs.createClassBook,
+      .guard({}, (privateApp) =>
+        privateApp
+          .use(authMiddleware)
+          .use(roleMacro)
+          .post(
+            "",
+            async ({ classBookService, body, set, userID }) => {
+              const classBook = await classBookService.createClassBook(body, userID);
+              set.status = HttpStatusCode.CREATED;
+              return success(
+                classBook,
+                "Class book created successfully",
+                HttpStatusCode.CREATED,
+              );
+            },
+            {
+              ...ClassBookDocs.createClassBook,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
+          .patch(
+            "/:id",
+            async ({ classBookService, params, body, userID }) => {
+              const classBook = await classBookService.updateClassBook(
+                Number(params.id),
+                body,
+                userID,
+              );
+              return success(
+                classBook,
+                "ClassBook update successfully",
+                HttpStatusCode.OK,);
+            },
+            {
+              ...ClassBookDocs.updateClassBook,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            },
+          ),
       )
       .get(
         "",
