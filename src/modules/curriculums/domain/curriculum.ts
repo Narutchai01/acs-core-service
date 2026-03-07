@@ -37,8 +37,16 @@ export const CurriculumIdParam = t.Object({
   id: t.Number(),
 });
 
+export const UpdateCurriculumDTO = t.Partial(
+  t.Object({
+    thumbnailFile: t.File(),
+    ...CommonCurriculumField,
+  })
+);
+
 export type Curriculum = Static<typeof CurriculumSchema>;
 export type CreateCurriculumDTO = Static<typeof CreateCurriculumDTO>;
 export type CurriculumDTO = Static<typeof CurriculumDTO>;
 export type CurriculumQueryParams = Static<typeof CurriculumQueryParams>;
 export type CurriculumIdParam = Static<typeof CurriculumIdParam>;
+export type UpdateCurriculumDTO = Static<typeof UpdateCurriculumDTO>;

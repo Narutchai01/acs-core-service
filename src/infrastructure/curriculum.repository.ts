@@ -53,4 +53,17 @@ export class CurriculumRepository implements ICurriculumRepository {
     });
     return curriculum;
   }
+
+  async updateCurriculum(
+    id: number,
+    data: Prisma.CurriculumUpdateInput,
+  ): Promise<Curriculum> {
+    const curriculum = await this.prisma.curriculum.update({
+      where: {
+        id: id,
+      },
+      data,
+    });
+    return curriculum;
+  }
 }
