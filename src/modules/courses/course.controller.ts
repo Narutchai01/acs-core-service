@@ -93,5 +93,35 @@ export const CourseController = (app: Elysia) =>
         },
         
       )
+      .guard({}, (privateApp) =>
+              privateApp
+                .use(authMiddleware)
+                .use(roleMacro)
+      .delete(
+       "/:id",
+       async ({ courseService, params, set, userID}) => {
+          const course = await courseService.deleteCourse(
+            Number(params.id),
+            userID,
+          );
+          if (!course) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(
+              null, 
+              "Course not found", 
+              HttpStatusCode.NOT_FOUND
+            );
+          }
+          return success(
+            course, 
+            "Delete course successfully", 
+            HttpStatusCode.OK,);
+        },
+        {
+          ...CourseDocs.DeleteCourse,
+          checkRole: PERMISSION.ADMINPERSMISSION,
+        }
+      )
+    )
     )
   );
