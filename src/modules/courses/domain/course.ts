@@ -14,7 +14,7 @@ const CommonCourseField = {
   detail: t.String(),
 };
 
-export const CourseSchema = t.Intersect([
+export const CourseSchema = t.Recursive((Self) => t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonCourseField,
@@ -22,21 +22,36 @@ export const CourseSchema = t.Intersect([
     curriculumID: t.Number(),
     typeCourse: TypeCourseSchema,
     curriculum: t.Intersect([CurriculumSchema, BaseModelSchema]),
+    preCourses: t.Optional(
+        t.Array(
+          t.Object({
+            prerequisite: Self,
+          })
+        )
+      ),
   }),
   BaseModelSchema,
-]);
+  ])
+);
 
-export const CourseDTO = t.Object({
+export const PrerequisitesDTO = t.Object({
   id: t.Number(),
   ...CommonCourseField,
-  typeCourse: TypeCourseSchema,
-  curriculum: CurriculumDTO,
 });
+
+export const CourseDTO = t.Object({
+    id: t.Number(),
+    ...CommonCourseField,
+    typeCourse: TypeCourseSchema,
+    curriculum: CurriculumDTO,
+    prerequisites: t.Array(PrerequisitesDTO),
+  });
 
 export const CreateCourseDTO = t.Object({
   ...CommonCourseField,
   typeCourseID: t.Number(),
   curriculumID: t.Number(),
+  preCoursesID: t.Optional(t.Array(t.Number())),
 });
 
 export const CourseQueryParams = t.Object({
@@ -52,6 +67,9 @@ export const UpdateCourseDTO = t.Partial(
     ...CommonCourseField,
     typeCourseID: t.Number(),
     curriculumID: t.Number(),
+
+    newPrecourseId: t.Optional(t.Array(t.Number())),
+    deletePrecourseId: t.Optional(t.Array(t.Number())),
   })
 );
 
