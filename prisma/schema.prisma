@@ -181,34 +181,13 @@ model Course {
   createdBy    Int        @map("created_by")
   updatedBy    Int        @map("updated_by")
   createdAt    DateTime   @default(now()) @map("created_at")
-  deletedAt    DateTime?  @map("deleted_at")  
+  deletedAt    DateTime?  @map("deleted_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   typeCourse   TypeCourse @relation(fields: [typeCourseID], references: [id])
   curriculum   Curriculum @relation(fields: [curriculumID], references: [id])
-  preCourses PreCourse[] 
-  prerequisiteOf   PreCourse[] @relation("prerequisiteOf")
 
   @@map("courses")
 }
-
-model PreCourse {
-  id          Int      @id @default(autoincrement())
-  courseID    Int      @map("course_id")
-  preCourseID Int      @map("pre_course_id")
-  createdBy   Int      @map("created_by")
-  updatedBy   Int      @map("updated_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  deletedAt   DateTime? @map("deleted_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  course    Course @relation(fields: [courseID], references: [id])
-  prerequisite Course @relation("prerequisiteOf", fields: [preCourseID], references: [id])
-
-  @@unique([courseID, preCourseID])
-
-  @@map("pre_courses")
-}
-
 
 model ClassBook {
   id                Int        @id @default(autoincrement()) @map("id")
