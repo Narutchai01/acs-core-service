@@ -15,6 +15,15 @@ export class CourseFactory implements ICourseFactory {
       detail: course.detail,
       typeCourse: course.typeCourse,
       curriculum: course.curriculum,
+      prerequisites:
+        course.preCourses?.map((preCourse) => ({
+          id: preCourse.prerequisite.id,
+          courseCode: preCourse.prerequisite.courseCode,
+          courseNameTh: preCourse.prerequisite.courseNameTh,
+          courseNameEn: preCourse.prerequisite.courseNameEn,
+          credits: preCourse.prerequisite.credits,
+          detail: preCourse.prerequisite.detail,
+        })) ?? [],
     };
   }
 
