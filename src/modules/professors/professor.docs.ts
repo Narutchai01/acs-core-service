@@ -78,4 +78,18 @@ export const ProfessorDocs = {
       404: mapResponse(t.Null()),
     },
   },
+  deleteProfessor: {
+    detail: {
+      summary: "Delete professor by ID.",
+      description: "Delete a specific professor by ID.",
+      tags: ["Professors"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    responses: {
+      200: mapResponse(ProfessorDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
 };
