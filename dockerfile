@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim AS base
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y curl unzip openssl && \
+RUN apt-get update && apt-get install -y curl unzip openssl nodejs npm && \
     curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64-baseline.zip -o bun.zip && \
     unzip bun.zip && \
     mv bun-linux-x64-baseline/bun /usr/local/bin/bun && \
@@ -14,7 +14,8 @@ FROM base AS install
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
 RUN bun install --frozen-lockfile
-RUN bunx prisma generate
+# ใช้ node รัน prisma generate แทน bunx
+RUN node node_modules/.bin/prisma generate
 
 # --- Stage 2: Final Production Image ---
 FROM base AS release
