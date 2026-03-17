@@ -72,5 +72,19 @@ export const ClassBookDocs = {
       200: mapResponse(ClassBookDTO),
       404: mapResponse(t.Null()),
     },
-  }
+  },
+  deleteClassBook: {
+    detail: {
+      summary: "Delete class book",
+      description: "Delete a class book by ID",
+      tags: ["Class Books"],
+    },
+    params: t.Object({
+      id: t.Number(),
+    }),
+    response: {
+      200: mapResponse(ClassBookDTO),
+    },
+  },
+
 };

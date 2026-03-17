@@ -20,6 +20,7 @@ interface IClassBookService {
   ): Promise<PageableType<typeof ClassBookDTO>>;
   getClassBookById(id: number): Promise<ClassBookDTO | null>;
   updateClassBook(classBookID: number, data: UpdateClassBookDTO, userID: number): Promise<ClassBookDTO>;
+  deleteClassBook(id: number): Promise<ClassBookDTO>;
 }
 
 export class ClassBookService implements IClassBookService {
@@ -116,4 +117,9 @@ export class ClassBookService implements IClassBookService {
       throw error;
     }
   }
+  async deleteClassBook(id: number): Promise<ClassBookDTO> {
+    const classBook = await this.classBookRepository.deleteClassBook(id);
+    return this.classBookFactory.mapClassBookToDTO(classBook);
+  }
+
 }

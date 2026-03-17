@@ -65,7 +65,20 @@ export const ClassBookController = (app: Elysia) =>
               ...ClassBookDocs.updateClassBook,
               checkRole: PERMISSION.ADMINPERSMISSION,
             },
-          ),
+          )
+          .delete(
+            "/:id",
+            async ({ classBookService, params }) => {
+              const classBook = await classBookService.deleteClassBook(
+                Number(params.id),
+              );
+              return success(classBook, "Class Book deleted successfully");
+            },
+            {
+              ...ClassBookDocs.deleteClassBook,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            },
+          )
       )
       .get(
         "",

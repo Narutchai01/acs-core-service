@@ -12,4 +12,6 @@ export interface IClassBookRepository {
     classBookID: number,
     data: Prisma.ClassBookUncheckedUpdateInput
   ): Promise<ClassBook>;
+  deleteClassBook(id: number): Promise<ClassBook>;
+
 }
