@@ -1,7 +1,7 @@
-FROM debian:bookworm-slim AS base
+FROM node:20-slim AS base
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y curl unzip openssl nodejs npm && \
+RUN apt-get update && apt-get install -y curl unzip openssl && \
     curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64-baseline.zip -o bun.zip && \
     unzip bun.zip && \
     mv bun-linux-x64-baseline/bun /usr/local/bin/bun && \
@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y curl unzip openssl nodejs npm && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # --- Stage 1: Install Dependencies & Generate Prisma ---
-# --- Stage 1: Install Dependencies & Generate Prisma ---
 FROM base AS install
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
 RUN bun install
 RUN node node_modules/.bin/prisma generate
+
 # --- Stage 2: Final Production Image ---
 FROM base AS release
 COPY . .
