@@ -13,8 +13,7 @@ RUN apt-get update && apt-get install -y curl unzip openssl nodejs npm && \
 FROM base AS install
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
-RUN bun install --frozen-lockfile
-# ใช้ node รัน prisma generate แทน bunx
+RUN bun install  # ← เอา --frozen-lockfile ออกก่อน
 RUN node node_modules/.bin/prisma generate
 
 # --- Stage 2: Final Production Image ---
