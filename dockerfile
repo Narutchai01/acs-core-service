@@ -1,6 +1,10 @@
 FROM node:20-alpine AS base
 WORKDIR /usr/src/app
 
+ENV BUN_JSC_useJIT=0
+ENV BUN_JSC_useDFGJIT=0
+ENV BUN_JSC_useFTLJIT=0
+
 RUN apk add --no-cache curl unzip openssl bash && \
     curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64-musl-baseline.zip -o bun.zip && \
     unzip bun.zip && \
@@ -23,4 +27,4 @@ COPY --from=install /usr/src/app/src/generated ./src/generated
 RUN sed -i 's/\r$//' ./entrypoint/setup.sh \
     && chmod +x ./entrypoint/setup.sh
 ENTRYPOINT [ "./entrypoint/setup.sh" ]
-CMD ["bun", "run", "src/index.ts"]
+CMD ["bun", "--jit=false", "run", "src/index.ts"]
