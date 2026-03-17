@@ -12,4 +12,5 @@ export interface ICourseRepository {
     newPrecourseId: number[],
     deletePrecourseId: number[]
   ): Promise<Course | null>;
+  deleteCourse(courseId:number, updatedBy: number):Promise<Course | null>
 }

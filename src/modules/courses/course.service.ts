@@ -67,4 +67,15 @@ export class CourseService implements ICourseService {
       
       return this.courseFactory.mapCourseToDTO(course);
   }
+
+  async deleteCourse(courseId: number, updatedBy: number): Promise<CourseDTO | null>{
+      const course = await this.courseRepository.deleteCourse(
+              courseId,
+              updatedBy || 0,
+               );
+      if (!course) return null;
+
+      return this.courseFactory.mapCourseToDTO(course);
+  }
+
 }

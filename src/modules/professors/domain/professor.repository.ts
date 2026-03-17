@@ -12,4 +12,5 @@ export interface IProfessorRepository {
     data: Prisma.ProfessorUncheckedUpdateInput,
   ): Promise<Professor>;
   countProfessors(query: ProfessorQueryParams): Promise<number>;
+  deleteProfessor(id: number): Promise<Professor | null>;
 }
