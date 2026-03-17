@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y curl unzip openssl nodejs npm && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # --- Stage 1: Install Dependencies & Generate Prisma ---
+# --- Stage 1: Install Dependencies & Generate Prisma ---
 FROM base AS install
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
-RUN bun install  # ← เอา --frozen-lockfile ออกก่อน
+RUN bun install
 RUN node node_modules/.bin/prisma generate
-
 # --- Stage 2: Final Production Image ---
 FROM base AS release
 COPY . .
