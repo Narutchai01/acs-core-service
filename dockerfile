@@ -3,7 +3,8 @@ WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y curl unzip && \
     curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin/bun && \
+    cp /root/.bun/bin/bun /usr/local/bin/bun && \
+    ln -s /usr/local/bin/bun /usr/local/bin/bunx && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # --- Stage 1: Install Dependencies & Generate Prisma ---
