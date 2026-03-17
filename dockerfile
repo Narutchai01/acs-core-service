@@ -2,9 +2,11 @@ FROM debian:bookworm-slim AS base
 WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y curl unzip && \
-    curl -fsSL https://bun.sh/install | bash && \
-    cp /root/.bun/bin/bun /usr/local/bin/bun && \
+    curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64-baseline.zip -o bun.zip && \
+    unzip bun.zip && \
+    mv bun-linux-x64-baseline/bun /usr/local/bin/bun && \
     ln -s /usr/local/bin/bun /usr/local/bin/bunx && \
+    rm -rf bun.zip bun-linux-x64-baseline && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # --- Stage 1: Install Dependencies & Generate Prisma ---
