@@ -221,7 +221,7 @@ export class NewsRepository implements INewsRepository {
     return count;
   }
 
-  async deleteNews(id: number): Promise<News> {
+  async deleteNews(id: number): Promise<News | null> {
     try {
       const news = await this.prisma.news.update({
         where: { id },
@@ -244,7 +244,7 @@ export class NewsRepository implements INewsRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          throw new AppError(ErrorCode.NOT_FOUND_ERROR, "News not found", 404);
+          return null;
         }
       }
       throw new AppError(

@@ -53,6 +53,18 @@ export const newsController = (app: Elysia) =>
               ...NewsDocs.upsertNewsFeature,
               checkRole: ["admin"],
             },
+          )
+          .delete(
+            "/:id",
+            async ({ newsService, params, set }) => {
+              const news = await newsService.deleteNews(Number(params.id));
+              set.status = HttpStatusCode.OK;
+              return success(news, "News deleted successfully");
+            },
+            {
+              ...NewsDocs.deleteNews,
+              checkRole: ["admin"],
+            },
           ),
       )
       .get(
@@ -75,19 +87,6 @@ export const newsController = (app: Elysia) =>
           return success(news, "News retrieved successfully");
         },
         NewsDocs.getNewsById,
-      )
-      .delete(
-        "/:id",
-        async ({ newsService, params, set }) => {
-          const news = await newsService.deleteNews(Number(params.id));
-          if (!news) {
-            set.status = HttpStatusCode.NOT_FOUND;
-            return success(null, "News not found", HttpStatusCode.NOT_FOUND);
-          }
-          set.status = HttpStatusCode.OK;
-          return success(news, "News deleted successfully", HttpStatusCode.OK);
-        },
-        NewsDocs.deleteNews,
       )
       .group("/news-features", (app) =>
         app
