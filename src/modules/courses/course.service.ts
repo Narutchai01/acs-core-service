@@ -15,11 +15,16 @@ export class CourseService implements ICourseService {
   ) {}
 
   async createCourse(data: CreateCourseDTO): Promise<CourseDTO> {
+    const { preCoursesID, ...courseData } = data;
+
     const course = await this.courseRepository.createCourse({
-      ...data,
+      ...courseData,
       createdBy: 0,
       updatedBy: 0,
-    });
+      },
+      preCoursesID ?? []
+    );
+
     return this.courseFactory.mapCourseToDTO(course);
   }
 
@@ -48,15 +53,18 @@ export class CourseService implements ICourseService {
   }
 
   async updateCourse(courseId : number , data: UpdateCourseDTO , updatedBy: number): Promise<CourseDTO | null>{
+      const { newPrecourseId,deletePrecourseId , ...courseData } = data;
       const course = await this.courseRepository.updateCourse(
               courseId,
               {
-                ...data,
+                ...courseData,
                 updatedBy: updatedBy || 0,
-              }
+              },
+              newPrecourseId ?? [],
+              deletePrecourseId ?? []
             );
       if (!course) return null;
-
+      
       return this.courseFactory.mapCourseToDTO(course);
   }
 
