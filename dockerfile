@@ -1,5 +1,5 @@
 # ใช้ Bun image แบบ Multi-stage เพื่อแยกส่วน Build และ Run
-FROM oven/bun:1-baseline AS base
+FROM oven/bun:1.3.10-baseline AS base
 WORKDIR /usr/src/app
 # --- Stage 1: Install Dependencies & Generate Prisma ---
 FROM base AS install
