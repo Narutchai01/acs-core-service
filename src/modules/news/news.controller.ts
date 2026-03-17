@@ -62,7 +62,7 @@ export const newsController = (app: Elysia) =>
             "/:id",
             async ({ newsService, params, body, userID }) => {
               const news = await newsService.updateNews(
-                params.id,
+                Number(params.id),
                 body,
                 userID,
               );

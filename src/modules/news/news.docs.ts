@@ -119,9 +119,6 @@ export const NewsDocs = {
         if (body[k] === "") {
           body[k] = undefined;
         }
-        if (k === "tagID" && body[k] === 0) {
-          body[k] = undefined;
-        }
       });
     },
     params: t.Object({
