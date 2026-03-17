@@ -93,10 +93,6 @@ export const CourseController = (app: Elysia) =>
         },
         
       )
-      .guard({}, (privateApp) =>
-              privateApp
-                .use(authMiddleware)
-                .use(roleMacro)
       .delete(
        "/:id",
        async ({ courseService, params, set, userID}) => {
@@ -122,6 +118,5 @@ export const CourseController = (app: Elysia) =>
           checkRole: PERMISSION.ADMINPERSMISSION,
         }
       )
-    )
     )
   );
