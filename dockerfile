@@ -1,11 +1,7 @@
 FROM debian:bookworm-slim AS base
 WORKDIR /usr/src/app
 
-# บอก Prisma ให้ใช้ binary สำหรับ CPU เก่า
-ENV PRISMA_QUERY_ENGINE_BINARY=linux-musl
-ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-
-RUN apt-get update && apt-get install -y curl unzip && \
+RUN apt-get update && apt-get install -y curl unzip openssl && \
     curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64-baseline.zip -o bun.zip && \
     unzip bun.zip && \
     mv bun-linux-x64-baseline/bun /usr/local/bin/bun && \
