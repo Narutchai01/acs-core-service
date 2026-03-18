@@ -7,6 +7,7 @@ import { IProjectFactory } from "./project.factory";
 
 interface IProjectService {
   createProject(projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  getProjectById(id: number): Promise<ProjectDTO | null>;
 }
 
 export class ProjectService implements IProjectService {
@@ -97,5 +98,20 @@ export class ProjectService implements IProjectService {
     await this.projectRepository.createProjectTag(projectTagsData);
 
     return this.projectFactory.mapProjectToDTO(createdProject);
+  }
+
+  async getProjectById(id: number): Promise<ProjectDTO | null> {
+    try {
+      const project = await this.projectRepository.getProjectById(id);
+      if (!project) {
+        return null;
+      }
+      return this.projectFactory.mapProjectToDTO(project);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 }
