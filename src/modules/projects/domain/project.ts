@@ -32,6 +32,7 @@ export const CreateProjectDTO = t.Object({
   ...CommonProjectFields,
   tagsID: t.Array(t.Number()),
   members: t.Array(t.Object(ProjectMemberFields)),
+  coursesID: t.Array(t.Number()),
   assets: t.Files(),
   techStacks: t.Array(t.String()),
 });
