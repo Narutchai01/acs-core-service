@@ -24,6 +24,7 @@ export class ProjectService implements IProjectService {
       tagsID,
       techStacks,
       members,
+      coursesID,
       ...projectFields
     } = projectData;
 
@@ -93,9 +94,18 @@ export class ProjectService implements IProjectService {
       updatedBy: 0,
     }));
 
+    const projectCourseData = Array.from(new Set(coursesID)).map((courseID) => ({
+      projectID: createdProject.id,
+      courseID,
+      createdBy: 0,
+      updatedBy: 0,
+    }));
+
     await this.projectRepository.createProjectMember(projectMembersData);
 
     await this.projectRepository.createProjectTag(projectTagsData);
+
+    await this.projectRepository.createProjectCourse(projectCourseData);
 
     return this.projectFactory.mapProjectToDTO(createdProject);
   }
