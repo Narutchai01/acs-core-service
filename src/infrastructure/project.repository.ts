@@ -3,6 +3,7 @@ import {
   ProjectUncheckedCreateInput,
   ProjectTagUncheckedCreateInput,
   ProjectMemberUncheckedCreateInput,
+  ProjectCourseUncheckedCreateInput,
 } from "../generated/prisma/models";
 import { IProjectRepository } from "../modules/projects/domain/project.repository";
 import { Project } from "../modules/projects/domain/project";
@@ -34,6 +35,14 @@ export class ProjectRepository implements IProjectRepository {
     data: ProjectMemberUncheckedCreateInput[],
   ): Promise<void> {
     await this.db.projectMember.createMany({
+      data,
+    });
+  }
+
+  async createProjectCourse(
+    data: ProjectCourseUncheckedCreateInput[],
+  ): Promise<void> {
+    await this.db.projectCourse.createMany({
       data,
     });
   }
