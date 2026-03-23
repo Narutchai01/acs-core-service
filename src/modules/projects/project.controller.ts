@@ -6,6 +6,7 @@ import { ProjectFactory } from "./project.factory";
 import Elysia from "elysia";
 import { ProjectDocs } from "./project.docs";
 import { success } from "../../core/interceptor/response";
+import { HttpStatusCode } from "../../core/types/http";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
@@ -28,4 +29,27 @@ export const ProjectController = (app: Elysia) =>
         ...ProjectDocs.createProject,
       },
     ),
-  );
+  )
+  .get(
+        "/:id",
+        async ({ projectService, params, set }) => {
+          const project = await projectService.getProjectById(params.id);
+          
+          if (!project) {
+            set.status = HttpStatusCode.NOT_FOUND || 404;
+            return success(
+              null,
+              "Project not found",
+              HttpStatusCode.NOT_FOUND
+            );
+          }
+          
+          return success(
+            project,
+            "Project retrieved successfully"
+          );
+        },
+        {
+          ...ProjectDocs.getProjectById,
+        },
+      )

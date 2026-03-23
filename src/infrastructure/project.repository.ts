@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client";
+import { Prisma, PrismaClient } from "../generated/prisma/client";
 import {
   ProjectUncheckedCreateInput,
   ProjectTagUncheckedCreateInput,
@@ -6,6 +6,8 @@ import {
 } from "../generated/prisma/models";
 import { IProjectRepository } from "../modules/projects/domain/project.repository";
 import { Project } from "../modules/projects/domain/project";
+import { ErrorCode } from "../core/types/errors";
+import { AppError } from "../core/error/app-error";
 
 export class ProjectRepository implements IProjectRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -34,5 +36,25 @@ export class ProjectRepository implements IProjectRepository {
     await this.db.projectMember.createMany({
       data,
     });
+  }
+
+  async getProjectById(id: number): Promise<Project | null> {
+    try {
+      const project = await this.db.project.findUnique({
+        where: { id, deletedAt: null }, 
+      });
+      return project as unknown as Project | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "An error occurred while fetching the project",
+        500,
+      );
+    }
   }
 }

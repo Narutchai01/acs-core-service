@@ -3,19 +3,24 @@ import {
   CreateClassBookDTO,
   ClassBookDTO,
   ClassBookQueryParams,
+  UpdateClassBookDTO,
+  ClassBook,
 } from "./domain/class-book";
 import { IClassBookRepository } from "./domain/class-book.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { PageableType } from "../../core/models";
+import { Prisma } from "../../generated/prisma/client";
 
 interface IClassBookService {
-  createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO>;
+  createClassBook(data: CreateClassBookDTO, createdBy: number): Promise<ClassBookDTO>;
   getClassBooks(
     query: ClassBookQueryParams,
   ): Promise<PageableType<typeof ClassBookDTO>>;
   getClassBookById(id: number): Promise<ClassBookDTO | null>;
+  updateClassBook(classBookID: number, data: UpdateClassBookDTO, userID: number): Promise<ClassBookDTO>;
+  deleteClassBook(id: number): Promise<ClassBookDTO>;
 }
 
 export class ClassBookService implements IClassBookService {
@@ -23,9 +28,9 @@ export class ClassBookService implements IClassBookService {
     private readonly classBookRepository: IClassBookRepository,
     private readonly classBookFactory: IClassBookFactory,
     private readonly storage: SupabaseService,
-  ) {}
+  ) { }
 
-  async createClassBook(data: CreateClassBookDTO): Promise<ClassBookDTO> {
+  async createClassBook(data: CreateClassBookDTO, createdBy: number): Promise<ClassBookDTO> {
     const { thumbnailFile, ...rest } = data;
     try {
       let thumbnailPath: string | null = null;
@@ -45,8 +50,8 @@ export class ClassBookService implements IClassBookService {
       const classBookData = {
         ...rest,
         thumbnailURL: thumbnailPath,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: createdBy || 0,
+        updatedBy: createdBy || 0,
       };
 
       const classBook =
@@ -81,4 +86,40 @@ export class ClassBookService implements IClassBookService {
     }
     return this.classBookFactory.mapClassBookToDTO(classBook);
   }
+  async updateClassBook(classBookID: number, data: UpdateClassBookDTO, userID: number): Promise<ClassBookDTO> {
+    const {
+      thumbnailFile,
+      classof,
+      firstYearAcademic,
+      curriculumID,
+
+    } = data;
+    let thumbnailPath: string | undefined = undefined;
+    let classBook: ClassBook;
+    try {
+
+      if (thumbnailFile) {
+        thumbnailPath = await this.storage.uploadFile(thumbnailFile, "class-books");
+      }
+
+      const updateClassBookData: Prisma.ClassBookUncheckedUpdateInput = {
+        ...(thumbnailPath && { thumbnailURL: thumbnailPath }),
+        classof,
+        firstYearAcademic,
+        curriculumID,
+        updatedBy: userID,
+      };
+
+      classBook = await this.classBookRepository.updateClassBook(classBookID, updateClassBookData);
+      return this.classBookFactory.mapClassBookToDTO(classBook);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+  async deleteClassBook(id: number): Promise<ClassBookDTO> {
+    const classBook = await this.classBookRepository.deleteClassBook(id);
+    return this.classBookFactory.mapClassBookToDTO(classBook);
+  }
+
 }
