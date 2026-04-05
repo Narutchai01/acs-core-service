@@ -1,5 +1,9 @@
 import { t, Static } from "elysia";
-import { BaseModelSchema } from "../../../core/models";
+import { BaseModelSchema, CommonQueryParams} from "../../../core/models";
+import { Tag } from "../../../core/models/tag";
+import { UserSchema } from "../../users/domain/user";
+import { CourseSchema, CourseDTO as CourseDTOSchema } from "../../courses/domain/course";
+import { RoleSchema } from "../../../core/models/role";
 
 export const CommonProjectFields = {
   title: t.String(),
@@ -18,6 +22,9 @@ export const ProjectSchema = t.Intersect([
     thumbnailURL: t.String(),
     assetsURL: t.Optional(t.String()),
     techStacks: t.String(),
+    projectTags: t.Optional(t.Array(Tag)),
+    projectMembers: t.Optional(t.Array(UserSchema)),
+    projectCourses: t.Optional(t.Array(CourseSchema)),
   }),
   BaseModelSchema,
 ]);
@@ -44,14 +51,30 @@ export const ProjectDTO = t.Intersect([
     ...CommonProjectFields,
     assetsURL: t.Array(t.String()),
     techStacks: t.Array(t.String()),
-  }),
+    tag: t.Array(Tag),
+
+    member: t.Array(
+      t.Intersect([
+        UserSchema,
+        t.Object({
+          role: RoleSchema,
+        })
+      ])
+    ),
+
+    course: t.Array(CourseDTOSchema),
+  })
 ]);
 
-export const ProjectIdParam = t.Object({
-  id: t.Numeric(), 
-});
+export const ProjectQueryParams = t.Object({
+  tagID: t.Optional(t.Array(t.Numeric())),
+  courseID: t.Optional(t.Array(t.Numeric())),
+  ...CommonQueryParams,
+  search: t.Optional(t.String()),
+  searchBy: t.Optional(t.String()),
+})
 
 export type Project = Static<typeof ProjectSchema>;
 export type CreateProjectDTO = Static<typeof CreateProjectDTO>;
 export type ProjectDTO = Static<typeof ProjectDTO>;
-export type ProjectIdParam = Static<typeof ProjectIdParam>;
+export type ProjectQueryParams = Static<typeof ProjectQueryParams>;
