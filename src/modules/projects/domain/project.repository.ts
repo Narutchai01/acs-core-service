@@ -1,5 +1,5 @@
 import { Prisma } from "../../../generated/prisma/client";
-import { Project } from "./project";
+import { Project, ProjectQueryParams} from "./project";
 
 export interface IProjectRepository {
   createProject(
@@ -14,5 +14,7 @@ export interface IProjectRepository {
   createProjectCourse(
     data: Prisma.ProjectCourseUncheckedCreateInput[],
   ): Promise<void>;
+  getProject(query: ProjectQueryParams): Promise<Project[]>
   getProjectById(id: number): Promise<Project | null>;
+  countProject(query: ProjectQueryParams): Promise<number>
 }
