@@ -25,23 +25,23 @@ export class ProjectFactory implements IProjectFactory {
       assetsURL: project.assetsURL ? project.assetsURL.split(",") : [],
       techStacks: project.techStacks ? project.techStacks.split(",") : [],
 
-      tag: project.projectTags?.map((pt: any) => ({
-        id: pt.tag.id,
-        name: pt.tag.name,
-        tagsGroupsId: pt.tag.tageGroupsId,
+      tag: project.projectTags?.map((projectTag: any) => ({
+        id: projectTag.tag.id,
+        name: projectTag.tag.name,
+        tagsGroupsId: projectTag.tag.tageGroupsId,
       })) || [],
 
       member:
-        project.projectMembers?.map((pm: any) => ({
-        ...this.userFactory.mapUserToDTO(pm.user),
+        project.projectMembers?.map((projectMember: any) => ({
+        ...this.userFactory.mapUserToDTO(projectMember.user),
         role: {
-          id: pm.role.id,
-          name: pm.role.name,
+          id: projectMember.role.id,
+          name: projectMember.role.name,
         },
       })) ?? [],
 
        course: this.courseFactory.mapCourseListToDTO(
-        project.projectCourses?.map((pc: any) => pc.course) ?? []
+        project.projectCourses?.map((projectCourse: any) => projectCourse.course) || []
       ),
       };
   }
