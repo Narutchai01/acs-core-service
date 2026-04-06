@@ -5,6 +5,7 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IProjectFactory } from "./project.factory";
 import { PageableType } from "../../core/models";
+import { HttpStatusCode } from "../../core/types/http";
 
 interface IProjectService {
   createProject(projectData: CreateProjectDTO): Promise<ProjectDTO>;
@@ -248,4 +249,15 @@ export class ProjectService implements IProjectService {
   return this.projectFactory.mapProjectToDTO(updatedProject);
 }
 
-}
+  async deleteProject(id: number): Promise<ProjectDTO | null> {
+     const project = await this.projectRepository.deleteProject(id);
+        if (!project) {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "Project not found",
+            HttpStatusCode.NOT_FOUND,
+          );
+        }
+        return this.projectFactory.mapProjectToDTO(project);
+      }
+  }

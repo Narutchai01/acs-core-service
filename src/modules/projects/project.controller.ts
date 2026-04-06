@@ -77,3 +77,14 @@ export const ProjectController = (app: Elysia) =>
       ...ProjectDocs.updateProject,
     }
   )
+  .delete(
+    "/:id",
+    async ({ params, projectService, set }) => {
+      const project =await projectService.deleteProject(params.id);
+      set.status = HttpStatusCode.OK;
+      return success(project, "Project deleted successfully");
+    },
+    {
+      ...ProjectDocs.deleteProject,
+    }
+  )

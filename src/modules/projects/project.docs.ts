@@ -54,5 +54,19 @@ export const ProjectDocs = {
       200: mapResponse(ProjectDTO),
       404: mapResponse(t.Null()),
     },
-  }
+  },
+  deleteProject: {
+    detail: {
+      summary: "Delete project",
+      description: "Delete a project by its ID",
+      tags: ["Projects"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    response: {
+      204: mapResponse(t.Null()),
+      404: mapResponse(t.Null()),
+    },
+  },
 };

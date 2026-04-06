@@ -33,4 +33,5 @@ export interface IProjectRepository {
     id: number,
     projectData: Prisma.ProjectUncheckedUpdateInput,
   ): Promise<Project>;
+  deleteProject(id: number): Promise<Project>;
 }
