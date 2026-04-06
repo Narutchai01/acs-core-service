@@ -31,7 +31,7 @@ export const CreateProjectDTO = t.Object({
   thumbnailFile: t.File(),
   ...CommonProjectFields,
   tagsID: t.Array(t.Number()),
-  members: t.Array(t.Object(ProjectMemberFields)),
+  members: t.Array(t.Object(t.Number())),
   coursesID: t.Array(t.Number()),
   assets: t.Files(),
   techStacks: t.Array(t.String()),

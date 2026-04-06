@@ -14,10 +14,13 @@ export class ProjectRepository implements IProjectRepository {
   constructor(private readonly db: PrismaClient) {}
 
   async createProject(
-    proejctData: ProjectUncheckedCreateInput,
+
+    projectData: ProjectUncheckedCreateInput,
   ): Promise<Project> {
     const createdProject = await this.db.project.create({
-      data: proejctData,
+      data: {
+        ...projectData,
+      },
     });
 
     return createdProject as unknown as Project;

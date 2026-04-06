@@ -7,6 +7,8 @@ import Elysia from "elysia";
 import { ProjectDocs } from "./project.docs";
 import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
+import { roleMacro } from "../../middleware/checkRole";
+import { authMiddleware } from "../../middleware/auth";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
@@ -18,15 +20,20 @@ const projectService = new ProjectService(
 );
 
 export const ProjectController = (app: Elysia) =>
-  app.decorate("projectService", projectService).guard({}, (privateApp) =>
-    privateApp.post(
+  app.decorate("projectService", projectService).group("/project", (app) =>
+  app
+    .guard({}, (admin) => admin
+    .use(authMiddleware)
+    .use(roleMacro)
+  .post(
       "",
-      async ({ body, projectService }) => {
-        const project = await projectService.createProject(body);
+      async ({ body, projectService ,userID }) => {
+        const project = await projectService.createProject(userID,body);
         return success(project);
       },
       {
         ...ProjectDocs.createProject,
+        checkRole: ["admin"],
       },
     ),
   )
@@ -53,3 +60,4 @@ export const ProjectController = (app: Elysia) =>
           ...ProjectDocs.getProjectById,
         },
       )
+    )
