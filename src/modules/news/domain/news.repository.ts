@@ -17,5 +17,9 @@ export interface INewsRepository {
   getNewsFeatureById(id: number): Promise<NewsFeature | null>;
   countNews(query: NewsQueryParams): Promise<number>;
   countNewsFeatures(query: QueryNewsFeatureParams): Promise<number>;
-  deleteNews(id: number): Promise<News | null>;
+  deleteNews(id: number): Promise<News>;
+  updateNews(
+    id: number,
+    data: Prisma.NewsUncheckedUpdateInput,
+  ): Promise<News | null>;
 }
