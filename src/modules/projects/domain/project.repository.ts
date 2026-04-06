@@ -2,7 +2,7 @@ import { Prisma } from "../../../generated/prisma/client";
 import { Project, ProjectQueryParams} from "./project";
 
 export interface IProjectRepository {
-  createProject(
+  createProject( 
     proejctData: Prisma.ProjectUncheckedCreateInput,
   ): Promise<Project>;
   createProjectTag(
