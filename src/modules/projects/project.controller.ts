@@ -66,3 +66,14 @@ export const ProjectController = (app: Elysia) =>
           ...ProjectDocs.getProjectById,
         },
       )
+  .put(
+    "/:id",
+    async ({ body, params, projectService, set }) => {
+        const updatedProject = await projectService.updateProject(params.id, body);
+        set.status = HttpStatusCode.OK;
+        return success(updatedProject, "Project updated successfully");
+    },
+    {
+      ...ProjectDocs.updateProject,
+    }
+  )

@@ -74,7 +74,26 @@ export const ProjectQueryParams = t.Object({
   searchBy: t.Optional(t.String()),
 })
 
+export const UpdateProjectDTO = t.Object({
+  thumbnailFile: t.Optional(t.File()),
+  ...Object.fromEntries(
+    Object.entries(CommonProjectFields).map(([key, value]) => [
+      key,
+      t.Optional(value),
+    ])
+  ),
+  newtagsID: t.Optional(t.Array(t.Number())),
+  deletedtagsID: t.Optional(t.Array(t.Number())),
+  newMembersID: t.Optional(t.Array(t.Object(ProjectMemberFields))),
+  deletedmembersID: t.Optional(t.Array(t.Numeric())),
+  newCoursesID: t.Optional(t.Array(t.Number())),
+  deletedCoursesID: t.Optional(t.Array(t.Number())),
+  assets: t.Optional(t.Files()),
+  techStacks: t.Optional(t.Array(t.String())),
+});
+
 export type Project = Static<typeof ProjectSchema>;
 export type CreateProjectDTO = Static<typeof CreateProjectDTO>;
+export type UpdateProjectDTO = Static<typeof UpdateProjectDTO>;
 export type ProjectDTO = Static<typeof ProjectDTO>;
 export type ProjectQueryParams = Static<typeof ProjectQueryParams>;

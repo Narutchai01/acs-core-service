@@ -35,11 +35,40 @@ export class ProjectRepository implements IProjectRepository {
     });
   }
 
+  async deleteProjectTag(
+    projectID: number,
+    tagID: number[],
+  ): Promise<void> {
+    await this.prisma.projectTag.deleteMany({
+      where: {
+        projectID,
+        tagID: {
+          in: tagID,
+        }
+      },
+    });
+  }
+
+
   async createProjectMember(
     data: ProjectMemberUncheckedCreateInput[],
   ): Promise<void> {
     await this.prisma.projectMember.createMany({
       data,
+    });
+  }
+
+  async deleteProjectMember(
+    projectID: number,
+    userID: number[],
+  ): Promise<void> {
+    await this.prisma.projectMember.deleteMany({
+      where: {
+        projectID,
+        userID: {
+          in: userID,
+        }
+      },
     });
   }
 
@@ -50,6 +79,21 @@ export class ProjectRepository implements IProjectRepository {
       data,
     });
   }
+
+  async deleteProjectCourse(
+    projectID: number,
+    courseID: number[],
+  ): Promise<void> {
+    await this.prisma.projectCourse.deleteMany({
+      where: {
+        projectID,
+        courseID: {
+          in: courseID,
+        } 
+      },
+    });
+  }
+
 
   async getProject(query: ProjectQueryParams): Promise<Project[]> {
     const {
@@ -185,5 +229,16 @@ export class ProjectRepository implements IProjectRepository {
       },
     });
     return count;
+  }
+
+  async updateProject(
+    id: number,
+    projectData: Prisma.ProjectUncheckedUpdateInput,
+  ): Promise<Project> {
+    const updatedProject = await this.prisma.project.update({
+      where: { id, deletedAt: null },
+      data: projectData,
+    });
+    return updatedProject as unknown as Project;
   }
 }
