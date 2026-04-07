@@ -9,6 +9,7 @@ import { PageableType } from "../../core/models";
 interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
+  updateProject(projectID: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO>;
 }
 
 export class ProjectService implements IProjectService {
@@ -142,7 +143,7 @@ export class ProjectService implements IProjectService {
     }
   }
 
-  async updateProject(id: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
+  async updateProject(id: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
   const {
     thumbnailFile,
     assets,
@@ -201,15 +202,16 @@ export class ProjectService implements IProjectService {
     thumbnailURL,
     assetsURL: assetsURLString,
     techStacks: techStackString,
-    updatedBy: 0,
+    updatedBy: userID || 0,
+    updatedAt: new Date(),
   });
 
   if (newtagsID.length > 0) {
     const data = Array.from(new Set(newtagsID)).map((tagID) => ({
       projectID: id,
       tagID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectTag(data);
   }
@@ -221,10 +223,9 @@ export class ProjectService implements IProjectService {
   if (newMembersID.length > 0) {
     const data = newMembersID.map((m) => ({
       projectID: id,
-      userID: m.userID,
-      roleID: m.roleID,
-      createdBy: 0,
-      updatedBy: 0,
+      userID: userID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectMember(data);
   }
@@ -237,8 +238,8 @@ export class ProjectService implements IProjectService {
     const data = Array.from(new Set(newCoursesID)).map((courseID) => ({
       projectID: id,
       courseID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectCourse(data);
   }

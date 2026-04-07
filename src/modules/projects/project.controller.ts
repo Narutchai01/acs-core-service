@@ -39,7 +39,19 @@ export const ProjectController = (app: Elysia) =>
         ...ProjectDocs.createProject,
         checkRole: ["admin"],
       },
-    ),
+    )
+  .put(
+    "/:id",
+    async ({ body, params, projectService, userID, set }) => {
+        const updatedProject = await projectService.updateProject(params.id, userID, body);
+        set.status = HttpStatusCode.OK;
+        return success(updatedProject, "Project updated successfully");
+    },
+    {
+      ...ProjectDocs.updateProject,
+      checkRole: ["admin"],
+    }
+  )
   )
   .get(
     "",
@@ -73,14 +85,4 @@ export const ProjectController = (app: Elysia) =>
           ...ProjectDocs.getProjectById,
         },
       )
-    )  .put(
-    "/:id",
-    async ({ body, params, projectService, set }) => {
-        const updatedProject = await projectService.updateProject(params.id, body);
-        set.status = HttpStatusCode.OK;
-        return success(updatedProject, "Project updated successfully");
-    },
-    {
-      ...ProjectDocs.updateProject,
-    }
-  )
+    )  
