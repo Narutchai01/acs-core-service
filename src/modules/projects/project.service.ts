@@ -8,6 +8,7 @@ import { PageableType } from "../../core/models";
 
 interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
 }
 
