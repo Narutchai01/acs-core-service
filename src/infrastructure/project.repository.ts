@@ -245,10 +245,13 @@ export class ProjectRepository implements IProjectRepository {
     return updatedProject as unknown as Project;
   }
 
-  async deleteProject(id: number): Promise<Project> {
+  async deleteProject(id: number, userID: number): Promise<Project> {
       const deletedProject = await this.prisma.project.update({
         where: { id, deletedAt: null },
-        data: { deletedAt: new Date() },
+        data: { 
+          updatedBy: userID || 0,
+          deletedAt: new Date() 
+        },
       });
       return deletedProject as unknown as Project;
   }

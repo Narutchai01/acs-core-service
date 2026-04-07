@@ -11,6 +11,7 @@ interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
   updateProject(projectID: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO>;
+  deleteProject(id: number, userID: number): Promise<ProjectDTO | null>;
 }
 
 export class ProjectService implements IProjectService {
@@ -252,8 +253,8 @@ export class ProjectService implements IProjectService {
   return this.projectFactory.mapProjectToDTO(updatedProject);
 }
 
-  async deleteProject(id: number): Promise<ProjectDTO | null> {
-     const project = await this.projectRepository.deleteProject(id);
+  async deleteProject(id: number, userID : number): Promise<ProjectDTO | null> {
+     const project = await this.projectRepository.deleteProject(id ,userID);
         if (!project) {
           throw new AppError(
             ErrorCode.NOT_FOUND_ERROR,
