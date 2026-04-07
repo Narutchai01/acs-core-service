@@ -84,7 +84,7 @@ export const UpdateProjectDTO = t.Object({
   ),
   newtagsID: t.Optional(t.Array(t.Number())),
   deletedtagsID: t.Optional(t.Array(t.Number())),
-  newMembersID: t.Optional(t.Array(t.Number())),
+    newMembers: t.Optional(t.Array(t.Object(ProjectMemberFields))),
   deletedmembersID: t.Optional(t.Array(t.Numeric())),
   newCoursesID: t.Optional(t.Array(t.Number())),
   deletedCoursesID: t.Optional(t.Array(t.Number())),

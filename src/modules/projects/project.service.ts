@@ -151,7 +151,7 @@ export class ProjectService implements IProjectService {
     newtagsID = [],
     deletedtagsID = [],
     techStacks,
-    newMembersID = [],
+    newMembers = [],
     deletedmembersID = [],
     newCoursesID = [],
     deletedCoursesID = [],
@@ -221,10 +221,11 @@ export class ProjectService implements IProjectService {
     await this.projectRepository.deleteProjectTag(id, deletedtagsID);
   }
 
-  if (newMembersID.length > 0) {
-    const data = newMembersID.map((m) => ({
+  if (newMembers.length > 0) {
+    const data = newMembers.map((member) => ({
       projectID: id,
-      userID: userID,
+      userID: member.userID,
+      roleID: member.roleID,
       createdBy: userID || 0,
       updatedBy: userID || 0,
     }));
