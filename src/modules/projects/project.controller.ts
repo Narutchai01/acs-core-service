@@ -9,6 +9,8 @@ import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
 import { UserFactory } from "../users/user.factory";
 import { CourseFactory } from "../courses/course.factory";
+import { roleMacro } from "../../middleware/checkRole";
+import { authMiddleware } from "../../middleware/auth";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
@@ -22,17 +24,34 @@ const projectService = new ProjectService(
 );
 
 export const ProjectController = (app: Elysia) =>
-  app.decorate("projectService", projectService).guard({}, (privateApp) =>
-    privateApp.post(
+  app.decorate("projectService", projectService).group("/project", (app) =>
+  app
+    .guard({}, (admin) => admin
+    .use(authMiddleware)
+    .use(roleMacro)
+  .post(
       "",
-      async ({ body, projectService }) => {
-        const project = await projectService.createProject(body);
+      async ({ body, projectService ,userID }) => {
+        const project = await projectService.createProject(userID,body);
         return success(project);
       },
       {
         ...ProjectDocs.createProject,
+        checkRole: ["admin"],
       },
-    ),
+    )
+  .put(
+    "/:id",
+    async ({ body, params, projectService, userID, set }) => {
+        const updatedProject = await projectService.updateProject(params.id, userID, body);
+        set.status = HttpStatusCode.OK;
+        return success(updatedProject, "Project updated successfully");
+    },
+    {
+      ...ProjectDocs.updateProject,
+      checkRole: ["admin"],
+    }
+  )
   )
   .get(
     "",
@@ -66,17 +85,7 @@ export const ProjectController = (app: Elysia) =>
           ...ProjectDocs.getProjectById,
         },
       )
-  .put(
-    "/:id",
-    async ({ body, params, projectService, set }) => {
-        const updatedProject = await projectService.updateProject(params.id, body);
-        set.status = HttpStatusCode.OK;
-        return success(updatedProject, "Project updated successfully");
-    },
-    {
-      ...ProjectDocs.updateProject,
-    }
-  )
+    )  
   .delete(
     "/:id",
     async ({ params, projectService, set }) => {

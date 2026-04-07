@@ -18,10 +18,13 @@ export class ProjectRepository implements IProjectRepository {
   {}
 
   async createProject(
-    proejctData: ProjectUncheckedCreateInput,
+
+    projectData: ProjectUncheckedCreateInput,
   ): Promise<Project> {
     const createdProject = await this.prisma.project.create({
-      data: proejctData,
+      data: {
+        ...projectData,
+      },
     });
 
     return createdProject as unknown as Project;

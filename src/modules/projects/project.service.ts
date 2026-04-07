@@ -8,8 +8,9 @@ import { PageableType } from "../../core/models";
 import { HttpStatusCode } from "../../core/types/http";
 
 interface IProjectService {
-  createProject(projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
+  updateProject(projectID: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO>;
 }
 
 export class ProjectService implements IProjectService {
@@ -19,7 +20,7 @@ export class ProjectService implements IProjectService {
     private readonly projectFactory: IProjectFactory,
   ) {}
 
-  async createProject(projectData: CreateProjectDTO): Promise<ProjectDTO> {
+  async createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO> {
     const {
       thumbnailFile,
       assets,
@@ -72,35 +73,37 @@ export class ProjectService implements IProjectService {
     const assetsURLString = assetURLs.join(",");
     const techStackString = techStacks.join(",");
 
-    const createdProject = await this.projectRepository.createProject({
+    const createdProject = await this.projectRepository.createProject( 
+    {
       ...projectFields,
       thumbnailURL: thumbnailURL,
       assetsURL: assetsURLString,
       techStacks: techStackString,
-      createdBy: 0,
-      updatedBy: 0,
-    });
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }
+    );
 
     const projectTagsData = Array.from(new Set(tagsID)).map((tagID) => ({
       projectID: createdProject.id,
       tagID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
 
     const projectMembersData = members.map((member) => ({
       projectID: createdProject.id,
       userID: member.userID,
       roleID: member.roleID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
 
     const projectCourseData = Array.from(new Set(coursesID)).map((courseID) => ({
       projectID: createdProject.id,
       courseID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
 
     await this.projectRepository.createProjectMember(projectMembersData);
@@ -141,7 +144,7 @@ export class ProjectService implements IProjectService {
     }
   }
 
-  async updateProject(id: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
+  async updateProject(id: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
   const {
     thumbnailFile,
     assets,
@@ -200,15 +203,16 @@ export class ProjectService implements IProjectService {
     thumbnailURL,
     assetsURL: assetsURLString,
     techStacks: techStackString,
-    updatedBy: 0,
+    updatedBy: userID || 0,
+    updatedAt: new Date(),
   });
 
   if (newtagsID.length > 0) {
     const data = Array.from(new Set(newtagsID)).map((tagID) => ({
       projectID: id,
       tagID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectTag(data);
   }
@@ -220,10 +224,9 @@ export class ProjectService implements IProjectService {
   if (newMembersID.length > 0) {
     const data = newMembersID.map((m) => ({
       projectID: id,
-      userID: m.userID,
-      roleID: m.roleID,
-      createdBy: 0,
-      updatedBy: 0,
+      userID: userID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectMember(data);
   }
@@ -236,8 +239,8 @@ export class ProjectService implements IProjectService {
     const data = Array.from(new Set(newCoursesID)).map((courseID) => ({
       projectID: id,
       courseID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
     await this.projectRepository.createProjectCourse(data);
   }
