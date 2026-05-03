@@ -8,33 +8,33 @@ import { ErrorCode } from "../core/types/errors";
 export class CourseRepository implements ICourseRepository {
   constructor(private readonly prisma: PrismaClient) { }
 
-  async createCourse(data: Prisma.CourseUncheckedCreateInput,preCourseID: number[]): Promise<Course> {
+  async createCourse(data: Prisma.CourseUncheckedCreateInput, preCourseID: number[]): Promise<Course> {
     try {
-    const course = await this.prisma.course.create({
-    data: {
-      ...data,
+      const course = await this.prisma.course.create({
+        data: {
+          ...data,
 
-      preCourses: preCourseID.length
-        ? {
-            create: preCourseID.map((id) => ({
-              preCourseID: id,
-              createdBy: 0,
-              updatedBy: 0,
-            })),
-          }
-        : undefined,
-    },
-      include: {
-        typeCourse: true,
-        curriculum: true,
-        preCourses: {
-          where: { deletedAt: null },
-          include: {
-            prerequisite: true,
+          preCourses: preCourseID.length
+            ? {
+              create: preCourseID.map((id) => ({
+                preCourseID: id,
+                createdBy: 0,
+                updatedBy: 0,
+              })),
+            }
+            : undefined,
+        },
+        include: {
+          typeCourse: true,
+          curriculum: true,
+          preCourses: {
+            where: { deletedAt: null },
+            include: {
+              prerequisite: true,
+            },
           },
         },
-      },
-    });
+      });
 
       return course as unknown as Course;
     } catch (error) {
@@ -52,7 +52,6 @@ export class CourseRepository implements ICourseRepository {
       typeCourseID,
       curriculumID,
       search,
-      searchBy,
     } = query;
     const courses = await this.prisma.course.findMany({
       skip: calculatePagination(page, pageSize),
@@ -64,13 +63,27 @@ export class CourseRepository implements ICourseRepository {
         deletedAt: null,
         ...(typeCourseID && { typeCourseID }),
         ...(curriculumID && { curriculumID }),
-        ...(search &&
-          searchBy &&
-          typeof searchBy === "string" && {
-          [searchBy]: {
-            contains: search,
-            mode: "insensitive",
-          },
+        ...(search && {
+          OR: [
+            {
+              courseCode: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              courseNameTh: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              courseNameEn: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
         }),
       },
       include: {
@@ -122,19 +135,33 @@ export class CourseRepository implements ICourseRepository {
   }
 
   async countCourse(query: CourseQueryParams): Promise<number> {
-    const { typeCourseID, curriculumID, search, searchBy } = query;
+    const { typeCourseID, curriculumID, search } = query;
     const count = await this.prisma.course.count({
       where: {
         deletedAt: null,
         ...(typeCourseID && { typeCourseID }),
         ...(curriculumID && { curriculumID }),
-        ...(search &&
-          searchBy &&
-          typeof searchBy === "string" && {
-          [searchBy]: {
-            contains: search,
-            mode: "insensitive",
-          },
+        ...(search && {
+          OR: [
+            {
+              courseCode: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              courseNameTh: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              courseNameEn: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
         }),
       },
     });
@@ -142,34 +169,34 @@ export class CourseRepository implements ICourseRepository {
   }
 
   async updateCourse(
-      courseId: number, 
-      data: Prisma.CourseUncheckedUpdateInput,
-      newPrecourseId: number[],
-      deletePrecourseId: number[]
-    ): Promise<Course> {
+    courseId: number,
+    data: Prisma.CourseUncheckedUpdateInput,
+    newPrecourseId: number[],
+    deletePrecourseId: number[]
+  ): Promise<Course> {
     try {
       const course = await this.prisma.course.update({
-      where: { id: courseId },
+        where: { id: courseId },
 
-      data: {
-        ...data,
+        data: {
+          ...data,
 
-        preCourses: {
-          ...(newPrecourseId.length && {
-            create: newPrecourseId.map((id) => ({
-              preCourseID: id,
-              createdBy: 0,
-              updatedBy: 0,
-            })),
-          }),
+          preCourses: {
+            ...(newPrecourseId.length && {
+              create: newPrecourseId.map((id) => ({
+                preCourseID: id,
+                createdBy: 0,
+                updatedBy: 0,
+              })),
+            }),
 
-          ...(deletePrecourseId.length && {
-            deleteMany: {
-              preCourseID: {
-                in: deletePrecourseId,
+            ...(deletePrecourseId.length && {
+              deleteMany: {
+                preCourseID: {
+                  in: deletePrecourseId,
+                },
               },
-            },
-          }),
+            }),
           },
         },
 
@@ -177,7 +204,7 @@ export class CourseRepository implements ICourseRepository {
           typeCourse: true,
           curriculum: true,
           preCourses: {
-          where: { deletedAt: null },
+            where: { deletedAt: null },
             include: {
               prerequisite: true,
             },
@@ -191,23 +218,23 @@ export class CourseRepository implements ICourseRepository {
     }
   }
 
-  async deleteCourse(courseId :number, updatedBy: number): Promise<Course> {
+  async deleteCourse(courseId: number, updatedBy: number): Promise<Course> {
     try {
-          const course = await this.prisma.course.update({
-            where: { id: courseId },
-            data: {
-              deletedAt: new Date(),
-              updatedBy: updatedBy
-            },
-            include: {
-              typeCourse: true,
-              curriculum: true,
-            },
-          });
-          return course as Course;
-        } catch (error) {
-          console.log(error);
-          throw error;
-        }
+      const course = await this.prisma.course.update({
+        where: { id: courseId },
+        data: {
+          deletedAt: new Date(),
+          updatedBy: updatedBy
+        },
+        include: {
+          typeCourse: true,
+          curriculum: true,
+        },
+      });
+      return course as Course;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }
