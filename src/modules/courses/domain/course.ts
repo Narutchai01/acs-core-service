@@ -23,15 +23,15 @@ export const CourseSchema = t.Recursive((Self) => t.Intersect([
     typeCourse: TypeCourseSchema,
     curriculum: t.Intersect([CurriculumSchema, BaseModelSchema]),
     preCourses: t.Optional(
-        t.Array(
-          t.Object({
-            prerequisite: Self,
-          })
-        )
-      ),
+      t.Array(
+        t.Object({
+          prerequisite: Self,
+        })
+      )
+    ),
   }),
   BaseModelSchema,
-  ])
+])
 );
 
 export const PrerequisitesDTO = t.Object({
@@ -40,12 +40,12 @@ export const PrerequisitesDTO = t.Object({
 });
 
 export const CourseDTO = t.Object({
-    id: t.Number(),
-    ...CommonCourseField,
-    typeCourse: TypeCourseSchema,
-    curriculum: CurriculumDTO,
-    prerequisites: t.Array(PrerequisitesDTO),
-  });
+  id: t.Number(),
+  ...CommonCourseField,
+  typeCourse: TypeCourseSchema,
+  curriculum: CurriculumDTO,
+  prerequisites: t.Array(PrerequisitesDTO),
+});
 
 export const CreateCourseDTO = t.Object({
   ...CommonCourseField,
@@ -57,7 +57,6 @@ export const CreateCourseDTO = t.Object({
 export const CourseQueryParams = t.Object({
   ...CommonQueryParams,
   search: t.Optional(t.String()),
-  searchBy: t.Optional(t.String()),
   typeCourseID: t.Optional(t.Number()),
   curriculumID: t.Optional(t.Number()),
 });
