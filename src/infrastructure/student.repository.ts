@@ -8,7 +8,7 @@ import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 export class StudentRepository implements IStudentRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   async createStudent(
     data: Prisma.StudentUncheckedCreateInput,
@@ -29,31 +29,33 @@ export class StudentRepository implements IStudentRepository {
       orderBy = "createdAt",
       sortBy,
       search,
-      searchBy,
       classBookID,
     } = query;
-    let searchCondition = {};
-    if (search && searchBy) {
-      if (searchBy === "firstNameTh") {
-        searchCondition = {
-          user: {
-            firstNameTh: { contains: search, mode: "insensitive" },
-          },
-        };
-      } else {
-        searchCondition = {
-          [searchBy]: { contains: search, mode: "insensitive" },
-        };
-      }
-    }
 
     const students = await this.prisma.student.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       where: {
         ...(classBookID && { classBookID }),
-        ...searchCondition,
         deletedAt: null,
+        ...(search && {
+          OR: [
+            {
+              studentCode: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              user: {
+                firstNameTh: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        }),
       },
       orderBy: {
         [orderBy]: sortBy,
@@ -146,6 +148,24 @@ export class StudentRepository implements IStudentRepository {
       where: {
         ...(query.classBookID && { classBookID: query.classBookID }),
         deletedAt: null,
+        ...(query.search && {
+          OR: [
+            {
+              studentCode: {
+                contains: query.search,
+                mode: "insensitive",
+              },
+            },
+            {
+              user: {
+                firstNameTh: {
+                  contains: query.search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        }),
       },
     });
     return count;
