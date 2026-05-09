@@ -166,6 +166,7 @@ export class StudentService implements IStudentService {
       github,
       facebook,
       instagram,
+      classBookID,
       ...userData
     } = data;
     let imagePath: string | undefined = undefined;
@@ -187,6 +188,7 @@ export class StudentService implements IStudentService {
         github,
         facebook,
         instagram,
+        classBookID,
         updatedBy: 0,
       };
 
