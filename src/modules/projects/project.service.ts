@@ -1,12 +1,14 @@
 import { IProjectRepository } from "./domain/project.repository";
-import { CreateProjectDTO, ProjectDTO } from "./domain/project";
+import { CreateProjectDTO, ProjectDTO, ProjectQueryParams } from "./domain/project";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IProjectFactory } from "./project.factory";
+import { PageableType } from "../../core/models";
 
 interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
 }
 
@@ -110,6 +112,20 @@ export class ProjectService implements IProjectService {
     await this.projectRepository.createProjectCourse(projectCourseData);
 
     return this.projectFactory.mapProjectToDTO(createdProject);
+  }
+
+  async getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>> {
+    const [ProjectList, countProject] = await Promise.all([
+      this.projectRepository.getProject(query),
+      this.projectRepository.countProject(query),
+    ]);
+
+    return {
+      rows: this.projectFactory.mapProjectListToDTOList(ProjectList),
+      totalRecords: countProject,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
   }
 
   async getProjectById(id: number): Promise<ProjectDTO | null> {

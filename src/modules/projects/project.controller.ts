@@ -7,12 +7,16 @@ import Elysia from "elysia";
 import { ProjectDocs } from "./project.docs";
 import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
+import { UserFactory } from "../users/user.factory";
+import { CourseFactory } from "../courses/course.factory";
 import { roleMacro } from "../../middleware/checkRole";
 import { authMiddleware } from "../../middleware/auth";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
-const projectFactory = new ProjectFactory();
+const userFactory = new UserFactory();
+const courseFactory = new CourseFactory();
+const projectFactory = new ProjectFactory(userFactory, courseFactory);
 const projectService = new ProjectService(
   projectRepository,
   supabaseService,
@@ -36,6 +40,15 @@ export const ProjectController = (app: Elysia) =>
         checkRole: ["admin"],
       },
     ),
+  )
+  .get(
+    "",
+    async ({ projectService, query, set }) => {
+      const projectList = await projectService.getProject(query);
+          set.status = HttpStatusCode.OK;
+          return success(projectList, "Project retrieved successfully");
+    },
+    ProjectDocs.getProject,
   )
   .get(
         "/:id",
