@@ -10,7 +10,8 @@ const CommonNewsFields = {
 };
 export const CreateNewsDTO = t.Object({
   ...CommonNewsFields,
-  image: t.File(),
+  thumbnail: t.File(),
+  highlight: t.File(),
   tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
 });
 
@@ -18,7 +19,8 @@ export const NewsSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonNewsFields,
-    image: t.String(),
+    thumbnail: t.String(),
+    highlight: t.String(),
     tagID: t.Numeric(),
     tag: t.Optional(Tag),
   }),
@@ -27,7 +29,8 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   id: t.Number(),
-  image: t.String(),
+  thumbnail: t.String(),
+  highlight: t.String(),
   ...CommonNewsFields,
   tag: t.Optional(Tag),
 });
@@ -35,7 +38,8 @@ export const NewsDTO = t.Object({
 export const NewsUpdateDTO = t.Partial(
   t.Object({
     ...CommonNewsFields,
-    image: t.File(),
+    thumbnail: t.File(),
+    highlight: t.File(),
     tagID: t.Numeric(),
   }),
 );
