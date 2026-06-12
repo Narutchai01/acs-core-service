@@ -29,8 +29,8 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   id: t.Number(),
-  thumbnail: t.String(),
-  highlight: t.String(),
+  thumbnailURL: t.String(),
+  highlightURL: t.String(),
   ...CommonNewsFields,
   tag: t.Optional(Tag),
 });

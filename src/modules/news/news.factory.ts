@@ -5,8 +5,8 @@ export class NewsFactory {
     return {
       id: news.id,
       title: news.title,
-      thumbnail: news.thumbnail,
-      highlight: news.highlight,
+      thumbnailURL: news.thumbnail,
+      highlightURL: news.highlight,
       detail: news.detail,
       startDate: news.startDate,
       dueDate: news.dueDate,
