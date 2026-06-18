@@ -90,14 +90,14 @@ export class ProfessorService implements IProfessorService {
 
       if (rawProfessorData.expertFields) {
         expertFieldsString = rawProfessorData.expertFields
-          ?.split('"')
+          ?.split("/")
           .map((field) => field.trim())
           .join(",");
       }
 
       if (rawProfessorData.educations) {
         educationsString = rawProfessorData.educations
-          ?.split('"')
+          ?.split("/")
           .map((edu) => edu.trim())
           .join("/");
       }

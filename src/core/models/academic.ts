@@ -4,9 +4,9 @@ export const CommonAcademicPosition = {
   id: t.Number(),
   sequence: t.Number(),
   nameTh: t.String(),
-  shortTh: t.String(),
   nameEn: t.String(),
-  shortEn: t.String(),
+  shortNameTh: t.String(),
+  shortNameEn: t.String(),
 };
 
 export const AcademicPositionSchema = t.Object({

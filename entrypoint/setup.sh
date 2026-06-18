@@ -1,10 +1,8 @@
 #!/bin/sh
 set -e
-
 # === Config (optional) ===
-: "${DB_WAIT_TIMEOUT:=60}"        # วินาที
-: "${SKIP_MIGRATE:=false}"        # ตั้งเป็น "true" เพื่อข้าม migrate ชั่วคราว (เช่น ตอน baseline)
-
+: "${DB_WAIT_TIMEOUT:=60}"
+: "${SKIP_MIGRATE:=false}"
 # === Wait for DB (optional) ===
 if [ -n "$DATABASE_HOST" ] && [ -n "$DATABASE_PORT" ]; then
   echo "Waiting for DB at $DATABASE_HOST:$DATABASE_PORT (timeout ${DB_WAIT_TIMEOUT}s)..."
@@ -20,19 +18,16 @@ if [ -n "$DATABASE_HOST" ] && [ -n "$DATABASE_PORT" ]; then
   done
   echo "DB is ready."
 fi
-
 # === Prisma migrate deploy (prod) ===
 if [ "$SKIP_MIGRATE" = "true" ]; then
   echo "Skipping Prisma migrate deploy (SKIP_MIGRATE=true)"
 else
   echo "Running Prisma migrations..."
-  bunx --bun prisma migrate deploy
+  node /usr/src/app/node_modules/.bin/prisma migrate deploy  # ← เปลี่ยนตรงนี้
 fi
-
 # === (Optional) seed ===
 if [ "$RUN_SEED" = "true" ]; then
   echo "Seeding database..."
-  bunx --bun prisma db seed
+  node /usr/src/app/node_modules/.bin/prisma db seed  # ← และตรงนี้
 fi
-
 exec "$@"
