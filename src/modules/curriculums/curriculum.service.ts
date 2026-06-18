@@ -18,6 +18,7 @@ interface ICurriculumService {
   ): Promise<PageableType<typeof CurriculumDTO>>;
   getCurriculumById(id: number): Promise<CurriculumDTO>;
   updateCurriculum(id: number, data: UpdateCurriculumDTO, userId: number): Promise<CurriculumDTO>;
+  deleteCurriculum(id: number): Promise<CurriculumDTO>;
 }
 
 export class CurriculumService implements ICurriculumService {
@@ -144,5 +145,11 @@ export class CurriculumService implements ICurriculumService {
       console.error(error);
       throw error;
     }
+  }
+
+  async deleteCurriculum(id: number): Promise<CurriculumDTO> {
+    const deletedCurriculum = await this.curriculumRepository.deleteCurriculum(id);
+    
+    return this.curriculumFactory.mapCurriculumToDTO(deletedCurriculum);
   }
 }

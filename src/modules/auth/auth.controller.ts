@@ -50,6 +50,19 @@ export const AuthController = (app: Elysia) =>
         authDocs.login,
       )
       .post(
+        "/logout",
+        async ({ cookie: { accessToken }, set }) => {
+          accessToken.remove();
+          set.status = HttpStatusCode.OK;
+          return success(
+            null,
+            "Logged out successfully",
+            HttpStatusCode.OK,
+          );
+        },
+        authDocs.logout,
+      )
+      .post(
         "/credentials",
         async ({ body, set }) => {
           const credentials = await authService.createCredentials(body);

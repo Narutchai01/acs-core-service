@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider      = "prisma-client"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "windows", "darwin"]
   output        = "../src/generated/prisma"
 }
@@ -86,7 +86,8 @@ model Tag {
 model News {
   id           Int            @id @default(autoincrement()) @map("id")
   title        String         @map("title")
-  image        String         @map("image")
+  thumbnail    String         @map("thumbnail")
+  highlight    String         @map("highlight")
   detail       String         @map("detail")
   startDate    DateTime       @map("start_date")
   dueDate      DateTime?      @map("due_date")

@@ -5,6 +5,8 @@ import {
   CurriculumQueryParams,
 } from "../modules/curriculums/domain/curriculum";
 import { calculatePagination } from "../core/utils/calculator";
+import { AppError } from "../core/error/app-error";
+import { ErrorCode } from "../core/types/errors";
 
 export class CurriculumRepository implements ICurriculumRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -65,5 +67,28 @@ export class CurriculumRepository implements ICurriculumRepository {
       data,
     });
     return curriculum;
+  }
+
+  async deleteCurriculum(id: number): Promise<Curriculum> {
+    try {
+      const curriculum = await this.prisma.curriculum.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+      return curriculum;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new AppError(
+            ErrorCode.NOT_FOUND_ERROR,
+            "Curriculum not found",
+            404,
+          );
+        }
+      }
+      throw error; 
+    }
   }
 }
