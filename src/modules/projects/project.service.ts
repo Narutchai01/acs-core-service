@@ -1,5 +1,5 @@
 import { IProjectRepository } from "./domain/project.repository";
-import { CreateProjectDTO, ProjectDTO, ProjectQueryParams } from "./domain/project";
+import { CreateProjectDTO, ProjectDTO, ProjectQueryParams, UpdateProjectDTO } from "./domain/project";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
@@ -10,6 +10,7 @@ interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
   getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
+  updateProject(projectID: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO>;
 }
 
 export class ProjectService implements IProjectService {
@@ -142,4 +143,114 @@ export class ProjectService implements IProjectService {
       throw error;
     }
   }
+
+  async updateProject(id: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
+  const {
+    thumbnailFile,
+    assets,
+    newtagsID = [],
+    deletedtagsID = [],
+    techStacks,
+    newMembers = [],
+    deletedmembersID = [],
+    newCoursesID = [],
+    deletedCoursesID = [],
+    ...projectFields
+  } = projectData;
+  const existingProject = await this.projectRepository.getProjectById(id);
+  if (!existingProject) {
+    throw new AppError(ErrorCode.NOT_FOUND, "Project not found");
+  }
+
+  let thumbnailURL = existingProject.thumbnailURL;
+
+  if (thumbnailFile) {
+    const uploaded = await this.storageService.uploadFile(
+      thumbnailFile,
+      "project-thumbnails"
+    );
+    if (!uploaded) {
+      throw new AppError(ErrorCode.DATABASE_ERROR, "Failed to upload thumbnail");
+    }
+    thumbnailURL = uploaded;
+  }
+
+  let assetURLs: string[] = existingProject.assetsURL
+    ? existingProject.assetsURL.split(",")
+    : [];
+
+  if (assets && assets.length > 0) {
+    for (const asset of assets) {
+      const uploaded = await this.storageService.uploadFile(
+        asset,
+        "project-assets"
+      );
+      if (!uploaded) {
+        throw new AppError(ErrorCode.DATABASE_ERROR, "Failed to upload asset");
+      }
+      assetURLs.push(uploaded);
+    }
+  }
+
+  const assetsURLString = assetURLs.join(",");
+
+  const techStackString = techStacks
+    ? techStacks.join(",")
+    : existingProject.techStacks;
+
+  const updatedProject = await this.projectRepository.updateProject(id, {
+    ...projectFields,
+    thumbnailURL,
+    assetsURL: assetsURLString,
+    techStacks: techStackString,
+    updatedBy: userID || 0,
+    updatedAt: new Date(),
+  });
+
+  if (newtagsID.length > 0) {
+    const data = Array.from(new Set(newtagsID)).map((tagID) => ({
+      projectID: id,
+      tagID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }));
+    await this.projectRepository.createProjectTag(data);
+  }
+
+  if (deletedtagsID.length > 0) {
+    await this.projectRepository.deleteProjectTag(id, deletedtagsID);
+  }
+
+  if (newMembers.length > 0) {
+    const data = newMembers.map((member) => ({
+      projectID: id,
+      userID: member.userID,
+      roleID: member.roleID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }));
+    await this.projectRepository.createProjectMember(data);
+  }
+
+  if (deletedmembersID.length > 0) {
+    await this.projectRepository.deleteProjectMember(id, deletedmembersID);
+  }
+
+  if (newCoursesID.length > 0) {
+    const data = Array.from(new Set(newCoursesID)).map((courseID) => ({
+      projectID: id,
+      courseID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }));
+    await this.projectRepository.createProjectCourse(data);
+  }
+
+  if (deletedCoursesID.length > 0) {
+    await this.projectRepository.deleteProjectCourse(id, deletedCoursesID);
+  }
+
+  return this.projectFactory.mapProjectToDTO(updatedProject);
+}
+
 }

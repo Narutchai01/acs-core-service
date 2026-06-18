@@ -1,4 +1,4 @@
-import { CreateProjectDTO, ProjectDTO, ProjectQueryParams } from "./domain/project";
+import { CreateProjectDTO, ProjectDTO, ProjectQueryParams, UpdateProjectDTO } from "./domain/project";
 import { mapResponse } from "../../core/interceptor/response";
 import { t } from "elysia";
 import { Pageable } from "../../core/models";
@@ -40,4 +40,19 @@ export const ProjectDocs = {
       404: mapResponse(t.Null()),
     },
   },
+  updateProject:{
+    detail: {
+      summary: "Update project",
+      description: "Update an existing project with the provided information",
+      tags: ["Projects"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    body: UpdateProjectDTO,
+    response: {
+      200: mapResponse(ProjectDTO),
+      404: mapResponse(t.Null()),
+    },
+  }
 };
