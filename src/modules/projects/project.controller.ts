@@ -52,6 +52,18 @@ export const ProjectController = (app: Elysia) =>
       checkRole: ["admin"],
     }
   )
+   .delete(
+    "/:id",
+    async ({ params, projectService, set ,userID}) => {
+      const project =await projectService.deleteProject(params.id, userID);
+      set.status = HttpStatusCode.OK;
+      return success(project, "Project deleted successfully");
+    },
+    {
+      ...ProjectDocs.deleteProject,
+      checkRole: ["admin"],
+    }
+  )
   )
   .get(
     "",
