@@ -117,5 +117,19 @@ export const StudentController = (app: Elysia) =>
           return success(student, "Student retrieved successfully");
         },
         StudentDocs.getStudentById,
+      )
+      .get(
+        "/user/:userId",
+        async ({ studentService, params, set }) => {
+          const student = await studentService.getStudentByUserId(
+            Number(params.userId),
+          );
+          if (!student) {
+            set.status = HttpStatusCode.NOT_FOUND;
+            return success(null, "Student not found", HttpStatusCode.NOT_FOUND);
+          }
+          return success(student, "Student retrieved successfully");
+        },
+        StudentDocs.getStudentByUserId,
       ),
   );

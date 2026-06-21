@@ -150,6 +150,21 @@ export class StudentService implements IStudentService {
     }
   }
 
+  async getStudentByUserId(userId: number): Promise<StudentDTO | null> {
+    try {
+      const student = await this.studentRepository.getStudentByUserId(userId);
+      if (!student) {
+        return null;
+      }
+      return this.studentFactory.MapStudentToDTO(student);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   async deleteStudent(id: number): Promise<StudentDTO> {
     const student = await this.studentRepository.deleteStudent(id);
     return this.studentFactory.MapStudentToDTO(student);
