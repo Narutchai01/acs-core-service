@@ -1,14 +1,16 @@
-import { User, UserRole } from "./user";
-import { Prisma } from "../../../generated/prisma/client";
+import {
+  CreateUserModel,
+  CreateUserRoleModel,
+  UpdateUserModel,
+  User,
+  UserRole,
+} from "./user";
 
 export interface IUserRepository {
-  createUser(data: Prisma.UserUncheckedCreateInput): Promise<User>;
+  createUser(data: CreateUserModel): Promise<User>;
   getUsers(): Promise<User[]>;
-  assignUserRole(data: Prisma.UserRoleUncheckedCreateInput): Promise<UserRole>;
-  updateUser(
-    userID: number,
-    data: Prisma.UserUncheckedUpdateInput,
-  ): Promise<User>;
+  assignUserRole(data: CreateUserRoleModel): Promise<UserRole>;
+  updateUser(userID: number, data: UpdateUserModel): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
 }
