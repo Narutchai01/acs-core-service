@@ -1,6 +1,12 @@
 import { IUserRepository } from "../modules/users/domain/user.repository";
 import { PrismaInstance } from "../lib/db";
-import { User, UserRole } from "../modules/users/domain/user";
+import {
+  CreateUserModel,
+  CreateUserRoleModel,
+  UpdateUserModel,
+  User,
+  UserRole,
+} from "../modules/users/domain/user";
 import { Prisma } from "../generated/prisma/client";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
@@ -9,7 +15,7 @@ import { HttpStatusCode } from "../core/types/http";
 export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
 
-  async createUser(data: Prisma.UserUncheckedCreateInput): Promise<User> {
+  async createUser(data: CreateUserModel): Promise<User> {
     const user = await this.db.user.create({ data });
     return user as User;
   }
@@ -20,7 +26,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async assignUserRole(
-    data: Prisma.UserRoleUncheckedCreateInput,
+    data: CreateUserRoleModel,
   ): Promise<UserRole> {
     const userRole = await this.db.userRole.create({ data });
     return userRole as UserRole;
@@ -28,7 +34,7 @@ export class UserRepository implements IUserRepository {
 
   async updateUser(
     userID: number,
-    data: Prisma.UserUncheckedUpdateInput,
+    data: UpdateUserModel,
   ): Promise<User> {
     const updatedUser = await this.db.user.update({
       where: { id: userID, deletedAt: null },
