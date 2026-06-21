@@ -23,6 +23,7 @@ services:
       retries: 5
 
   core-services:
+    platform: linux/amd64
     container_name: acs-core-services
     build:
       context: .
