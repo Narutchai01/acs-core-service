@@ -16,6 +16,7 @@ export const StudentSchema = t.Intersect([
     userID: t.Number(),
     ...CommonStudentFields,
     user: UserSchema,
+    classBookID: t.Nullable(t.Number()),
   }),
   BaseModelSchema,
 ]);
@@ -38,6 +39,7 @@ export const StudentDTO = t.Object({
   id: t.Number(),
   ...CommonStudentFields,
   user: UserDTO,
+  classBookID: t.Nullable(t.Number()),
 });
 
 export const StudentQueryParams = t.Object({

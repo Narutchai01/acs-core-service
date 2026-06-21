@@ -8,7 +8,7 @@ import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 export class StudentRepository implements IStudentRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly prisma: PrismaClient) {}
 
   async createStudent(
     data: Prisma.StudentUncheckedCreateInput,
@@ -73,6 +73,30 @@ export class StudentRepository implements IStudentRepository {
         where: { id, deletedAt: null },
         include: {
           user: true,
+        },
+      });
+      return student as Student | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "An error occurred while fetching the student",
+        500,
+      );
+    }
+  }
+
+  async getStudentByUserId(userId: number): Promise<Student | null> {
+    try {
+      const student = await this.prisma.student.findFirst({
+        where: { user: { id: userId, deletedAt: null }, deletedAt: null },
+        include: {
+          user: true,
+          classBook: true,
         },
       });
       return student as Student | null;
