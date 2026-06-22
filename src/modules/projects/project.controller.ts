@@ -11,6 +11,7 @@ import { UserFactory } from "../users/user.factory";
 import { CourseFactory } from "../courses/course.factory";
 import { roleMacro } from "../../middleware/checkRole";
 import { authMiddleware } from "../../middleware/auth";
+import { PERMISSION } from "../../core/permission/permission";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
@@ -37,7 +38,7 @@ export const ProjectController = (app: Elysia) =>
       },
       {
         ...ProjectDocs.createProject,
-        checkRole: ["admin"],
+        checkRole: PERMISSION.ADMINPERSMISSION,
       },
     )
   .put(
@@ -49,7 +50,7 @@ export const ProjectController = (app: Elysia) =>
     },
     {
       ...ProjectDocs.updateProject,
-      checkRole: ["admin"],
+      checkRole: PERMISSION.ADMINPERSMISSION,
     }
   )
    .delete(
@@ -61,7 +62,7 @@ export const ProjectController = (app: Elysia) =>
     },
     {
       ...ProjectDocs.deleteProject,
-      checkRole: ["admin"],
+      checkRole: PERMISSION.ADMINPERSMISSION,
     }
   )
   )

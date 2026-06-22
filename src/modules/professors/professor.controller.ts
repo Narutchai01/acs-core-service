@@ -11,6 +11,7 @@ import { UserRepository } from "../../infrastructure/user.repository";
 import { UserFactory } from "../users/user.factory";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const userFactory = new UserFactory();
 const storage = new SupabaseService();
@@ -23,10 +24,6 @@ const professorService = new ProfessorService(
   professorFactory,
   storage,
 );
-
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
 
 export const ProfessorController = (app: Elysia) =>
   app.group("/professors", (app) =>

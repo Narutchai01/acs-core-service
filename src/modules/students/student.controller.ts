@@ -11,6 +11,7 @@ import { HttpStatusCode } from "../../core/types/http";
 import { UserFactory } from "../users/user.factory";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const userFactory = new UserFactory();
 const studentRepository = new StudentRepository(prisma);
@@ -24,10 +25,6 @@ const studentService = new StudentService(
   supabaseService,
   studentFactory,
 );
-
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
 
 export const StudentController = (app: Elysia) =>
   app.decorate("studentService", studentService).group("students", (app) =>
@@ -91,7 +88,7 @@ export const StudentController = (app: Elysia) =>
             },
             {
               ...StudentDocs.updateStudent,
-              checkRole: PERMISSION.ADMINPERSMISSION,
+              checkRole: PERMISSION.UPDATEUSERSPERMISSION,
             },
           ),
       )

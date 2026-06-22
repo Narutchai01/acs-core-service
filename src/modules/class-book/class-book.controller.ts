@@ -10,6 +10,7 @@ import { ClassBookDocs } from "./class-book.docs";
 import { CurriculumFactory } from "../curriculums/curriculum.factory";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const curriculumFactory = new CurriculumFactory();
 const supabaseService = new SupabaseService();
@@ -21,9 +22,7 @@ const classBookService = new ClassBookService(
   supabaseService,
 );
 
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
+
 
 export const ClassBookController = (app: Elysia) =>
   app.decorate("classBookService", classBookService).group("/class-books", (app) =>
