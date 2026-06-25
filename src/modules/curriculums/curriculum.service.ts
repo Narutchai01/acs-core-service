@@ -3,6 +3,8 @@ import {
   CurriculumDTO,
   CurriculumQueryParams,
   UpdateCurriculumDTO,
+  CurriculumCreatePayload,
+  CurriculumUpdatePayload
 } from "./domain/curriculum";
 import { ICurriculumRepository } from "./domain/curriculum.repository";
 import { SupabaseService } from "../../core/utils/supabase";
@@ -45,7 +47,7 @@ export class CurriculumService implements ICurriculumService {
         "curriculums",
       );
 
-      const curriculumData = {
+      const curriculumData: CurriculumCreatePayload = {
         ...rest,
         thumbnailURL: uploadedThumbnailPath,
         createdBy: userId,
@@ -132,7 +134,7 @@ export class CurriculumService implements ICurriculumService {
         }
       }
 
-      const updatedData = {
+      const updatedData: CurriculumUpdatePayload = {
         ...rest,
         thumbnailURL: updatedThumbnailPath,
         updatedBy: userId, 
