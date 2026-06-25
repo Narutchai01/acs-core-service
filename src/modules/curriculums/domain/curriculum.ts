@@ -44,6 +44,29 @@ export const UpdateCurriculumDTO = t.Partial(
   })
 );
 
+export const CurriculumCreatePayloadSchema = t.Object({
+  title: t.String(),
+  year: t.String(),
+  documentURL: t.String(),
+  description: t.String(),
+  thumbnailURL: t.String(),
+  createdBy: t.Number(),
+  updatedBy: t.Number()
+});
+
+export const CurriculumUpdatePayloadSchema = t.Partial(
+  t.Object({
+    title: t.String(),
+    year: t.String(),
+    documentURL: t.String(),
+    description: t.String(),
+    thumbnailURL: t.String(),
+    updatedBy: t.Number()
+  })
+);
+
+export type CurriculumCreatePayload = Static<typeof CurriculumCreatePayloadSchema>;
+export type CurriculumUpdatePayload = Static<typeof CurriculumUpdatePayloadSchema>;
 export type Curriculum = Static<typeof CurriculumSchema>;
 export type CreateCurriculumDTO = Static<typeof CreateCurriculumDTO>;
 export type CurriculumDTO = Static<typeof CurriculumDTO>;
