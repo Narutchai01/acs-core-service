@@ -2,7 +2,6 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { SupabaseService } from "../../core/utils/supabase";
-import { Prisma } from "../../generated/prisma/client";
 import {
   CreateNewsDTO,
   NewsDTO,
@@ -12,6 +11,9 @@ import {
   QueryNewsFeatureParams,
   NewsUpdateDTO,
   News,
+  NewsCreatePayload,
+  NewsFeatureCreatePayload,
+  NewsUpdatePayload,
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -57,10 +59,10 @@ export class NewsService implements INewsService {
         "news-highlight",
       );
 
-      const newsData = {
+      const newsData: NewsCreatePayload = {
         ...data,
-        thumbnail: uploadedThumbnailPath,
-        highlight: uploadedHighlightPath,
+        thumbnail: uploadedThumbnailPath as string,
+        highlight: uploadedHighlightPath as string,
         createdBy: 0,
         updatedBy: 0,
       };
@@ -136,9 +138,9 @@ export class NewsService implements INewsService {
         "news-features",
       );
 
-      const newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput = {
+      const newsFeatureData: NewsFeatureCreatePayload = {
         ...rest,
-        thumbnailURL: uploadedThumbnailPath,
+        thumbnailURL: uploadedThumbnailPath as string,
         createdBy: 0,
         updatedBy: 0,
       };
@@ -226,7 +228,7 @@ export class NewsService implements INewsService {
           "news-highlight",
         );
       }
-      const updateNewsData: Prisma.NewsUncheckedUpdateInput = {
+      const updateNewsData: NewsUpdatePayload = {
         ...(thumbnail && { thumbnail: thumbnailPath }),
         ...(highlight && { highlight: highlightPath }),
         ...newsData,

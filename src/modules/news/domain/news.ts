@@ -86,6 +86,34 @@ export const QueryNewsFeatureParams = t.Object({
   ...CommonQueryParams,
 });
 
+export const NewsCreatePayloadSchema = t.Object({
+  ...CommonNewsFields,
+  thumbnail: t.String(),
+  highlight: t.String(),
+  tagID: t.Numeric(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const NewsUpdatePayloadSchema = t.Partial(
+  t.Object({
+    ...CommonNewsFields,
+    thumbnail: t.String(),
+    highlight: t.String(),
+    tagID: t.Numeric(),
+    updatedBy: t.Number(),
+    updatedAt: t.Date(),
+  })
+);
+
+export const NewsFeatureCreatePayloadSchema = t.Object({
+  ...CommonNewsFeatureFields,
+  thumbnailURL: t.String(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
@@ -95,3 +123,7 @@ export type UpsertNewsFeatureDTO = Static<typeof UpsertNewsFeatureDTO>;
 export type NewsFeature = Static<typeof NewsFeatureSchema>;
 export type NewsFeatureDTO = Static<typeof NewsFeatureDTO>;
 export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;
+export type NewsCreatePayload = Static<typeof NewsCreatePayloadSchema>;
+export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
+export type NewsFeatureCreatePayload = Static<typeof NewsFeatureCreatePayloadSchema>;
+

@@ -1,24 +1,24 @@
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { INewsRepository } from "../modules/news/domain/news.repository";
 import {
   News,
   NewsFeature,
   NewsQueryParams,
   QueryNewsFeatureParams,
+  NewsCreatePayload,
+  NewsFeatureCreatePayload,
+  NewsUpdatePayload
 } from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { calculatePagination } from "../core/utils/calculator";
+import { PrismaInstance } from "../lib/db";
 export class NewsRepository implements INewsRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly db: PrismaInstance) {}
 
-  async createNews(data: Prisma.NewsUncheckedCreateInput): Promise<News> {
-    const news = await this.prisma.news.create({
-      data,
-      include: {
-        tag: true,
-      },
-    });
+  async createNews(data: NewsCreatePayload): Promise<News> {
+    //
+    const news = await this.db.news.create({data,include: { tag: true },});
     return {
       ...news,
       tag: news.tag
@@ -41,7 +41,7 @@ export class NewsRepository implements INewsRepository {
       search,
       searchBy,
     } = query;
-    const newsList = await this.prisma.news.findMany({
+    const newsList = await this.db.news.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       orderBy: {
@@ -72,7 +72,7 @@ export class NewsRepository implements INewsRepository {
 
   async getNewsById(id: number): Promise<News | null> {
     try {
-      const news = await this.prisma.news.findUnique({
+      const news = await this.db.news.findUnique({
         where: { id, deletedAt: null },
         include: {
           tag: true,
@@ -103,9 +103,9 @@ export class NewsRepository implements INewsRepository {
   }
 
   async upsertNewsFeature(
-    newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput,
+    newsFeatureData: NewsFeatureCreatePayload, 
   ): Promise<NewsFeature> {
-    const newsFeature = await this.prisma.newsFeatures.upsert({
+    const newsFeature = await this.db.newsFeatures.upsert({
       where: {
         newsID_tagID: {
           newsID: newsFeatureData.newsID,
@@ -142,7 +142,7 @@ export class NewsRepository implements INewsRepository {
   async getNewsFeaturesBy(
     query: QueryNewsFeatureParams,
   ): Promise<NewsFeature[]> {
-    const newsFeatures = await this.prisma.newsFeatures.findMany({
+    const newsFeatures = await this.db.newsFeatures.findMany({
       where: {
         ...(query.tagID && { tagID: query.tagID }),
         deletedAt: null,
@@ -171,7 +171,7 @@ export class NewsRepository implements INewsRepository {
 
   async getNewsFeatureById(id: number): Promise<NewsFeature | null> {
     try {
-      const newsFeature = await this.prisma.newsFeatures.findUnique({
+      const newsFeature = await this.db.newsFeatures.findUnique({
         where: { id, deletedAt: null },
         include: {
           news: {
@@ -202,7 +202,7 @@ export class NewsRepository implements INewsRepository {
   }
 
   async countNews(query: NewsQueryParams): Promise<number> {
-    const count = await this.prisma.news.count({
+    const count = await this.db.news.count({
       where: {
         ...(query.tagID && { tagID: query.tagID }),
         deletedAt: null,
@@ -212,7 +212,7 @@ export class NewsRepository implements INewsRepository {
   }
 
   async countNewsFeatures(query: QueryNewsFeatureParams): Promise<number> {
-    const count = await this.prisma.newsFeatures.count({
+    const count = await this.db.newsFeatures.count({
       where: {
         ...(query.tagID && { tagID: query.tagID }),
         deletedAt: null,
@@ -223,7 +223,7 @@ export class NewsRepository implements INewsRepository {
 
   async deleteNews(id: number): Promise<News | null> {
     try {
-      const news = await this.prisma.news.update({
+      const news = await this.db.news.update({
         where: { id },
         data: {
           deletedAt: new Date(),
@@ -257,10 +257,10 @@ export class NewsRepository implements INewsRepository {
 
   async updateNews(
     newsID: number,
-    data: Prisma.NewsUncheckedUpdateInput,
+    data: NewsUpdatePayload
   ): Promise<News | null> {
     try {
-      const news = await this.prisma.news.update({
+      const news = await this.db.news.update({
         where: { id: newsID },
         data,
         include: {
