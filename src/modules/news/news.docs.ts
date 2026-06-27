@@ -6,6 +6,7 @@ import {
   NewsQueryParams,
   UpsertNewsFeatureDTO,
   QueryNewsFeatureParams,
+  NewsUpdateDTO,
 } from "./domain/news";
 import { mapResponse } from "../../core/interceptor/response";
 import { Pageable } from "../../core/models";
@@ -89,6 +90,43 @@ export const NewsDocs = {
     response: {
       200: mapResponse(NewsFeatureDTO),
       404: mapResponse(t.Null()),
+    },
+  },
+
+  deleteNews: {
+    detail: {
+      summary: "Delete news by ID.",
+      description: "Delete a specific news by ID.",
+      tags: ["News"],
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    responses: {
+      200: mapResponse(NewsDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
+  updateNews: {
+    detail: {
+      summary: "Update News",
+      description: "Update News by ID",
+      tags: ["News"],
+    },
+    transform({ body }: { body: NewsUpdateDTO }) {
+      Object.keys(body).forEach((key) => {
+        const k = key as keyof NewsUpdateDTO;
+        if (body[k] === "") {
+          body[k] = undefined;
+        }
+      });
+    },
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    body: NewsUpdateDTO,
+    response: {
+      200: mapResponse(NewsDTO),
     },
   },
 };

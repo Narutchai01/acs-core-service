@@ -32,6 +32,7 @@ export const CreateProjectDTO = t.Object({
   ...CommonProjectFields,
   tagsID: t.Array(t.Number()),
   members: t.Array(t.Object(ProjectMemberFields)),
+  coursesID: t.Array(t.Number()),
   assets: t.Files(),
   techStacks: t.Array(t.String()),
 });
@@ -46,6 +47,11 @@ export const ProjectDTO = t.Intersect([
   }),
 ]);
 
+export const ProjectIdParam = t.Object({
+  id: t.Numeric(), 
+});
+
 export type Project = Static<typeof ProjectSchema>;
 export type CreateProjectDTO = Static<typeof CreateProjectDTO>;
 export type ProjectDTO = Static<typeof ProjectDTO>;
+export type ProjectIdParam = Static<typeof ProjectIdParam>;

@@ -6,7 +6,8 @@ import { ErrorCode } from "../../core/types/errors";
 import { IProjectFactory } from "./project.factory";
 
 interface IProjectService {
-  createProject(projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  getProjectById(id: number): Promise<ProjectDTO | null>;
 }
 
 export class ProjectService implements IProjectService {
@@ -16,13 +17,14 @@ export class ProjectService implements IProjectService {
     private readonly projectFactory: IProjectFactory,
   ) {}
 
-  async createProject(projectData: CreateProjectDTO): Promise<ProjectDTO> {
+  async createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO> {
     const {
       thumbnailFile,
       assets,
       tagsID,
       techStacks,
       members,
+      coursesID,
       ...projectFields
     } = projectData;
 
@@ -68,34 +70,60 @@ export class ProjectService implements IProjectService {
     const assetsURLString = assetURLs.join(",");
     const techStackString = techStacks.join(",");
 
-    const createdProject = await this.projectRepository.createProject({
+    const createdProject = await this.projectRepository.createProject( 
+    {
       ...projectFields,
       thumbnailURL: thumbnailURL,
       assetsURL: assetsURLString,
       techStacks: techStackString,
-      createdBy: 0,
-      updatedBy: 0,
-    });
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }
+    );
 
     const projectTagsData = Array.from(new Set(tagsID)).map((tagID) => ({
       projectID: createdProject.id,
       tagID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
 
     const projectMembersData = members.map((member) => ({
       projectID: createdProject.id,
       userID: member.userID,
       roleID: member.roleID,
-      createdBy: 0,
-      updatedBy: 0,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
+    }));
+
+    const projectCourseData = Array.from(new Set(coursesID)).map((courseID) => ({
+      projectID: createdProject.id,
+      courseID,
+      createdBy: userID || 0,
+      updatedBy: userID || 0,
     }));
 
     await this.projectRepository.createProjectMember(projectMembersData);
 
     await this.projectRepository.createProjectTag(projectTagsData);
 
+    await this.projectRepository.createProjectCourse(projectCourseData);
+
     return this.projectFactory.mapProjectToDTO(createdProject);
+  }
+
+  async getProjectById(id: number): Promise<ProjectDTO | null> {
+    try {
+      const project = await this.projectRepository.getProjectById(id);
+      if (!project) {
+        return null;
+      }
+      return this.projectFactory.mapProjectToDTO(project);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 }

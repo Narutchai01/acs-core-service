@@ -32,7 +32,20 @@ export class ProfessorRepository implements IProfessorRepository {
       orderBy = "createdAt",
       sortBy = "asc",
       academicPosition,
+      search,
+      searchBy,
     } = query;
+
+    let searchCondition = {};
+    if (search && searchBy && searchBy === "firstNameTh") {
+      searchCondition = {
+        user: { firstNameTh: { contains: search, mode: "insensitive" } },
+      };
+    } else if (search && searchBy) {
+      searchCondition = {
+        [searchBy]: { contains: search, mode: "insensitive" },
+      };
+    }
 
     const professors = await this.prisma.professor.findMany({
       skip: calculatePagination(page, pageSize),
@@ -42,6 +55,7 @@ export class ProfessorRepository implements IProfessorRepository {
       },
       where: {
         deletedAt: null,
+        ...searchCondition,
       },
       include: {
         user: true,
@@ -106,5 +120,32 @@ export class ProfessorRepository implements IProfessorRepository {
       },
     });
     return count;
+  }
+
+  async deleteProfessor(professorID: number): Promise<Professor | null> {
+    try {
+      const professor = await this.prisma.professor.update({
+        where: { id: professorID },
+        data: {
+          deletedAt: new Date(),
+        },
+        include: {
+          user: true,
+          academicPosition: true,
+        },
+      });
+      return professor as unknown as Professor;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "Database error occurred",
+        500,
+      );
+    }
   }
 }

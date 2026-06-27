@@ -19,6 +19,10 @@ const newsService = new NewsService(
   supabaseService,
 );
 
+const PERMISSION = {
+  ADMINPERSMISSION: ["admin"],
+};
+
 export const newsController = (app: Elysia) =>
   app.decorate("newsService", newsService).group("/news", (app) =>
     app
@@ -51,6 +55,33 @@ export const newsController = (app: Elysia) =>
             },
             {
               ...NewsDocs.upsertNewsFeature,
+              checkRole: ["admin"],
+            },
+          )
+          .patch(
+            "/:id",
+            async ({ newsService, params, body, userID }) => {
+              const news = await newsService.updateNews(
+                Number(params.id),
+                body,
+                userID,
+              );
+              return success(news, "News updated successfully");
+            },
+            {
+              ...NewsDocs.updateNews,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
+          .delete(
+            "/:id",
+            async ({ newsService, params, set }) => {
+              const news = await newsService.deleteNews(Number(params.id));
+              set.status = HttpStatusCode.OK;
+              return success(news, "News deleted successfully");
+            },
+            {
+              ...NewsDocs.deleteNews,
               checkRole: ["admin"],
             },
           ),

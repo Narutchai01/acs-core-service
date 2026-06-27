@@ -10,6 +10,8 @@ import {
   NewsFeatureDTO,
   UpsertNewsFeatureDTO,
   QueryNewsFeatureParams,
+  NewsUpdateDTO,
+  News,
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -170,6 +172,53 @@ export class NewsService implements INewsService {
       ) {
         return null;
       }
+      throw error;
+    }
+  }
+
+  async deleteNews(id: number): Promise<NewsDTO | null> {
+    const news = await this.newsRepository.deleteNews(id);
+    if (!news) {
+      throw new AppError(
+        ErrorCode.NOT_FOUND_ERROR,
+        "News not found",
+        HttpStatusCode.NOT_FOUND,
+      );
+    }
+    return this.newsFactory.mapNewsToDTO(news);
+  }
+
+  async updateNews(
+    newsID: number,
+    data: NewsUpdateDTO,
+    userID: number,
+  ): Promise<NewsDTO> {
+    const { image, ...newsData } = data;
+    let imagePath: string | undefined = undefined;
+
+    try {
+      if (image) {
+        imagePath = await this.storageService.uploadFile(image, "news");
+      }
+      const updateNewsData: Prisma.NewsUncheckedUpdateInput = {
+        ...(imagePath && { image: imagePath }),
+        ...newsData,
+        updatedBy: userID,
+        updatedAt: new Date(),
+      };
+
+      const news = await this.newsRepository.updateNews(newsID, updateNewsData);
+
+      if (!news) {
+        throw new AppError(
+          ErrorCode.NOT_FOUND_ERROR,
+          "News not found",
+          HttpStatusCode.NOT_FOUND,
+        );
+      }
+      return this.newsFactory.mapNewsToDTO(news);
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   }

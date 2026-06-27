@@ -6,6 +6,8 @@ import { openapiConfig } from "./openapi.config";
 import { RouteSetup } from "../routes/routes";
 import jwt from "@elysiajs/jwt";
 import { errorPlugin } from "../core/plugins/error";
+import { cors } from "@elysiajs/cors";
+import { config } from "../core/config/config";
 export class Server {
   constructor(
     private readonly port: number,
@@ -23,6 +25,17 @@ export class Server {
       )
       .use(responseEnhancer)
       .use(errorPlugin)
+      .use(
+        cors({
+          origin:
+            config.ALLOW_ORIGIN === "*"
+              ? true
+              : config.ALLOW_ORIGIN.split(",").map((o) => o.trim()),
+          methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+          allowedHeaders: ["Content-Type", "Authorization"],
+          credentials: true,
+        }),
+      )
       .use(logger())
       .use(RouteSetup);
 

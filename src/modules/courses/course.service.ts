@@ -1,10 +1,9 @@
-import { CreateCourseDTO, CourseDTO, CourseQueryParams } from "./domain/course";
+import { CreateCourseDTO, CourseDTO, CourseQueryParams, UpdateCourseDTO } from "./domain/course";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
 import { PageableType } from "../../core/models";
-
 interface ICourseService {
-  createCourse(data: CreateCourseDTO): Promise<CourseDTO>;
+  createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO>;
   getCourses(query: CourseQueryParams): Promise<PageableType<typeof CourseDTO>>;
   getCourseByID(id: number): Promise<CourseDTO | null>;
 }
@@ -13,14 +12,19 @@ export class CourseService implements ICourseService {
   constructor(
     private readonly courseRepository: ICourseRepository,
     private readonly courseFactory: ICourseFactory,
-  ) {}
+  ) { }
 
-  async createCourse(data: CreateCourseDTO): Promise<CourseDTO> {
+  async createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO> {
+    const { preCoursesID, ...courseData } = data;
+
     const course = await this.courseRepository.createCourse({
-      ...data,
-      createdBy: 0,
+      ...courseData,
+      createdBy: createdBy || 0,
       updatedBy: 0,
-    });
+    },
+      preCoursesID ?? []
+    );
+
     return this.courseFactory.mapCourseToDTO(course);
   }
 
@@ -47,4 +51,31 @@ export class CourseService implements ICourseService {
     }
     return this.courseFactory.mapCourseToDTO(course);
   }
+
+  async updateCourse(courseId: number, data: UpdateCourseDTO, updatedBy: number): Promise<CourseDTO | null> {
+    const { newPrecourseId, deletePrecourseId, ...courseData } = data;
+    const course = await this.courseRepository.updateCourse(
+      courseId,
+      {
+        ...courseData,
+        updatedBy: updatedBy || 0,
+      },
+      newPrecourseId ?? [],
+      deletePrecourseId ?? []
+    );
+    if (!course) return null;
+
+    return this.courseFactory.mapCourseToDTO(course);
+  }
+
+  async deleteCourse(courseId: number, updatedBy: number): Promise<CourseDTO | null> {
+    const course = await this.courseRepository.deleteCourse(
+      courseId,
+      updatedBy || 0,
+    );
+    if (!course) return null;
+
+    return this.courseFactory.mapCourseToDTO(course);
+  }
+
 }

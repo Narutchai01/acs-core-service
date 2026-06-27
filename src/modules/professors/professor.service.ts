@@ -90,14 +90,14 @@ export class ProfessorService implements IProfessorService {
 
       if (rawProfessorData.expertFields) {
         expertFieldsString = rawProfessorData.expertFields
-          ?.split('"')
+          ?.split("/")
           .map((field) => field.trim())
           .join(",");
       }
 
       if (rawProfessorData.educations) {
         educationsString = rawProfessorData.educations
-          ?.split('"')
+          ?.split("/")
           .map((edu) => edu.trim())
           .join("/");
       }
@@ -222,5 +222,13 @@ export class ProfessorService implements IProfessorService {
         HttpStatusCode.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async deleteProfessor(id: number): Promise<ProfessorDTO> {
+    const professor = await this.professorRepository.deleteProfessor(id);
+    if (!professor) {
+      throw new AppError(ErrorCode.NOT_FOUND_ERROR, "Professor not found", 404);
+    }
+    return this.professorFactory.mapProfessorToDTO(professor);
   }
 }

@@ -43,6 +43,7 @@ export const StudentDTO = t.Object({
 export const StudentQueryParams = t.Object({
   ...CommonQueryParams,
   classBookID: t.Optional(t.Number()),
+  search: t.Optional(t.String()),
 });
 
 export const StudentUpdateDTO = t.Partial(
