@@ -61,8 +61,8 @@ export class NewsService implements INewsService {
 
       const newsData: NewsCreatePayload = {
         ...data,
-        thumbnail: uploadedThumbnailPath as string,
-        highlight: uploadedHighlightPath as string,
+        thumbnail: uploadedThumbnailPath,
+        highlight: uploadedHighlightPath,
         createdBy: 0,
         updatedBy: 0,
       };
@@ -140,7 +140,7 @@ export class NewsService implements INewsService {
 
       const newsFeatureData: NewsFeatureCreatePayload = {
         ...rest,
-        thumbnailURL: uploadedThumbnailPath as string,
+        thumbnailURL: uploadedThumbnailPath,
         createdBy: 0,
         updatedBy: 0,
       };
