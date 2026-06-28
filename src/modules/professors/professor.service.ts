@@ -6,7 +6,10 @@ import {
   ProfessorDTO,
   ProfessorQueryParams,
   ProfessorUpdateDTO,
+  ProfessorCreatePayload,
+  ProfessorUpdatePayload,
 } from "./domain/professor";
+import { UpdateUserModel } from "../users/domain/user";
 import { IProfessorRepository } from "./domain/professor.repository";
 import { IProfessorFactory } from "./profressor.factory";
 import { CreateUserModel } from "../users/domain/user";
@@ -102,7 +105,7 @@ export class ProfessorService implements IProfessorService {
           .join("/");
       }
 
-      const professorData: Prisma.ProfessorUncheckedCreateInput = {
+      const professorData: ProfessorCreatePayload = {
         ...rawProfessorData,
         expertFields: expertFieldsString,
         academicPositionID: rawProfessorData.academicPositionID,
@@ -174,7 +177,7 @@ export class ProfessorService implements IProfessorService {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
       }
 
-      const updatedProfessor: Prisma.ProfessorUncheckedUpdateInput = {
+      const updatedProfessor: ProfessorUpdatePayload = {
         phone,
         profRoom,
         academicPositionID,
@@ -192,7 +195,7 @@ export class ProfessorService implements IProfessorService {
         return null;
       }
 
-      const updatedUserData: Prisma.UserUncheckedUpdateInput = {
+      const updatedUserData: UpdateUserModel = {
         ...UserData,
         ...(pathImage && { imageUrl: pathImage }),
         updatedBy: 0,
