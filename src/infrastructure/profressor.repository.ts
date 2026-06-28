@@ -1,21 +1,22 @@
 import { IProfessorRepository } from "../modules/professors/domain/professor.repository";
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import {
   Professor,
   ProfessorQueryParams,
+  ProfessorCreatePayload,
+  ProfessorUpdatePayload,
 } from "../modules/professors/domain/professor";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { HttpStatusCode } from "../core/types/http";
+import { PrismaInstance } from "../lib/db";
 
 export class ProfessorRepository implements IProfessorRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly db: PrismaInstance) {}
 
-  async createProfessor(
-    data: Prisma.ProfessorUncheckedCreateInput,
-  ): Promise<Professor> {
-    const professor = await this.prisma.professor.create({
+  async createProfessor(data: ProfessorCreatePayload,): Promise<Professor> {
+    const professor = await this.db.professor.create({
       data,
       include: {
         user: true,
@@ -47,7 +48,7 @@ export class ProfessorRepository implements IProfessorRepository {
       };
     }
 
-    const professors = await this.prisma.professor.findMany({
+    const professors = await this.db.professor.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       orderBy: {
@@ -67,7 +68,7 @@ export class ProfessorRepository implements IProfessorRepository {
 
   async getProfessorById(id: number): Promise<Professor | null> {
     try {
-      const professor = await this.prisma.professor.findUnique({
+      const professor = await this.db.professor.findUnique({
         where: { id, deletedAt: null },
         include: {
           user: true,
@@ -89,11 +90,8 @@ export class ProfessorRepository implements IProfessorRepository {
     }
   }
 
-  async updateProfessor(
-    professorID: number,
-    data: Prisma.ProfessorUncheckedUpdateInput,
-  ): Promise<Professor> {
-    const professor = await this.prisma.professor.update({
+  async updateProfessor(professorID: number, data: ProfessorUpdatePayload ): Promise<Professor> {
+    const professor = await this.db.professor.update({
       where: { id: professorID },
       data,
       include: {
@@ -114,7 +112,7 @@ export class ProfessorRepository implements IProfessorRepository {
   // }
 
   async countProfessors(query: ProfessorQueryParams): Promise<number> {
-    const count = await this.prisma.professor.count({
+    const count = await this.db.professor.count({
       where: {
         deletedAt: null,
       },
@@ -124,7 +122,7 @@ export class ProfessorRepository implements IProfessorRepository {
 
   async deleteProfessor(professorID: number): Promise<Professor | null> {
     try {
-      const professor = await this.prisma.professor.update({
+      const professor = await this.db.professor.update({
         where: { id: professorID },
         data: {
           deletedAt: new Date(),
