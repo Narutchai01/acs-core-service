@@ -12,7 +12,7 @@ import {
 } from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
-import { CreateUserModel } from "../users/domain/user";
+import { CreateUserModel, UpdateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
@@ -193,7 +193,7 @@ export class StudentService implements IStudentService {
         imagePath = await this.storage.uploadFile(imageFile, "students");
       }
 
-      const updatedUserData: Prisma.UserUncheckedUpdateInput = {
+      const updatedUserData: UpdateUserModel = {
         ...(imagePath && { imageUrl: imagePath }),
         ...userData,
         updatedBy: 0,
@@ -249,7 +249,7 @@ export class StudentService implements IStudentService {
           ...userData
         } = studentData;
 
-        const rawUserData: Prisma.UserUncheckedCreateInput = {
+        const rawUserData: CreateUserModel = {
           ...userData,
           createdBy: 0,
           updatedBy: 0,
