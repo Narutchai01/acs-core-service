@@ -7,6 +7,8 @@ import {
   StudentQueryParams,
   StudentUpdateDTO,
   CreaetListStudentDTO,
+  StudentCreatePayload,
+  StudentUpdatePayload,
 } from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
@@ -93,7 +95,7 @@ export class StudentService implements IStudentService {
         );
       }
 
-      const rawStudentData: Prisma.StudentUncheckedCreateInput = {
+      const rawStudentData: StudentCreatePayload = {
         ...studentData,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
@@ -197,7 +199,7 @@ export class StudentService implements IStudentService {
         updatedBy: 0,
       };
 
-      const updateStudentData: Prisma.StudentUncheckedUpdateInput = {
+      const updateStudentData: StudentUpdatePayload = {
         studentCode,
         linkedin,
         github,
@@ -263,7 +265,7 @@ export class StudentService implements IStudentService {
           );
         }
 
-        const rawStudentData: Prisma.StudentUncheckedCreateInput = {
+        const rawStudentData: StudentCreatePayload = {
           linkedin,
           github,
           facebook,

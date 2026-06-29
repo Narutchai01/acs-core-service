@@ -1,18 +1,19 @@
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import {
   Student,
   StudentQueryParams,
+  StudentCreatePayload,
+  StudentUpdatePayload,
 } from "../modules/students/domain/student";
 import { IStudentRepository } from "../modules/students/domain/student.repository";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
+import { PrismaInstance } from "../lib/db";
 export class StudentRepository implements IStudentRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaInstance) {}
 
-  async createStudent(
-    data: Prisma.StudentUncheckedCreateInput,
-  ): Promise<Student> {
+  async createStudent(data: StudentCreatePayload): Promise<Student> {
     const student = await this.prisma.student.create({
       data,
       include: {
@@ -142,7 +143,7 @@ export class StudentRepository implements IStudentRepository {
 
   async updateStudent(
     studentID: number,
-    data: Prisma.StudentUncheckedUpdateInput,
+    data: StudentUpdatePayload,
   ): Promise<Student> {
     try {
       const student = await this.prisma.student.update({

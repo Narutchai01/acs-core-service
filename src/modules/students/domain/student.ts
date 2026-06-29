@@ -67,6 +67,31 @@ export const CreaetListStudentDTO = t.Object({
   students: t.Array(CreateStudent),
 });
 
+export const StudentCreatePayloadSchema = t.Object({
+  id: t.Optional(t.Number()),
+  classBookID: t.Number(),
+  userID: t.Number(),
+  ...CommonStudentFields,
+  createdAt: t.Optional(t.Union([t.Date(), t.String()])),
+  updatedAt: t.Optional(t.Union([t.Date(), t.String()])),
+  deletedAt: t.Optional(t.Nullable(t.Union([t.Date(), t.String()]))),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const StudentUpdatePayloadSchema = t.Object({
+  id: t.Optional(t.Number()),
+  classBookID: t.Optional(t.Number()),
+  userID: t.Optional(t.Number()),
+  ...CommonStudentFields,
+  studentCode: t.Optional(t.String()),
+  createdAt: t.Optional(t.Union([t.Date(), t.String()])),
+  updatedAt: t.Optional(t.Union([t.Date(), t.String()])),
+  deletedAt: t.Optional(t.Nullable(t.Union([t.Date(), t.String()]))),
+  createdBy: t.Optional(t.Number()),
+  updatedBy: t.Optional(t.Number()),
+});
+
 export type Student = Static<typeof StudentSchema>;
 export type CreateStudentDTO = Static<typeof CreateStudentDTO>;
 export type StudentDTO = Static<typeof StudentDTO>;
@@ -75,3 +100,5 @@ export type StudentQueryParams = Static<typeof StudentQueryParams>;
 export type StudentUpdateDTO = Static<typeof StudentUpdateDTO>;
 export type CreateStudent = Static<typeof CreateStudent>;
 export type CreaetListStudentDTO = Static<typeof CreaetListStudentDTO>;
+export type StudentCreatePayload = Static<typeof StudentCreatePayloadSchema>;
+export type StudentUpdatePayload = Static<typeof StudentUpdatePayloadSchema>;

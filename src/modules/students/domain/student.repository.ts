@@ -1,15 +1,19 @@
-import { Prisma } from "../../../generated/prisma/client";
-import { Student, StudentQueryParams } from "./student";
+import {
+  Student,
+  StudentQueryParams,
+  StudentCreatePayload,
+  StudentUpdatePayload,
+} from "./student";
 
 export interface IStudentRepository {
-  createStudent(data: Prisma.StudentUncheckedCreateInput): Promise<Student>;
+  createStudent(data: StudentCreatePayload): Promise<Student>;
   getStudents(query: StudentQueryParams): Promise<Student[]>;
   getStudentById(id: number): Promise<Student | null>;
   getStudentByUserId(userId: number): Promise<Student | null>;
   deleteStudent(id: number): Promise<Student>;
   updateStudent(
     studentID: number,
-    data: Prisma.StudentUncheckedUpdateInput,
+    data: StudentUpdatePayload,
   ): Promise<Student>;
   countStudents(query: StudentQueryParams): Promise<number>;
 }
