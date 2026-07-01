@@ -1,6 +1,6 @@
 import { ICourseRepository } from "../modules/courses/domain/course.repository";
 import { PrismaClient, Prisma } from "../generated/prisma/client";
-import { Course, CourseQueryParams } from "../modules/courses/domain/course";
+import { Course, CourseQueryParams, CourseCreatePayload, CourseUpdatePayload } from "../modules/courses/domain/course";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
@@ -8,7 +8,7 @@ import { ErrorCode } from "../core/types/errors";
 export class CourseRepository implements ICourseRepository {
   constructor(private readonly prisma: PrismaClient) { }
 
-  async createCourse(data: Prisma.CourseUncheckedCreateInput, preCourseID: number[]): Promise<Course> {
+  async createCourse(data: CourseCreatePayload, preCourseID: number[]): Promise<Course> {
     try {
       const course = await this.prisma.course.create({
         data: {
@@ -170,7 +170,7 @@ export class CourseRepository implements ICourseRepository {
 
   async updateCourse(
     courseId: number,
-    data: Prisma.CourseUncheckedUpdateInput,
+    data: CourseUpdatePayload,
     newPrecourseId: number[],
     deletePrecourseId: number[]
   ): Promise<Course> {
