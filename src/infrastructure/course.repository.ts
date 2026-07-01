@@ -4,13 +4,14 @@ import { Course, CourseQueryParams, CourseCreatePayload, CourseUpdatePayload } f
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
+import { PrismaInstance } from "../lib/db";
 
 export class CourseRepository implements ICourseRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly db: PrismaInstance) { }
 
   async createCourse(data: CourseCreatePayload, preCourseID: number[]): Promise<Course> {
     try {
-      const course = await this.prisma.course.create({
+      const course = await this.db.course.create({
         data: {
           ...data,
 
@@ -53,7 +54,7 @@ export class CourseRepository implements ICourseRepository {
       curriculumID,
       search,
     } = query;
-    const courses = await this.prisma.course.findMany({
+    const courses = await this.db.course.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       orderBy: {
@@ -104,7 +105,7 @@ export class CourseRepository implements ICourseRepository {
 
   async getCourseById(id: number): Promise<Course | null> {
     try {
-      const course = await this.prisma.course.findUnique({
+      const course = await this.db.course.findUnique({
         where: { id },
         include: {
           typeCourse: true,
@@ -136,7 +137,7 @@ export class CourseRepository implements ICourseRepository {
 
   async countCourse(query: CourseQueryParams): Promise<number> {
     const { typeCourseID, curriculumID, search } = query;
-    const count = await this.prisma.course.count({
+    const count = await this.db.course.count({
       where: {
         deletedAt: null,
         ...(typeCourseID && { typeCourseID }),
@@ -175,7 +176,7 @@ export class CourseRepository implements ICourseRepository {
     deletePrecourseId: number[]
   ): Promise<Course> {
     try {
-      const course = await this.prisma.course.update({
+      const course = await this.db.course.update({
         where: { id: courseId },
 
         data: {
@@ -220,7 +221,7 @@ export class CourseRepository implements ICourseRepository {
 
   async deleteCourse(courseId: number, updatedBy: number): Promise<Course> {
     try {
-      const course = await this.prisma.course.update({
+      const course = await this.db.course.update({
         where: { id: courseId },
         data: {
           deletedAt: new Date(),
