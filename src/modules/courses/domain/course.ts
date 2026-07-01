@@ -49,26 +49,26 @@ export const CourseDTO = t.Object({
 
 export const CreateCourseDTO = t.Object({
   ...CommonCourseField,
-  typeCourseID: t.Numeric(),
-  curriculumID: t.Numeric(),
-  preCoursesID: t.Optional(t.Array(t.Numeric())),
+  typeCourseID: t.Number(),
+  curriculumID: t.Number(),
+  preCoursesID: t.Optional(t.Array(t.Number())),
 });
 
 export const CourseQueryParams = t.Object({
   ...CommonQueryParams,
   search: t.Optional(t.String()),
-  typeCourseID: t.Optional(t.Numeric()),
-  curriculumID: t.Optional(t.Numeric()),
+  typeCourseID: t.Optional(t.Number()),
+  curriculumID: t.Optional(t.Number()),
 });
 
 export const UpdateCourseDTO = t.Partial(
   t.Object({
     ...CommonCourseField,
-    typeCourseID: t.Numeric(),
-    curriculumID: t.Numeric(),
+    typeCourseID: t.Number(),
+    curriculumID: t.Number(),
 
-    newPrecourseId: t.Optional(t.Array(t.Numeric())),
-    deletePrecourseId: t.Optional(t.Array(t.Numeric())),
+    newPrecourseId: t.Optional(t.Array(t.Number())),
+    deletePrecourseId: t.Optional(t.Array(t.Number())),
   })
 );
 
