@@ -1,27 +1,29 @@
-import { Prisma, PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import {
-  ProjectUncheckedCreateInput,
-  ProjectTagUncheckedCreateInput,
-  ProjectMemberUncheckedCreateInput,
-  ProjectCourseUncheckedCreateInput,
-} from "../generated/prisma/models";
+  Project,
+  ProjectQueryParams,
+  ProjectCreatePayload,
+  ProjectUpdatePayload,
+  ProjectTagPayload,
+  ProjectMemberPayload,
+  ProjectCoursePayload,
+} from "../modules/projects/domain/project";
 import { IProjectRepository } from "../modules/projects/domain/project.repository";
-import { Project ,ProjectQueryParams} from "../modules/projects/domain/project";
 import { ErrorCode } from "../core/types/errors";
 import { AppError } from "../core/error/app-error";
 import { calculatePagination } from "../core/utils/calculator";
+import { PrismaInstance } from "../lib/db";
 
 export class ProjectRepository implements IProjectRepository {
   constructor(
-    private readonly prisma: PrismaClient
-  ) 
-  {}
+    private readonly db: PrismaInstance
+  ) { }
 
   async createProject(
 
-    projectData: ProjectUncheckedCreateInput,
+    projectData: ProjectCreatePayload,
   ): Promise<Project> {
-    const createdProject = await this.prisma.project.create({
+    const createdProject = await this.db.project.create({
       data: {
         ...projectData,
       },
@@ -31,9 +33,9 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async createProjectTag(
-    data: ProjectTagUncheckedCreateInput[],
+    data: ProjectTagPayload[],
   ): Promise<void> {
-    await this.prisma.projectTag.createMany({
+    await this.db.projectTag.createMany({
       data,
     });
   }
@@ -42,7 +44,7 @@ export class ProjectRepository implements IProjectRepository {
     projectID: number,
     tagID: number[],
   ): Promise<void> {
-    await this.prisma.projectTag.deleteMany({
+    await this.db.projectTag.deleteMany({
       where: {
         projectID,
         tagID: {
@@ -54,9 +56,9 @@ export class ProjectRepository implements IProjectRepository {
 
 
   async createProjectMember(
-    data: ProjectMemberUncheckedCreateInput[],
+    data: ProjectMemberPayload[],
   ): Promise<void> {
-    await this.prisma.projectMember.createMany({
+    await this.db.projectMember.createMany({
       data,
     });
   }
@@ -65,7 +67,7 @@ export class ProjectRepository implements IProjectRepository {
     projectID: number,
     userID: number[],
   ): Promise<void> {
-    await this.prisma.projectMember.deleteMany({
+    await this.db.projectMember.deleteMany({
       where: {
         projectID,
         userID: {
@@ -76,9 +78,9 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async createProjectCourse(
-    data: ProjectCourseUncheckedCreateInput[],
+    data: ProjectCoursePayload[],
   ): Promise<void> {
-    await this.prisma.projectCourse.createMany({
+    await this.db.projectCourse.createMany({
       data,
     });
   }
@@ -87,12 +89,12 @@ export class ProjectRepository implements IProjectRepository {
     projectID: number,
     courseID: number[],
   ): Promise<void> {
-    await this.prisma.projectCourse.deleteMany({
+    await this.db.projectCourse.deleteMany({
       where: {
         projectID,
         courseID: {
           in: courseID,
-        } 
+        }
       },
     });
   }
@@ -105,70 +107,70 @@ export class ProjectRepository implements IProjectRepository {
       orderBy = "createdAt",
       sortBy,
     } = query;
-    const ProjectList = await this.prisma.project.findMany({
-       skip: calculatePagination(page, pageSize),
-            take: pageSize,
-            orderBy: {
-              [orderBy]: sortBy,
-            },
-            where: {
-            ...(query.tagID && {
-              projectTags: {
-                some: {
-                  tagID: {
-                    in: query.tagID,
-                  },
-                },
+    const ProjectList = await this.db.project.findMany({
+      skip: calculatePagination(page, pageSize),
+      take: pageSize,
+      orderBy: {
+        [orderBy]: sortBy,
+      },
+      where: {
+        ...(query.tagID && {
+          projectTags: {
+            some: {
+              tagID: {
+                in: query.tagID,
               },
-            }),
-
-            ...(query.courseID && {
-              projectCourses: {
-                some: {
-                  courseID: {
-                    in: query.courseID,
-                  }
-                },
-              },        
-            }),
-
-            ...(query.search &&
-              query.searchBy && {
-              [query.searchBy]: {
-              contains: query.search,
-              mode: "insensitive",
             },
-            }),
+          },
+        }),
 
-            deletedAt: null,
+        ...(query.courseID && {
+          projectCourses: {
+            some: {
+              courseID: {
+                in: query.courseID,
+              }
             },
+          },
+        }),
 
-            include: {
-              projectTags: {
-                include: { tag: true }
-              },
-              projectMembers: {
-                include: { user: true, role: true }
-              },
-              projectCourses: {
-                include: {
-                  course: {
-                    include: {
-                      typeCourse: true,  
-                      curriculum: true, 
-                    }
-                  }
-                }
+        ...(query.search &&
+          query.searchBy && {
+          [query.searchBy]: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        }),
+
+        deletedAt: null,
+      },
+
+      include: {
+        projectTags: {
+          include: { tag: true }
+        },
+        projectMembers: {
+          include: { user: true, role: true }
+        },
+        projectCourses: {
+          include: {
+            course: {
+              include: {
+                typeCourse: true,
+                curriculum: true,
               }
             }
-      });
+          }
+        }
+      }
+    });
 
     return ProjectList as unknown as Project[];
   }
 
   async getProjectById(id: number): Promise<Project | null> {
     try {
-      const project = await this.prisma.project.findUnique({
+      const project = await this.db.project.findUnique({
         where: { id, deletedAt: null },
         include: {
           projectTags: {
@@ -181,8 +183,8 @@ export class ProjectRepository implements IProjectRepository {
             include: {
               course: {
                 include: {
-                  typeCourse: true,  
-                  curriculum: true, 
+                  typeCourse: true,
+                  curriculum: true,
                 }
               }
             }
@@ -205,29 +207,29 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async countProject(query: ProjectQueryParams): Promise<number> {
-    const count = await this.prisma.project.count({
+    const count = await this.db.project.count({
       where: {
         ...(query.tagID && {
-              projectTags: {
-                some: {
-                  tagID: {
-                    in: query.tagID,
-                  },
-                },
+          projectTags: {
+            some: {
+              tagID: {
+                in: query.tagID,
               },
-              deletedAt: null,
-            }),
+            },
+          },
+          deletedAt: null,
+        }),
 
-            ...(query.courseID && {
-              projectCourses: {
-                some: {
-                  courseID: {
-                    in: query.courseID,
-                  }
-                },
-              },
-              deletedAt: null,
-            }),
+        ...(query.courseID && {
+          projectCourses: {
+            some: {
+              courseID: {
+                in: query.courseID,
+              }
+            },
+          },
+          deletedAt: null,
+        }),
         deletedAt: null,
       },
     });
@@ -236,9 +238,9 @@ export class ProjectRepository implements IProjectRepository {
 
   async updateProject(
     id: number,
-    projectData: Prisma.ProjectUncheckedUpdateInput,
+    projectData: ProjectUpdatePayload,
   ): Promise<Project> {
-    const updatedProject = await this.prisma.project.update({
+    const updatedProject = await this.db.project.update({
       where: { id, deletedAt: null },
       data: projectData,
     });
@@ -246,13 +248,13 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async deleteProject(id: number, userID: number): Promise<Project> {
-      const deletedProject = await this.prisma.project.update({
-        where: { id, deletedAt: null },
-        data: { 
-          updatedBy: userID || 0,
-          deletedAt: new Date() 
-        },
-      });
-      return deletedProject as unknown as Project;
+    const deletedProject = await this.db.project.update({
+      where: { id, deletedAt: null },
+      data: {
+        updatedBy: userID || 0,
+        deletedAt: new Date()
+      },
+    });
+    return deletedProject as unknown as Project;
   }
 }

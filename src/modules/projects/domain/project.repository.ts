@@ -1,26 +1,33 @@
-import { Prisma } from "../../../generated/prisma/client";
-import { Project, ProjectQueryParams } from "./project";
+import {
+  Project,
+  ProjectQueryParams,
+  ProjectCreatePayload,
+  ProjectUpdatePayload,
+  ProjectTagPayload,
+  ProjectMemberPayload,
+  ProjectCoursePayload,
+} from "./project";
 
 export interface IProjectRepository {
-  createProject( 
-    proejctData: Prisma.ProjectUncheckedCreateInput,
+  createProject(
+    projectData: ProjectCreatePayload,
   ): Promise<Project>;
   createProjectTag(
-    data: Prisma.ProjectTagUncheckedCreateInput[],
+    data: ProjectTagPayload[],
   ): Promise<void>;
   deleteProjectTag(
     projectID: number,
     tagID: number[],
   ): Promise<void>;
   createProjectMember(
-    data: Prisma.ProjectMemberUncheckedCreateInput[],
+    data: ProjectMemberPayload[],
   ): Promise<void>;
   deleteProjectMember(
     projectID: number,
     userID: number[],
   ): Promise<void>;
   createProjectCourse(
-    data: Prisma.ProjectCourseUncheckedCreateInput[],
+    data: ProjectCoursePayload[],
   ): Promise<void>;
   deleteProjectCourse(
     projectID: number,
@@ -31,7 +38,7 @@ export interface IProjectRepository {
   countProject(query: ProjectQueryParams): Promise<number>
   updateProject(
     id: number,
-    projectData: Prisma.ProjectUncheckedUpdateInput,
+    projectData: ProjectUpdatePayload,
   ): Promise<Project>;
   deleteProject(id: number, userId: number): Promise<Project>;
 }
