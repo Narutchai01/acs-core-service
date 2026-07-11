@@ -17,6 +17,7 @@ export const StudentSchema = t.Intersect([
     ...CommonStudentFields,
     user: UserSchema,
     classBookID: t.Nullable(t.Number()),
+    skills: t.Optional(t.Nullable(t.String())),
   }),
   BaseModelSchema,
 ]);
@@ -33,6 +34,7 @@ export const CreateStudentDTO = t.Object({
   ...CommonUserFields,
   classBookID: t.Numeric(),
   imageFile: t.Optional(t.Nullable(t.File())),
+  skills: t.Optional(t.Array(t.String())),
 });
 
 export const StudentDTO = t.Object({
@@ -40,6 +42,7 @@ export const StudentDTO = t.Object({
   ...CommonStudentFields,
   user: UserDTO,
   classBookID: t.Nullable(t.Number()),
+  skills: t.Array(t.String()),
 });
 
 export const StudentQueryParams = t.Object({
@@ -54,12 +57,14 @@ export const StudentUpdateDTO = t.Partial(
     ...CommonUserFields,
     classBookID: t.Numeric(),
     imageFile: t.Optional(t.Nullable(t.File())),
+    skills: t.Optional(t.Array(t.String())),
   }),
 );
 
 export const CreateStudent = t.Object({
   ...CommonStudentFields,
   ...CommonUserFields,
+  skills: t.Optional(t.Array(t.String())),
 });
 
 export const CreaetListStudentDTO = t.Object({
@@ -73,6 +78,7 @@ export const StudentCreatePayloadSchema = t.Intersect([
     classBookID: t.Number(),
     userID: t.Number(),
     ...CommonStudentFields,
+    skills: t.Optional(t.Nullable(t.String())),
   }),
   BaseModelSchema,
 ]);
@@ -84,6 +90,7 @@ export const StudentUpdatePayloadSchema = t.Intersect([
     userID: t.Optional(t.Number()),
     ...CommonStudentFields,
     studentCode: t.Optional(t.String()),
+    skills: t.Optional(t.Nullable(t.String())),
   }),
   BaseModelSchema,
 ]);
