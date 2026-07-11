@@ -51,6 +51,7 @@ export class StudentService implements IStudentService {
       lastNameTh,
       firstNameEn,
       lastNameEn,
+      skills,
       ...studentData
     } = data;
     let imagePath: string | null = null;
@@ -97,6 +98,7 @@ export class StudentService implements IStudentService {
 
       const rawStudentData: StudentCreatePayload = {
         ...studentData,
+        skills: skills ? skills.join(",") : null,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
         userID: user.id,
@@ -184,6 +186,7 @@ export class StudentService implements IStudentService {
       facebook,
       instagram,
       classBookID,
+      skills,
       ...userData
     } = data;
     let imagePath: string | undefined = undefined;
@@ -206,6 +209,7 @@ export class StudentService implements IStudentService {
         facebook,
         instagram,
         classBookID,
+        skills: skills ? skills.join(",") : null,
         updatedBy: 0,
       };
 
@@ -246,6 +250,7 @@ export class StudentService implements IStudentService {
           facebook,
           instagram,
           studentCode,
+          skills,
           ...userData
         } = studentData;
 
@@ -272,6 +277,7 @@ export class StudentService implements IStudentService {
           instagram,
           studentCode,
           classBookID,
+          skills: skills ? skills.join(",") : null,
           createdBy: 0,
           updatedBy: 0,
           userID: user.id,

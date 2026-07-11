@@ -112,6 +112,7 @@ model Student {
   facebook    String?   @map("facebook")
   instagram   String?   @map("instagram")
   github      String?   @map("github")
+  skills      String?   @map("skills")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
