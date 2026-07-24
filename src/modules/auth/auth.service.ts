@@ -11,6 +11,7 @@ import { IAuthRepository } from "./domain/auth.repository";
 import { IAuthFactory } from "./auth.factory";
 import { HttpStatusCode } from "../../core/types/http";
 import { IUserFactory } from "../users/user.factory";
+import { sendEmailResetPassword } from "../../lib/email";
 
 export interface IAuthService {
   authenticate(data: AuthRequestDTO): Promise<AuthPayload>;
@@ -78,6 +79,8 @@ export class AuthService implements IAuthService {
         "Failed to create credentials",
       );
     }
+
+    await sendEmailResetPassword(user.email, credentials.referenceCode);
 
     return this.authFactory.mapCredentialsToDTO(credentials);
   }

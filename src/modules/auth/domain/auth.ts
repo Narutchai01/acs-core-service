@@ -7,7 +7,7 @@ export const CommonAuthFields = {
 };
 
 export const CommonForgetPasswordCedentialsFields = {
-  refferenceCode: t.String(),
+  referenceCode: t.String(),
   expiredAt: t.Date(),
 };
 

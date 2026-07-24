@@ -18,8 +18,10 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@supabase/supabase-js": "^2.95.3",
+    "@types/nodemailer": "^8.0.1",
     "elysia": "^1.4.23",
     "elysia-logger": "^0.5.2",
+    "nodemailer": "^9.0.1",
     "pg": "^8.18.0"
   },
   "devDependencies": {

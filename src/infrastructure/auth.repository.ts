@@ -27,7 +27,7 @@ export class AuthRepository implements IAuthRepository {
     try {
       const credentials = await this.db.forgetPasswordCredential.findFirst({
         where: {
-          refferenceCode: referenceCode,
+          referenceCode: referenceCode,
         },
       });
 

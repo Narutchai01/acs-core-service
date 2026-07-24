@@ -7,7 +7,7 @@ export interface IAuthFactory {
 export class AuthFactory implements IAuthFactory {
   mapCredentialsToDTO(credentials: ForgetPasswordSchema): CredentialsDTO {
     return {
-      refferenceCode: credentials.refferenceCode,
+      referenceCode: credentials.referenceCode,
       expiredAt: credentials.expiredAt,
     };
   }
