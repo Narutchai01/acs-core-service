@@ -19,8 +19,9 @@ export const NewsSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonNewsFields,
-    thumbnail: t.String(),
-    highlight: t.String(),
+    image: t.String(),
+    thumbnail: t.Nullable(t.String()),
+    highlight: t.Nullable(t.String()),
     tagID: t.Numeric(),
     tag: t.Optional(Tag),
   }),
@@ -29,8 +30,8 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   id: t.Number(),
-  thumbnailURL: t.String(),
-  highlightURL: t.String(),
+  thumbnailURL: t.Nullable(t.String()),
+  highlightURL: t.Nullable(t.String()),
   ...CommonNewsFields,
   tag: t.Optional(Tag),
 });
@@ -88,6 +89,7 @@ export const QueryNewsFeatureParams = t.Object({
 
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
+  image: t.String(),
   thumbnail: t.String(),
   highlight: t.String(),
   tagID: t.Numeric(),
@@ -126,4 +128,3 @@ export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;
 export type NewsCreatePayload = Static<typeof NewsCreatePayloadSchema>;
 export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
 export type NewsFeatureCreatePayload = Static<typeof NewsFeatureCreatePayloadSchema>;
-
