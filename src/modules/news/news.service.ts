@@ -61,6 +61,8 @@ export class NewsService implements INewsService {
 
       const newsData: NewsCreatePayload = {
         ...data,
+        // Keep the legacy image column populated while consumers migrate to thumbnail.
+        image: uploadedThumbnailPath,
         thumbnail: uploadedThumbnailPath,
         highlight: uploadedHighlightPath,
         createdBy: 0,

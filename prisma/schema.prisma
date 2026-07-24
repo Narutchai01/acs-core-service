@@ -86,8 +86,9 @@ model Tag {
 model News {
   id           Int            @id @default(autoincrement()) @map("id")
   title        String         @map("title")
-  thumbnail    String         @map("thumbnail")
-  highlight    String         @map("highlight")
+  image        String         @map("image")
+  thumbnail    String?        @map("thumbnail")
+  highlight    String?        @map("highlight")
   detail       String         @map("detail")
   startDate    DateTime       @map("start_date")
   dueDate      DateTime?      @map("due_date")
