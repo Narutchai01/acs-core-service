@@ -60,6 +60,7 @@ export const UserSchema = t.Intersect([
     ...CommonUserFields,
     password: t.Optional(t.Nullable(t.String())),
     imageUrl: t.Optional(t.Nullable(t.String())),
+    cropPosition: t.Optional(t.Nullable(t.String())),
     userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
   BaseModelSchema,
@@ -69,6 +70,7 @@ export const CreateUserModel = t.Object({
   ...CommonUserFields,
   password: t.Optional(t.Nullable(t.String())),
   imageUrl: t.Optional(t.Nullable(t.String())),
+  cropPosition: t.Optional(t.Nullable(t.String())),
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
@@ -77,6 +79,7 @@ export const UserDTO = t.Object({
   id: t.Number(),
   ...CommonUserFields,
   imageUrl: t.Optional(t.Nullable(t.String())),
+  cropPosition: t.Optional(t.Nullable(t.String())),
 });
 
 export type CreateUserDTO = Static<typeof CreateUserDTO>;

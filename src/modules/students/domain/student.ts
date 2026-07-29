@@ -52,6 +52,7 @@ export const StudentUpdateDTO = t.Partial(
     ...CommonUserFields,
     classBookID: t.Numeric(),
     imageFile: t.Optional(t.Nullable(t.File())),
+    cropPosition: t.Optional(t.Nullable(t.String())),
   }),
 );
 
