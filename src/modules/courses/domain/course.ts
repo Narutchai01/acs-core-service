@@ -72,8 +72,29 @@ export const UpdateCourseDTO = t.Partial(
   })
 );
 
+export const CourseCreatePayloadSchema = t.Object({
+  ...CommonCourseField,
+  typeCourseID: t.Number(),
+  curriculumID: t.Number(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const CourseUpdatePayloadSchema = t.Partial(
+  t.Object({
+    ...CommonCourseField,
+    typeCourseID: t.Number(),
+    curriculumID: t.Number(),
+    updatedBy: t.Number(),
+    updatedAt: t.Date(),
+    deletedAt: t.Nullable(t.Date()),
+  })
+);
+
 export type CourseQueryParams = Static<typeof CourseQueryParams>;
 export type Course = Static<typeof CourseSchema>;
 export type CreateCourseDTO = Static<typeof CreateCourseDTO>;
 export type CourseDTO = Static<typeof CourseDTO>;
-export type UpdateCourseDTO = Static<typeof UpdateCourseDTO>
+export type UpdateCourseDTO = Static<typeof UpdateCourseDTO>;
+export type CourseCreatePayload = Static<typeof CourseCreatePayloadSchema>;
+export type CourseUpdatePayload = Static<typeof CourseUpdatePayloadSchema>;

@@ -50,8 +50,29 @@ export const UpdateClassBookDTO = t.Partial(
   }),
 );
 
+export const ClassBookCreatePayloadSchema = t.Object({
+  classof: t.String(),
+  firstYearAcademic: t.String(),
+  thumbnailURL: t.String(),
+  curriculumID: t.Number(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const ClassBookUpdatePayloadSchema = t.Partial(
+  t.Object({
+    classof: t.String(),
+    firstYearAcademic: t.String(),
+    thumbnailURL: t.String(),
+    curriculumID: t.Number(),
+    updatedBy: t.Number(),
+  }),
+);
+
 export type ClassBook = Static<typeof ClassBookSchema>;
 export type ClassBookDTO = Static<typeof ClassBookDTO>;
 export type CreateClassBookDTO = Static<typeof CreateClassBookDTO>;
 export type ClassBookQueryParams = Static<typeof ClassBookQueryParams>;
 export type UpdateClassBookDTO = Static<typeof UpdateClassBookDTO>;
+export type ClassBookCreatePayload = Static<typeof ClassBookCreatePayloadSchema>;
+export type ClassBookUpdatePayload = Static<typeof ClassBookUpdatePayloadSchema>;

@@ -75,6 +75,22 @@ export const CreateUserModel = t.Object({
   updatedBy: t.Number(),
 });
 
+export const CreateUserRoleModel = t.Object({
+  userID: t.Number(),
+  roleID: t.Number(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const UpdateUserModel = t.Partial(
+  t.Object({
+    ...CommonUserFields,
+    password: t.Optional(t.Nullable(t.String())),
+    imageUrl: t.Optional(t.Nullable(t.String())),
+    updatedBy: t.Number(),
+  }),
+);
+
 export const UserDTO = t.Object({
   id: t.Number(),
   ...CommonUserFields,
@@ -85,5 +101,7 @@ export const UserDTO = t.Object({
 export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
+export type CreateUserRoleModel = Static<typeof CreateUserRoleModel>;
+export type UpdateUserModel = Static<typeof UpdateUserModel>;
 export type UserDTO = Static<typeof UserDTO>;
 export type CreateSuperUserDTO = Static<typeof CreateSuperUserDTO>;

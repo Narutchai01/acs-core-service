@@ -5,13 +5,13 @@ import {
   ClassBookQueryParams,
   UpdateClassBookDTO,
   ClassBook,
+  ClassBookUpdatePayload,
 } from "./domain/class-book";
 import { IClassBookRepository } from "./domain/class-book.repository";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { PageableType } from "../../core/models";
-import { Prisma } from "../../generated/prisma/client";
 
 interface IClassBookService {
   createClassBook(data: CreateClassBookDTO, createdBy: number): Promise<ClassBookDTO>;
@@ -102,7 +102,7 @@ export class ClassBookService implements IClassBookService {
         thumbnailPath = await this.storage.uploadFile(thumbnailFile, "class-books");
       }
 
-      const updateClassBookData: Prisma.ClassBookUncheckedUpdateInput = {
+      const updateClassBookData: ClassBookUpdatePayload = {
         ...(thumbnailPath && { thumbnailURL: thumbnailPath }),
         classof,
         firstYearAcademic,

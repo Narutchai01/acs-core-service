@@ -2,7 +2,6 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { SupabaseService } from "../../core/utils/supabase";
-import { Prisma } from "../../generated/prisma/client";
 import {
   CreateNewsDTO,
   NewsDTO,
@@ -12,6 +11,9 @@ import {
   QueryNewsFeatureParams,
   NewsUpdateDTO,
   News,
+  NewsCreatePayload,
+  NewsFeatureCreatePayload,
+  NewsUpdatePayload,
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -35,36 +37,54 @@ export class NewsService implements INewsService {
     private readonly storageService: SupabaseService,
   ) {}
   async createNews(data: CreateNewsDTO): Promise<NewsDTO> {
-    const imageFile = data.image;
-    let uploadedImagePath: string | null = null; // เก็บ path ไว้ลบทีหลัง
+    const thumbnailFile = data.thumbnail;
+    const highlightFile = data.highlight;
+    let uploadedThumbnailPath: string | null = null; // เก็บ path ไว้ลบทีหลัง
+    let uploadedHighlightPath: string | null = null; // เก็บ path ไว้ลบทีหลัง
     try {
-      if (!imageFile) {
+      if (!thumbnailFile || !highlightFile) {
         throw new AppError(
           ErrorCode.VALIDATION_ERROR,
-          "Image file is required",
+          "Thumbnail and highlight files are required",
           400,
         );
       }
 
-      uploadedImagePath = await this.storageService.uploadFile(
-        imageFile,
-        "news",
+      uploadedThumbnailPath = await this.storageService.uploadFile(
+        thumbnailFile,
+        "news-thumbnail",
+      );
+      uploadedHighlightPath = await this.storageService.uploadFile(
+        highlightFile,
+        "news-highlight",
       );
 
-      const newsData = {
+      const newsData: NewsCreatePayload = {
         ...data,
-        image: uploadedImagePath,
+        // Keep the legacy image column populated while consumers migrate to thumbnail.
+        image: uploadedThumbnailPath,
+        thumbnail: uploadedThumbnailPath,
+        highlight: uploadedHighlightPath,
         createdBy: 0,
         updatedBy: 0,
       };
       const news = await this.newsRepository.createNews(newsData);
       return this.newsFactory.mapNewsToDTO(news);
     } catch (error) {
-      if (uploadedImagePath) {
-        console.log("⚠️ Rolling back: Deleting uploaded image...");
-        await this.storageService.deleteFile(uploadedImagePath).catch((err) => {
-          console.error("🔥 Failed to delete file during rollback:", err);
-        });
+      if (uploadedThumbnailPath) {
+        await this.storageService
+          .deleteFile(uploadedThumbnailPath)
+          .catch((err) => {
+            console.error("🔥 Failed to delete file during rollback:", err);
+          });
+      }
+
+      if (uploadedHighlightPath) {
+        await this.storageService
+          .deleteFile(uploadedHighlightPath)
+          .catch((err) => {
+            console.error("🔥 Failed to delete file during rollback:", err);
+          });
       }
       throw error;
     }
@@ -120,7 +140,7 @@ export class NewsService implements INewsService {
         "news-features",
       );
 
-      const newsFeatureData: Prisma.NewsFeaturesUncheckedCreateInput = {
+      const newsFeatureData: NewsFeatureCreatePayload = {
         ...rest,
         thumbnailURL: uploadedThumbnailPath,
         createdBy: 0,
@@ -193,15 +213,26 @@ export class NewsService implements INewsService {
     data: NewsUpdateDTO,
     userID: number,
   ): Promise<NewsDTO> {
-    const { image, ...newsData } = data;
-    let imagePath: string | undefined = undefined;
+    const { thumbnail, highlight, ...newsData } = data;
+    let thumbnailPath: string | undefined = undefined;
+    let highlightPath: string | undefined = undefined;
 
     try {
-      if (image) {
-        imagePath = await this.storageService.uploadFile(image, "news");
+      if (thumbnail) {
+        thumbnailPath = await this.storageService.uploadFile(
+          thumbnail,
+          "news-thumbnail",
+        );
       }
-      const updateNewsData: Prisma.NewsUncheckedUpdateInput = {
-        ...(imagePath && { image: imagePath }),
+      if (highlight) {
+        highlightPath = await this.storageService.uploadFile(
+          highlight,
+          "news-highlight",
+        );
+      }
+      const updateNewsData: NewsUpdatePayload = {
+        ...(thumbnail && { thumbnail: thumbnailPath }),
+        ...(highlight && { highlight: highlightPath }),
         ...newsData,
         updatedBy: userID,
         updatedAt: new Date(),

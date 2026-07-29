@@ -96,8 +96,36 @@ export const ProfessorUpdateDTO = t.Partial(
   }),
 );
 
+export const ProfessorCreatePayloadSchema = t.Object({
+  phone: t.String(),
+  profRoom: t.String(),
+  academicPositionID: t.Number(),
+  expertFields: t.Optional(t.Nullable(t.String())),
+  educations: t.Optional(t.Nullable(t.String())),
+  userID: t.Number(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const ProfessorUpdatePayloadSchema = t.Partial(
+  t.Object({
+    phone: t.String(),
+    profRoom: t.String(),
+    academicPositionID: t.Number(),
+    expertFields: t.Optional(t.Nullable(t.String())),
+    educations: t.Optional(t.Nullable(t.String())),
+    updatedBy: t.Number(),
+  }),
+);
+
 export type Professor = Static<typeof ProfessorSchema>;
 export type CreateProfessorDTO = Static<typeof CreateProfessorDTO>;
 export type ProfessorDTO = Static<typeof ProfessorDTO>;
 export type ProfessorQueryParams = Static<typeof ProfessorQueryParams>;
 export type ProfessorUpdateDTO = Static<typeof ProfessorUpdateDTO>;
+export type ProfessorCreatePayload = Static<
+  typeof ProfessorCreatePayloadSchema
+>;
+export type ProfessorUpdatePayload = Static<
+  typeof ProfessorUpdatePayloadSchema
+>;

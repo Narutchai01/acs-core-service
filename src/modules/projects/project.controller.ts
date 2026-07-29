@@ -7,12 +7,17 @@ import Elysia from "elysia";
 import { ProjectDocs } from "./project.docs";
 import { success } from "../../core/interceptor/response";
 import { HttpStatusCode } from "../../core/types/http";
+import { UserFactory } from "../users/user.factory";
+import { CourseFactory } from "../courses/course.factory";
 import { roleMacro } from "../../middleware/checkRole";
 import { authMiddleware } from "../../middleware/auth";
+import { PERMISSION } from "../../core/permission/permission";
 
 const projectRepository = new ProjectRepository(prisma);
 const supabaseService = new SupabaseService();
-const projectFactory = new ProjectFactory();
+const userFactory = new UserFactory();
+const courseFactory = new CourseFactory();
+const projectFactory = new ProjectFactory(userFactory, courseFactory);
 const projectService = new ProjectService(
   projectRepository,
   supabaseService,
@@ -33,9 +38,42 @@ export const ProjectController = (app: Elysia) =>
       },
       {
         ...ProjectDocs.createProject,
-        checkRole: ["admin"],
+        checkRole: PERMISSION.ADMINPERSMISSION,
       },
-    ),
+    )
+  .put(
+    "/:id",
+    async ({ body, params, projectService, userID, set }) => {
+        const updatedProject = await projectService.updateProject(params.id, userID, body);
+        set.status = HttpStatusCode.OK;
+        return success(updatedProject, "Project updated successfully");
+    },
+    {
+      ...ProjectDocs.updateProject,
+      checkRole: PERMISSION.ADMINPERSMISSION,
+    }
+  )
+   .delete(
+    "/:id",
+    async ({ params, projectService, set ,userID}) => {
+      const project =await projectService.deleteProject(params.id, userID);
+      set.status = HttpStatusCode.OK;
+      return success(project, "Project deleted successfully");
+    },
+    {
+      ...ProjectDocs.deleteProject,
+      checkRole: PERMISSION.ADMINPERSMISSION,
+    }
+  )
+  )
+  .get(
+    "",
+    async ({ projectService, query, set }) => {
+      const projectList = await projectService.getProject(query);
+          set.status = HttpStatusCode.OK;
+          return success(projectList, "Project retrieved successfully");
+    },
+    ProjectDocs.getProject,
   )
   .get(
         "/:id",
@@ -60,4 +98,4 @@ export const ProjectController = (app: Elysia) =>
           ...ProjectDocs.getProjectById,
         },
       )
-    )
+    )  

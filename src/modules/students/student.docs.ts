@@ -46,6 +46,20 @@ export const StudentDocs = {
       404: mapResponse(t.Null()),
     },
   },
+  getStudentByUserId: {
+    detail: {
+      summary: "Get student by user ID",
+      description: "Retrieve a student's information by their user ID",
+      tags: ["Students"],
+    },
+    params: t.Object({
+      userId: t.Number(),
+    }),
+    response: {
+      200: mapResponse(StudentDTO),
+      404: mapResponse(t.Null()),
+    },
+  },
   deleteStudent: {
     detail: {
       summary: "Delete student",
