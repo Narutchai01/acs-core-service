@@ -5,7 +5,6 @@ import {
   CreateCredentialsDTO,
 } from "./domain/auth";
 import { mapResponse } from "../../core/interceptor/response";
-import { log } from "node:console";
 
 export const authDocs = {
   login: {
@@ -15,11 +14,13 @@ export const authDocs = {
       tags: ["Auth"],
     },
     body: AuthRequestDTO,
-    response: mapResponse(AuthResponseDTO),
+    response: {
+      200: mapResponse(AuthResponseDTO),
+    },
   },
   logout: {
     detail: {
-      description: "Logout a user by clearing the access token cookie",   
+      description: "Logout a user by clearing the access token cookie",
       summary: "User logout",
       tags: ["Auth"],
     },
