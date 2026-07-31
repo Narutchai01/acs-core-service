@@ -2,18 +2,15 @@ import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IUserRepository } from "../users/domain/user.repository";
 import {
-  AuthRequestDTO,
   CreateCredentialsDTO,
   CredentialsDTO,
-  AuthPayload,
 } from "./domain/auth";
 import { IAuthRepository } from "./domain/auth.repository";
 import { IAuthFactory } from "./auth.factory";
 import { HttpStatusCode } from "../../core/types/http";
-import { IUserFactory } from "../users/user.factory";
+import { hashPassword } from "../../lib/auth";
 
 export interface IAuthService {
-  authenticate(data: AuthRequestDTO): Promise<AuthPayload>;
   createCredentials(data: CreateCredentialsDTO): Promise<CredentialsDTO>;
   getCredentialsByReferenceCode(
     referenceCode: string,
@@ -26,43 +23,7 @@ export class AuthService implements IAuthService {
     private readonly usersRepository: IUserRepository,
     private readonly authRepository: IAuthRepository,
     private readonly authFactory: IAuthFactory,
-    private readonly userFactory: IUserFactory,
   ) {}
-
-  async authenticate(data: AuthRequestDTO): Promise<AuthPayload> {
-    try {
-      const user = await this.usersRepository.getUserByEmail(data.email);
-      if (!user) {
-        throw new AppError(ErrorCode.NOT_FOUND_ERROR, "User not found");
-      }
-
-      if (!user.password) {
-        throw new AppError(
-          ErrorCode.AUTHENTICATION_ERROR,
-          "Password not set for user",
-        );
-      }
-
-      const isPasswordValid = await Bun.password.verify(
-        data.password,
-        user.password,
-      );
-      if (!isPasswordValid) {
-        throw new AppError(ErrorCode.AUTHENTICATION_ERROR, "Invalid password");
-      }
-
-      const roles = Array.isArray(user.userRoles)
-        ? user.userRoles.map((ur) => ur.role.name)
-        : [];
-
-      return { userID: user.id, roles };
-    } catch (error) {
-      throw new AppError(
-        ErrorCode.DATABASE_ERROR,
-        error instanceof Error ? error.message : "Authentication failed",
-      );
-    }
-  }
 
   async createCredentials(data: CreateCredentialsDTO): Promise<CredentialsDTO> {
     const user = await this.usersRepository.getUserByEmail(data.email);
@@ -117,11 +78,12 @@ export class AuthService implements IAuthService {
         );
       }
 
-      const hashedPassword = await Bun.password.hash(newPassword);
+      const hashedPassword = await hashPassword(newPassword);
 
-      await this.usersRepository.updateUser(credentials.userID, {
-        password: hashedPassword,
-      });
+      await this.authRepository.syncCredentialAccount(
+        credentials.userID,
+        hashedPassword,
+      );
     } catch (error) {
       throw new AppError(
         ErrorCode.DATABASE_ERROR,

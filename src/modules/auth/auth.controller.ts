@@ -7,40 +7,46 @@ import { prisma } from "../../lib/db";
 import { authDocs } from "./auth.docs";
 import { HttpStatusCode } from "../../core/types/http";
 import { success } from "../../core/interceptor/response";
-import { UserFactory } from "../users/user.factory";
-import { jwtPlugin } from "../../core/plugins/jwt";
-import { config } from "../../core/config/config";
+import { auth } from "../../lib/auth";
 
 const authRepository = new AuthRepository(prisma);
 const userRepository = new UserRepository(prisma);
 const authFactory = new AuthFactory();
-const userFactory = new UserFactory();
 
 export const authService = new AuthService(
   userRepository,
   authRepository,
   authFactory,
-  userFactory,
 );
 export const AuthController = (app: Elysia) =>
   app.group("/auth", (app) =>
     app
-      .use(jwtPlugin)
       .decorate("authService", authService)
       .post(
         "/login",
-        async ({ body, set, jwt, cookie: { accessToken } }) => {
-          const user = await authService.authenticate(body);
+        async ({ body, set, request }) => {
+          const result = await auth.api.signInEmail({
+            body,
+            headers: request.headers,
+            returnHeaders: true,
+            returnStatus: true,
+          });
+          const response = result.response;
+          const token =
+            response && typeof response === "object" && "token" in response
+              ? response.token
+              : null;
 
-          const token = await jwt.sign({ id: user.userID, roles: user.roles });
+          if (!token) {
+            throw new Error("Failed to create Better Auth session");
+          }
+
+          const sessionCookie = result.headers?.get("set-cookie");
+          if (sessionCookie) {
+            set.headers["set-cookie"] = sessionCookie;
+          }
 
           set.status = HttpStatusCode.OK;
-
-          accessToken.set({
-            value: token,
-            httpOnly: true,
-            secure: config.ENVIRONMENT === "production",
-          });
           return success(
             { accessToken: token, refreshToken: token },
             "Authenticated successfully",
@@ -51,7 +57,10 @@ export const AuthController = (app: Elysia) =>
       )
       .post(
         "/logout",
-        async ({ cookie: { accessToken }, set }) => {
+        async ({ cookie: { accessToken }, request, set }) => {
+          await auth.api.signOut({
+            headers: request.headers,
+          });
           accessToken.remove();
           set.status = HttpStatusCode.OK;
           return success(

@@ -7,4 +7,5 @@ export interface IAuthRepository {
   getCredentialsByReferenceCode(
     referenceCode: string,
   ): Promise<ForgetPasswordSchema | null>;
+  syncCredentialAccount(userID: number, passwordHash: string): Promise<void>;
 }
