@@ -1,0 +1,76 @@
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { config } from "../core/config/config";
+import { prisma } from "./db";
+
+const baseURL =
+  process.env.BETTER_AUTH_URL ??
+  `http://localhost:${config.APP_PORT}/api/v1/auth`;
+
+const trustedOrigins = (config.ALLOW_ORIGIN === "*"
+  ? []
+  : config.ALLOW_ORIGIN.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)) as string[];
+
+// Keep application-owned user creation and Better Auth credentials on the
+// identical password strategy.
+export const hashPassword = (password: string) => Bun.password.hash(password);
+export const verifyPassword = ({
+  password,
+  hash,
+}: {
+  password: string;
+  hash: string;
+}) => Bun.password.verify(password, hash);
+
+export const auth = betterAuth({
+  appName: "ACS Core Service",
+  baseURL,
+  basePath: "/api/v1/auth",
+  ...(process.env.BETTER_AUTH_SECRET || process.env.SECRET_JWT
+    ? { secret: process.env.BETTER_AUTH_SECRET || process.env.SECRET_JWT }
+    : {}),
+  ...(trustedOrigins.length > 0 ? { trustedOrigins } : {}),
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  advanced: {
+    database: {
+      // The existing users table uses integer auto-incrementing IDs.
+      generateId: "serial",
+    },
+    cookies: {
+      // Keep the existing browser cookie contract while Better Auth signs it.
+      session_token: {
+        name: "accessToken",
+      },
+    },
+  },
+  user: {
+    fields: {
+      name: "firstNameTh",
+      image: "imageUrl",
+    },
+  },
+  session: {
+    fields: {
+      userId: "userID",
+    },
+  },
+  account: {
+    fields: {
+      userId: "userID",
+    },
+  },
+  emailAndPassword: {
+    enabled: true,
+    // User creation remains owned by the existing user module.
+    disableSignUp: true,
+    minPasswordLength: 4,
+    password: {
+      hash: hashPassword,
+      verify: verifyPassword,
+    },
+  },
+});

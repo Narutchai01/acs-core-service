@@ -67,7 +67,6 @@ export class StudentService implements IStudentService {
         nickName,
         firstNameEn,
         lastNameEn,
-        password: null,
         imageUrl: imagePath,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,

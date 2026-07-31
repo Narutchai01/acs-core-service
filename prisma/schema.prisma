@@ -40,27 +40,79 @@ model UserRole {
 }
 
 model User {
-  id          Int       @id @default(autoincrement()) @map("id")
-  email       String    @unique @map("email")
-  password    String?   @map("password")
-  firstNameEn String?   @map("first_name_en")
-  firstNameTh String    @map("first_name_th")
-  imageUrl    String?   @map("image_url")
-  lastNameEn  String?   @map("last_name_en")
-  lastNameTh  String    @map("last_name_th")
-  nickName    String?   @map("nick_name")
-  createdBy   Int       @map("created_by")
-  updatedBy   Int?      @map("updated_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  deletedAt   DateTime? @map("deleted_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id            Int       @id @default(autoincrement()) @map("id")
+  email         String    @unique @map("email")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  firstNameEn   String?   @map("first_name_en")
+  firstNameTh   String    @map("first_name_th")
+  imageUrl      String?   @map("image_url")
+  lastNameEn    String?   @map("last_name_en")
+  lastNameTh    String    @map("last_name_th")
+  nickName      String?   @map("nick_name")
+  createdBy     Int       @map("created_by")
+  updatedBy     Int?      @map("updated_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  deletedAt     DateTime? @map("deleted_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   userRoles      UserRole[]
   student        Student?
   professor      Professor?
   projectMembers ProjectMember[]
+  sessions       Session[]
+  accounts       Account[]
 
   @@map("users")
+}
+
+// Better Auth keeps credentials, sessions and verification tokens separate
+// from the application's existing user profile and role tables.
+model Session {
+  id        Int       @id @default(autoincrement()) @map("id")
+  userID    Int       @map("user_id")
+  token     String    @unique @map("token")
+  expiresAt DateTime  @map("expires_at")
+  ipAddress String?   @map("ip_address")
+  userAgent String?   @map("user_agent")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  user      User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@index([userID])
+  @@map("auth_sessions")
+}
+
+model Account {
+  id                    Int       @id @default(autoincrement()) @map("id")
+  userID                Int       @map("user_id")
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?   @map("scope")
+  idToken               String?   @map("id_token")
+  password              String?   @map("password")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  user                  User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userID])
+  @@map("auth_accounts")
+}
+
+model Verification {
+  id         Int      @id @default(autoincrement()) @map("id")
+  identifier String   @map("identifier")
+  value      String   @map("value")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("auth_verifications")
 }
 
 model TageGroups {

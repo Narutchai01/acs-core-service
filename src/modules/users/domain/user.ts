@@ -58,7 +58,6 @@ export const UserSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonUserFields,
-    password: t.Optional(t.Nullable(t.String())),
     imageUrl: t.Optional(t.Nullable(t.String())),
     userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
@@ -67,7 +66,6 @@ export const UserSchema = t.Intersect([
 
 export const CreateUserModel = t.Object({
   ...CommonUserFields,
-  password: t.Optional(t.Nullable(t.String())),
   imageUrl: t.Optional(t.Nullable(t.String())),
   createdBy: t.Number(),
   updatedBy: t.Number(),
@@ -83,7 +81,6 @@ export const CreateUserRoleModel = t.Object({
 export const UpdateUserModel = t.Partial(
   t.Object({
     ...CommonUserFields,
-    password: t.Optional(t.Nullable(t.String())),
     imageUrl: t.Optional(t.Nullable(t.String())),
     updatedBy: t.Number(),
   }),

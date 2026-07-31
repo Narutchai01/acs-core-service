@@ -4,10 +4,10 @@ import { openapi } from "@elysiajs/openapi";
 import { responseEnhancer } from "../core/interceptor/response";
 import { openapiConfig } from "./openapi.config";
 import { RouteSetup } from "../routes/routes";
-import jwt from "@elysiajs/jwt";
 import { errorPlugin } from "../core/plugins/error";
 import { cors } from "@elysiajs/cors";
 import { config } from "../core/config/config";
+import { auth } from "../lib/auth";
 export class Server {
   constructor(
     private readonly port: number,
@@ -16,13 +16,6 @@ export class Server {
   start() {
     const app = new Elysia({ prefix: "/api" })
       .use(openapi(openapiConfig))
-      .use(
-        jwt({
-          secret: "dadasd",
-          name: "jwt",
-          exp: "7d",
-        }),
-      )
       .use(responseEnhancer)
       .use(errorPlugin)
       .use(
@@ -37,6 +30,7 @@ export class Server {
         }),
       )
       .use(logger())
+      .mount(auth.handler)
       .use(RouteSetup);
 
     app.listen({ port: this.port, hostname: this.hostname });

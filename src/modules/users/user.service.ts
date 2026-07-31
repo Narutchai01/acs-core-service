@@ -1,6 +1,8 @@
 import { CreateSuperUserDTO, UserDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
 import { IUserFactory } from "./user.factory";
+import { IAuthRepository } from "../auth/domain/auth.repository";
+import { hashPassword } from "../../lib/auth";
 
 export interface IUserService {
   createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
@@ -12,13 +14,14 @@ export class UserService implements IUserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly userFactory: IUserFactory,
+    private readonly authRepository: IAuthRepository,
   ) {}
 
   async createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO> {
-    const hashedPassword = await Bun.password.hash(data.password);
+    const { password, ...userData } = data;
+    const hashedPassword = await hashPassword(password);
     const user = await this.userRepository.createUser({
-      ...data,
-      password: hashedPassword ?? null,
+      ...userData,
       createdBy: 0,
       updatedBy: 0,
     });
@@ -33,6 +36,8 @@ export class UserService implements IUserService {
     if (!userRoles) {
       throw new Error("Failed to assign superuser role");
     }
+
+    await this.authRepository.syncCredentialAccount(user.id, hashedPassword);
 
     return this.userFactory.mapUserToDTO(user);
   }
