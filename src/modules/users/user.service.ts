@@ -1,8 +1,8 @@
+import { hashPassword } from "better-auth/crypto";
 import { CreateSuperUserDTO, UserDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
 import { IUserFactory } from "./user.factory";
 import { IAuthRepository } from "../auth/domain/auth.repository";
-import { hashPassword } from "../../lib/auth";
 
 export interface IUserService {
   createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
