@@ -1,67 +1,70 @@
 import { describe, expect, test } from "bun:test";
-import { verifyPassword } from "better-auth/crypto";
-import { User } from "../../src/modules/users/domain/user";
-import { IUserRepository } from "../../src/modules/users/domain/user.repository";
-import { AuthFactory } from "../../src/modules/auth/auth.factory";
-import { ForgetPasswordSchema } from "../../src/modules/auth/domain/auth";
+import {
+  CreateCredentialsDTO,
+  ResetPasswordDTO,
+} from "../../src/modules/auth/domain/auth";
 import { AuthService } from "../../src/modules/auth/auth.service";
 
-describe("AuthService.resetPassword", () => {
-  test("updates the Better Auth credential password hash", async () => {
-    const credentials = createCredentials();
-    const newPassword = "N3wP@ssword";
-    let syncedCredential: { userID: number; passwordHash: string } | undefined;
-
+describe("AuthService", () => {
+  test("requests a Better Auth reset link for the configured frontend page", async () => {
+    const request = new Headers({ origin: "https://app.example.com" });
+    const input: CreateCredentialsDTO = { email: "user@example.com" };
+    let passwordResetRequest:
+      | {
+          email: string;
+          redirectTo: string;
+          headers: Headers;
+        }
+      | undefined;
     const service = new AuthService(
-      createUserRepository(),
       {
-        createCredentialsForgetPassword: async () => credentials,
-        getCredentialsByReferenceCode: async () => credentials,
-        syncCredentialAccount: async (userID, passwordHash) => {
-          syncedCredential = { userID, passwordHash };
+        requestPasswordReset: async (data) => {
+          passwordResetRequest = data;
+        },
+        resetPassword: async () => {
+          throw new Error("Not used by this test");
         },
       },
-      new AuthFactory(),
+      "https://app.example.com/reset-password",
     );
 
-    await service.resetPassword(credentials.refferenceCode, newPassword);
+    await service.createCredentials(input, request);
 
-    expect(syncedCredential?.userID).toBe(credentials.userID);
-    expect(
-      await verifyPassword({
-        password: newPassword,
-        hash: syncedCredential?.passwordHash ?? "",
-      }),
-    ).toBe(true);
+    expect(passwordResetRequest).toEqual({
+      email: input.email,
+      redirectTo: "https://app.example.com/reset-password",
+      headers: request,
+    });
+  });
+
+  test("delegates reset tokens and new passwords to Better Auth", async () => {
+    const request = new Headers({ origin: "https://app.example.com" });
+    const input: ResetPasswordDTO = { newPassword: "N3wP@ssword" };
+    let resetPasswordRequest:
+      | {
+          token: string;
+          newPassword: string;
+          headers: Headers;
+        }
+      | undefined;
+    const service = new AuthService(
+      {
+        requestPasswordReset: async () => {
+          throw new Error("Not used by this test");
+        },
+        resetPassword: async (data) => {
+          resetPasswordRequest = data;
+        },
+      },
+      "https://app.example.com/reset-password",
+    );
+
+    await service.resetPassword("reset-token", input, request);
+
+    expect(resetPasswordRequest).toEqual({
+      token: "reset-token",
+      newPassword: input.newPassword,
+      headers: request,
+    });
   });
 });
-
-const createUserRepository = (): IUserRepository => ({
-  createUser: async () => {
-    throw new Error("Not used by this test");
-  },
-  getUsers: async () => [],
-  assignUserRole: async () => {
-    throw new Error("Not used by this test");
-  },
-  updateUser: async () => {
-    throw new Error("Not used by this test");
-  },
-  getUserByEmail: async (): Promise<User | null> => null,
-  getUserById: async (): Promise<User | null> => null,
-});
-
-const createCredentials = (): ForgetPasswordSchema => {
-  const now = new Date("2026-08-01T00:00:00.000Z");
-
-  return {
-    userID: 42,
-    refferenceCode: "reset-reference",
-    expiredAt: new Date("2026-08-02T00:00:00.000Z"),
-    createdAt: now,
-    updatedAt: now,
-    createdBy: 0,
-    updatedBy: 0,
-    deletedAt: null,
-  };
-};

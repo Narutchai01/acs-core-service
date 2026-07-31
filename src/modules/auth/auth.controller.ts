@@ -1,17 +1,11 @@
 import Elysia, { type HTTPHeaders } from "elysia";
 import { AuthService } from "./auth.service";
-import { AuthRepository } from "../../infrastructure/auth.repository";
-import { AuthFactory } from "./auth.factory";
-import { UserRepository } from "../../infrastructure/user.repository";
-import { prisma } from "../../lib/db";
 import { authDocs } from "./auth.docs";
 import { HttpStatusCode } from "../../core/types/http";
 import { success } from "../../core/interceptor/response";
 import { auth } from "../../lib/auth";
-
-const authRepository = new AuthRepository(prisma);
-const userRepository = new UserRepository(prisma);
-const authFactory = new AuthFactory();
+import { passwordResetRedirectURL } from "../../lib/password-reset";
+import { BetterAuthPasswordResetProvider } from "./password-reset.provider";
 
 const forwardSetCookies = (
   set: { headers: HTTPHeaders },
@@ -37,9 +31,8 @@ const forwardSetCookies = (
 };
 
 export const authService = new AuthService(
-  userRepository,
-  authRepository,
-  authFactory,
+  new BetterAuthPasswordResetProvider(),
+  passwordResetRedirectURL,
 );
 export const AuthController = (app: Elysia) =>
   app.group("/auth", (app) =>
@@ -92,43 +85,21 @@ export const AuthController = (app: Elysia) =>
       )
       .post(
         "/credentials",
-        async ({ body, set }) => {
-          const credentials = await authService.createCredentials(body);
-          set.status = HttpStatusCode.CREATED;
+        async ({ body, request, set }) => {
+          await authService.createCredentials(body, request.headers);
+          set.status = HttpStatusCode.OK;
           return success(
-            credentials,
-            "Created credentials successfully",
-            HttpStatusCode.CREATED,
+            null,
+            "If this email exists, password reset instructions will be sent",
+            HttpStatusCode.OK,
           );
         },
         authDocs.createCredentials,
       )
-      .get(
-        "/credentials/:referenceCode",
-        async ({ params, set }) => {
-          const credentials = await authService.getCredentialsByReferenceCode(
-            params.referenceCode,
-          );
-          if (!credentials) {
-            return success(null);
-          }
-
-          set.status = HttpStatusCode.OK;
-          return success(
-            credentials,
-            "Fetched credentials successfully",
-            HttpStatusCode.OK,
-          );
-        },
-        authDocs.getCredentialsByReferenceCode,
-      )
       .post(
-        "/reset-password/:referenceCode",
-        async ({ params, body, set }) => {
-          await authService.resetPassword(
-            params.referenceCode,
-            body.newPassword,
-          );
+        "/reset-password/:token",
+        async ({ params, body, request, set }) => {
+          await authService.resetPassword(params.token, body, request.headers);
           set.status = HttpStatusCode.OK;
           return success(
             null,

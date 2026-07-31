@@ -35,10 +35,6 @@ describe("UserService.createSuperUser", () => {
       getUserById: async () => null,
     };
     const authRepository: IAuthRepository = {
-      createCredentialsForgetPassword: async () => {
-        throw new Error("Not used by this test");
-      },
-      getCredentialsByReferenceCode: async () => null,
       syncCredentialAccount: async (userID, passwordHash) => {
         credential = { userID, passwordHash };
       },
