@@ -1,4 +1,4 @@
-import Elysia from "elysia";
+import Elysia, { type HTTPHeaders } from "elysia";
 import { AuthService } from "./auth.service";
 import { AuthRepository } from "../../infrastructure/auth.repository";
 import { AuthFactory } from "./auth.factory";
@@ -12,6 +12,29 @@ import { auth } from "../../lib/auth";
 const authRepository = new AuthRepository(prisma);
 const userRepository = new UserRepository(prisma);
 const authFactory = new AuthFactory();
+
+const forwardSetCookies = (
+  set: { headers: HTTPHeaders },
+  headers?: Headers,
+) => {
+  if (!headers) {
+    return;
+  }
+
+  const getSetCookie = (headers as Headers & { getSetCookie?: () => string[] })
+    .getSetCookie;
+  const cookies = getSetCookie?.call(headers) ?? [];
+  const fallbackCookie = headers.get("set-cookie");
+  const responseHeaders = set.headers as HTTPHeaders & {
+    "set-cookie"?: string | string[];
+  };
+
+  if (cookies.length > 0) {
+    responseHeaders["set-cookie"] = cookies;
+  } else if (fallbackCookie) {
+    responseHeaders["set-cookie"] = fallbackCookie;
+  }
+};
 
 export const authService = new AuthService(
   userRepository,
@@ -41,12 +64,10 @@ export const AuthController = (app: Elysia) =>
             throw new Error("Failed to create Better Auth session");
           }
 
-          const sessionCookie = result.headers?.get("set-cookie");
-          if (sessionCookie) {
-            set.headers["set-cookie"] = sessionCookie;
-          }
+          forwardSetCookies(set, result.headers);
 
           set.status = HttpStatusCode.OK;
+          set.headers["content-type"] = "application/json";
           return success(
             { accessToken: token, refreshToken: token },
             "Authenticated successfully",
@@ -57,17 +78,15 @@ export const AuthController = (app: Elysia) =>
       )
       .post(
         "/logout",
-        async ({ cookie: { accessToken }, request, set }) => {
-          await auth.api.signOut({
+        async ({ request, set }) => {
+          const result = await auth.api.signOut({
             headers: request.headers,
+            returnHeaders: true,
+            returnStatus: true,
           });
-          accessToken.remove();
+          forwardSetCookies(set, result.headers);
           set.status = HttpStatusCode.OK;
-          return success(
-            null,
-            "Logged out successfully",
-            HttpStatusCode.OK,
-          );
+          return success(null, "Logged out successfully", HttpStatusCode.OK);
         },
         authDocs.logout,
       )
