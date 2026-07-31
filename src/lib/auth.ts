@@ -13,17 +13,6 @@ const trustedOrigins = (config.ALLOW_ORIGIN === "*"
       .map((origin) => origin.trim())
       .filter(Boolean)) as string[];
 
-// Keep application-owned user creation and Better Auth credentials on the
-// identical password strategy.
-export const hashPassword = (password: string) => Bun.password.hash(password);
-export const verifyPassword = ({
-  password,
-  hash,
-}: {
-  password: string;
-  hash: string;
-}) => Bun.password.verify(password, hash);
-
 export const auth = betterAuth({
   appName: "ACS Core Service",
   baseURL,
@@ -68,9 +57,5 @@ export const auth = betterAuth({
     // User creation remains owned by the existing user module.
     disableSignUp: true,
     minPasswordLength: 4,
-    password: {
-      hash: hashPassword,
-      verify: verifyPassword,
-    },
   },
 });

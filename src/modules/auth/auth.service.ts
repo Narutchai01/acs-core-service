@@ -1,3 +1,4 @@
+import { hashPassword } from "better-auth/crypto";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IUserRepository } from "../users/domain/user.repository";
@@ -8,7 +9,6 @@ import {
 import { IAuthRepository } from "./domain/auth.repository";
 import { IAuthFactory } from "./auth.factory";
 import { HttpStatusCode } from "../../core/types/http";
-import { hashPassword } from "../../lib/auth";
 
 export interface IAuthService {
   createCredentials(data: CreateCredentialsDTO): Promise<CredentialsDTO>;
