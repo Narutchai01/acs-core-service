@@ -10,7 +10,7 @@ const configuredRedirectURL =
 
 if (config.ENVIRONMENT === "production" && !isPasswordResetEmailConfigured()) {
   throw new Error(
-    "SMTP_HOST, SMTP_USER, SMTP_PASSWORD, and SMTP_FROM must be configured in production",
+    "MAIL_HOST, MAIL_USER, MAIL_PASS, and MAIL_FROM must be configured in production",
   );
 }
 
