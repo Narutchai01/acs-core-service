@@ -79,9 +79,12 @@ export const CommonNewsFeatureFields = {
 export const UpsertNewsFeatureDTO = t.Object({
   id: t.Optional(t.Numeric()),
   ...CommonNewsFeatureFields,
-  thumbnail: t.File({
-    errorMessage: "Invalid file type. Only image files are allowed.",
-  }),
+  thumbnail: t.Union([
+    t.String(),
+    t.File({
+      errorMessage: "Invalid file type. Only image files are allowed.",
+    }),
+  ]),
 });
 
 export const NewsFeatureSchema = t.Intersect([
@@ -129,13 +132,12 @@ export const NewsUpdatePayloadSchema = t.Partial(
   })
 );
 
-export const NewsFeatureCreatePayloadSchema = t.Object({
+export const NewsFeaturUpsertPayloadSchema = t.Object({
   ...CommonNewsFeatureFields,
   thumbnailURL: t.String(),
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
-
 
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
@@ -148,4 +150,4 @@ export type NewsFeatureDTO = Static<typeof NewsFeatureDTO>;
 export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;
 export type NewsCreatePayload = Static<typeof NewsCreatePayloadSchema>;
 export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
-export type NewsFeatureCreatePayload = Static<typeof NewsFeatureCreatePayloadSchema>;
+export type NewsFeatureUpsertPayload = Static<typeof NewsFeaturUpsertPayloadSchema>;
