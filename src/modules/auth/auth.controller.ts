@@ -6,6 +6,8 @@ import { success } from "../../core/interceptor/response";
 import { auth } from "../../lib/auth";
 import { passwordResetRedirectURL } from "../../lib/password-reset";
 import { BetterAuthPasswordResetProvider } from "./password-reset.provider";
+import { UserRepository } from "../../infrastructure/user.repository";
+import { prisma } from "../../lib/db";
 
 const forwardSetCookies = (
   set: { headers: HTTPHeaders },
@@ -33,6 +35,7 @@ const forwardSetCookies = (
 export const authService = new AuthService(
   new BetterAuthPasswordResetProvider(),
   passwordResetRedirectURL,
+  new UserRepository(prisma),
 );
 export const AuthController = (app: Elysia) =>
   app.group("/auth", (app) =>
