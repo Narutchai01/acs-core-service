@@ -4,6 +4,8 @@ import {
   ResetPasswordDTO,
 } from "../../src/modules/auth/domain/auth";
 import { AuthService } from "../../src/modules/auth/auth.service";
+import { User } from "../../src/modules/users/domain/user";
+import { IUserRepository } from "../../src/modules/users/domain/user.repository";
 
 describe("AuthService", () => {
   test("requests a Better Auth reset link for the configured frontend page", async () => {
@@ -26,6 +28,7 @@ describe("AuthService", () => {
         },
       },
       "https://app.example.com/reset-password",
+      createUserRepository({} as User),
     );
 
     await service.createCredentials(input, request);
@@ -57,6 +60,7 @@ describe("AuthService", () => {
         },
       },
       "https://app.example.com/reset-password",
+      createUserRepository({} as User),
     );
 
     await service.resetPassword("reset-token", input, request);
@@ -67,4 +71,46 @@ describe("AuthService", () => {
       headers: request,
     });
   });
+
+  test("returns not found without requesting a reset link when the email is unknown", async () => {
+    let requested = false;
+    const service = new AuthService(
+      {
+        requestPasswordReset: async () => {
+          requested = true;
+        },
+        resetPassword: async () => {
+          throw new Error("Not used by this test");
+        },
+      },
+      "https://app.example.com/reset-password",
+      createUserRepository(null),
+    );
+
+    await expect(
+      service.createCredentials(
+        { email: "missing@example.com" },
+        new Headers({ origin: "https://app.example.com" }),
+      ),
+    ).rejects.toMatchObject({
+      message: "User not found",
+      statusCode: 404,
+    });
+    expect(requested).toBe(false);
+  });
+});
+
+const createUserRepository = (user: User | null): IUserRepository => ({
+  createUser: async () => {
+    throw new Error("Not used by this test");
+  },
+  getUsers: async () => [],
+  assignUserRole: async () => {
+    throw new Error("Not used by this test");
+  },
+  updateUser: async () => {
+    throw new Error("Not used by this test");
+  },
+  getUserByEmail: async () => user,
+  getUserById: async () => null,
 });
