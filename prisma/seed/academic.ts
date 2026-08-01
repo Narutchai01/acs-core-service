@@ -50,13 +50,20 @@ export const academicPositions = [
     nameEn: "Doctor",
     shortEn: "Dr.",
   },
-    {
+  {
     sequence: 8,
     nameTh: "รองศาสตราจารย์ ดอกเตอร์",
     shortTh: "รศ. ดร.",
     nameEn: "Associate Professor Doctor",
     shortEn: "Assoc. Prof. Dr.",
   },
+  {
+    sequence: 9,
+    nameTh: "ศาสตราจารย์ ดอกเตอร์",
+    shortTh: "ศ. ดร.",
+    nameEn: "Professor Doctor",
+    shortEn: "Prof. Dr.",
+  }
 ];
 
 export const executeSeedAcademicPositions = async (prisma: PrismaClient) => {
