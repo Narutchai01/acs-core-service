@@ -3,8 +3,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { config } from "../core/config/config";
 import { prisma } from "./db";
 import {
+  createBetterAuthPasswordResetSender,
   passwordResetRedirectOrigin,
-  sendPasswordResetLink,
 } from "./password-reset";
 
 const baseURL =
@@ -67,11 +67,6 @@ export const auth = betterAuth({
     disableSignUp: true,
     minPasswordLength: 4,
     revokeSessionsOnPasswordReset: true,
-    sendResetPassword: async ({ user, url }) => {
-      void sendPasswordResetLink({
-        email: user.email,
-        url,
-      }).catch(() => undefined);
-    },
+    sendResetPassword: createBetterAuthPasswordResetSender(),
   },
 });

@@ -32,3 +32,18 @@ export const sendPasswordResetLink = async ({
     resetURL: url,
   });
 };
+
+export const createBetterAuthPasswordResetSender =
+  (sendResetLink: typeof sendPasswordResetLink = sendPasswordResetLink) =>
+  async ({
+    user,
+    url,
+  }: {
+    user: { email: string };
+    url: string;
+  }): Promise<void> => {
+    await sendResetLink({
+      email: user.email,
+      url,
+    });
+  };
