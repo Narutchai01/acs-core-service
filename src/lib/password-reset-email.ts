@@ -38,16 +38,16 @@ const requiredEnvironmentValue = (name: string): string => {
 
 export const isPasswordResetEmailConfigured = () =>
   Boolean(
-    process.env.SMTP_HOST &&
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASSWORD &&
-    process.env.SMTP_FROM,
+    process.env.MAIL_HOST &&
+      process.env.MAIL_USER &&
+      process.env.MAIL_PASS &&
+      process.env.MAIL_FROM,
   );
 
 export const renderPasswordResetEmail = async ({
   resetURL,
-  logoURL = process.env.PASSWORD_RESET_LOGO_URL ?? "",
-  illustrationURL = process.env.PASSWORD_RESET_ILLUSTRATION_URL ?? "",
+  logoURL = process.env.MAIL_RESET_PASSWORD_LOGO_URL ?? "",
+  illustrationURL = process.env.MAIL_RESET_PASSWORD_ILLUSTRATION_URL ?? "",
 }: {
   resetURL: string;
   logoURL?: string;
@@ -57,9 +57,9 @@ export const renderPasswordResetEmail = async ({
 
   return template
     .replaceAll("{{RESET_PASSWORD_URL}}", escapeHTML(resetURL))
-    .replaceAll("{{PASSWORD_RESET_LOGO_URL}}", escapeHTML(logoURL))
+    .replaceAll("{{MAIL_RESET_PASSWORD_LOGO_URL}}", escapeHTML(logoURL))
     .replaceAll(
-      "{{PASSWORD_RESET_ILLUSTRATION_URL}}",
+      "{{MAIL_RESET_PASSWORD_ILLUSTRATION_URL}}",
       escapeHTML(illustrationURL),
     );
 };
@@ -67,12 +67,12 @@ export const renderPasswordResetEmail = async ({
 export const createPasswordResetEmailTransport =
   (): PasswordResetEmailTransport =>
     nodemailer.createTransport({
-      host: requiredEnvironmentValue("SMTP_HOST"),
-      port: Number.parseInt(process.env.SMTP_PORT ?? "587", 10),
-      secure: process.env.SMTP_SECURE === "true",
-      auth: {
-        user: requiredEnvironmentValue("SMTP_USER"),
-        pass: requiredEnvironmentValue("SMTP_PASSWORD"),
+    host: requiredEnvironmentValue("MAIL_HOST"),
+    port: Number.parseInt(process.env.MAIL_PORT ?? "587", 10),
+    secure: process.env.MAIL_SECURE === "true",
+    auth: {
+      user: requiredEnvironmentValue("MAIL_USER"),
+      pass: requiredEnvironmentValue("MAIL_PASS"),
       },
     });
 
@@ -80,7 +80,7 @@ export const sendPasswordResetEmail = async (
   {
     email,
     resetURL,
-    from = process.env.SMTP_FROM,
+    from = process.env.MAIL_FROM,
   }: {
     email: string;
     resetURL: string;
@@ -91,7 +91,7 @@ export const sendPasswordResetEmail = async (
   const html = await renderPasswordResetEmail({ resetURL });
 
   await transport.sendMail({
-    from: from ?? requiredEnvironmentValue("SMTP_FROM"),
+    from: from ?? requiredEnvironmentValue("MAIL_FROM"),
     to: email,
     subject: "Reset your ACS password",
     text: `เราได้รับคำขอเปลี่ยนรหัสผ่านสำหรับบัญชีของคุณ\n\nเปลี่ยนรหัสผ่าน: ${resetURL}`,
