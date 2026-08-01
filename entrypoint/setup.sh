@@ -3,6 +3,7 @@ set -e
 # === Config (optional) ===
 : "${DB_WAIT_TIMEOUT:=60}"
 : "${SKIP_MIGRATE:=false}"
+: "${RUN_SEED:=false}"
 # === Wait for DB (optional) ===
 if [ -n "$DATABASE_HOST" ] && [ -n "$DATABASE_PORT" ]; then
   echo "Waiting for DB at $DATABASE_HOST:$DATABASE_PORT (timeout ${DB_WAIT_TIMEOUT}s)..."
@@ -19,15 +20,15 @@ if [ -n "$DATABASE_HOST" ] && [ -n "$DATABASE_PORT" ]; then
   echo "DB is ready."
 fi
 # === Prisma migrate deploy (prod) ===
-if [ "$SKIP_MIGRATE" = "true" ]; then
-  echo "Skipping Prisma migrate deploy (SKIP_MIGRATE=true)"
-else
+if [ "$SKIP_MIGRATE" != "true" ]; then
   echo "Running Prisma migrations..."
-  node /usr/src/app/node_modules/.bin/prisma migrate deploy  # ← เปลี่ยนตรงนี้
+  npx prisma migrate deploy
+else
+  echo "Skipping Prisma migrate deploy (SKIP_MIGRATE=true)"
 fi
 # === (Optional) seed ===
 if [ "$RUN_SEED" = "true" ]; then
   echo "Seeding database..."
-  node /usr/src/app/node_modules/.bin/prisma db seed  # ← และตรงนี้
+  npx prisma db seed
 fi
 exec "$@"

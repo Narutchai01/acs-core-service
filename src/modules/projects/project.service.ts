@@ -1,13 +1,28 @@
 import { IProjectRepository } from "./domain/project.repository";
-import { CreateProjectDTO, ProjectDTO } from "./domain/project";
+import {
+  CreateProjectDTO,
+  ProjectDTO,
+  ProjectQueryParams,
+  UpdateProjectDTO,
+  ProjectCreatePayload,
+  ProjectUpdatePayload,
+  ProjectTagPayload,
+  ProjectMemberPayload,
+  ProjectCoursePayload,
+} from "./domain/project";
 import { SupabaseService } from "../../core/utils/supabase";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IProjectFactory } from "./project.factory";
+import { PageableType } from "../../core/models";
+import { HttpStatusCode } from "../../core/types/http";
 
 interface IProjectService {
   createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO>;
+  getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>>;
   getProjectById(id: number): Promise<ProjectDTO | null>;
+  updateProject(projectID: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO>;
+  deleteProject(id: number, userID: number): Promise<ProjectDTO | null>;
 }
 
 export class ProjectService implements IProjectService {
@@ -15,7 +30,7 @@ export class ProjectService implements IProjectService {
     private readonly projectRepository: IProjectRepository,
     private readonly storageService: SupabaseService,
     private readonly projectFactory: IProjectFactory,
-  ) {}
+  ) { }
 
   async createProject(userID: number, projectData: CreateProjectDTO): Promise<ProjectDTO> {
     const {
@@ -70,8 +85,7 @@ export class ProjectService implements IProjectService {
     const assetsURLString = assetURLs.join(",");
     const techStackString = techStacks.join(",");
 
-    const createdProject = await this.projectRepository.createProject( 
-    {
+    const createPayload: ProjectCreatePayload = {
       ...projectFields,
       thumbnailURL: thumbnailURL,
       assetsURL: assetsURLString,
@@ -79,16 +93,17 @@ export class ProjectService implements IProjectService {
       createdBy: userID || 0,
       updatedBy: userID || 0,
     }
-    );
 
-    const projectTagsData = Array.from(new Set(tagsID)).map((tagID) => ({
+    const createdProject = await this.projectRepository.createProject(createPayload);
+
+    const projectTagsData: ProjectTagPayload[] = Array.from(new Set(tagsID)).map((tagID) => ({
       projectID: createdProject.id,
       tagID,
       createdBy: userID || 0,
       updatedBy: userID || 0,
     }));
 
-    const projectMembersData = members.map((member) => ({
+    const projectMembersData: ProjectMemberPayload[] = members.map((member) => ({
       projectID: createdProject.id,
       userID: member.userID,
       roleID: member.roleID,
@@ -96,7 +111,7 @@ export class ProjectService implements IProjectService {
       updatedBy: userID || 0,
     }));
 
-    const projectCourseData = Array.from(new Set(coursesID)).map((courseID) => ({
+    const projectCourseData: ProjectCoursePayload[] = Array.from(new Set(coursesID)).map((courseID) => ({
       projectID: createdProject.id,
       courseID,
       createdBy: userID || 0,
@@ -112,6 +127,20 @@ export class ProjectService implements IProjectService {
     return this.projectFactory.mapProjectToDTO(createdProject);
   }
 
+  async getProject(query: ProjectQueryParams): Promise<PageableType<typeof ProjectDTO>> {
+    const [ProjectList, countProject] = await Promise.all([
+      this.projectRepository.getProject(query),
+      this.projectRepository.countProject(query),
+    ]);
+
+    return {
+      rows: this.projectFactory.mapProjectListToDTOList(ProjectList),
+      totalRecords: countProject,
+      page: query.page || 1,
+      pageSize: query.pageSize || 10,
+    };
+  }
+
   async getProjectById(id: number): Promise<ProjectDTO | null> {
     try {
       const project = await this.projectRepository.getProjectById(id);
@@ -125,5 +154,127 @@ export class ProjectService implements IProjectService {
       }
       throw error;
     }
+  }
+
+  async updateProject(id: number, userID: number, projectData: UpdateProjectDTO): Promise<ProjectDTO> {
+    const {
+      thumbnailFile,
+      assets,
+      newtagsID = [],
+      deletedtagsID = [],
+      techStacks,
+      newMembers = [],
+      deletedmembersID = [],
+      newCoursesID = [],
+      deletedCoursesID = [],
+      ...projectFields
+    } = projectData;
+    const existingProject = await this.projectRepository.getProjectById(id);
+    if (!existingProject) {
+      throw new AppError(ErrorCode.NOT_FOUND, "Project not found");
+    }
+
+    let thumbnailURL = existingProject.thumbnailURL;
+
+    if (thumbnailFile) {
+      const uploaded = await this.storageService.uploadFile(
+        thumbnailFile,
+        "project-thumbnails"
+      );
+      if (!uploaded) {
+        throw new AppError(ErrorCode.DATABASE_ERROR, "Failed to upload thumbnail");
+      }
+      thumbnailURL = uploaded;
+    }
+
+    let assetURLs: string[] = existingProject.assetsURL
+      ? existingProject.assetsURL.split(",")
+      : [];
+
+    if (assets && assets.length > 0) {
+      for (const asset of assets) {
+        const uploaded = await this.storageService.uploadFile(
+          asset,
+          "project-assets"
+        );
+        if (!uploaded) {
+          throw new AppError(ErrorCode.DATABASE_ERROR, "Failed to upload asset");
+        }
+        assetURLs.push(uploaded);
+      }
+    }
+
+    const assetsURLString = assetURLs.join(",");
+
+    const techStackString = techStacks
+      ? techStacks.join(",")
+      : existingProject.techStacks;
+
+    const updatedData: ProjectUpdatePayload = {
+      ...projectFields,
+      thumbnailURL,
+      assetsURL: assetsURLString,
+      techStacks: techStackString,
+      updatedBy: userID || 0,
+      updatedAt: new Date(),
+    }
+    const updatedProject = await this.projectRepository.updateProject(id, updatedData);
+
+    if (newtagsID.length > 0) {
+      const data = Array.from(new Set(newtagsID)).map((tagID) => ({
+        projectID: id,
+        tagID,
+        createdBy: userID || 0,
+        updatedBy: userID || 0,
+      }));
+      await this.projectRepository.createProjectTag(data);
+    }
+
+    if (deletedtagsID.length > 0) {
+      await this.projectRepository.deleteProjectTag(id, deletedtagsID);
+    }
+
+    if (newMembers.length > 0) {
+      const data = newMembers.map((member) => ({
+        projectID: id,
+        userID: member.userID,
+        roleID: member.roleID,
+        createdBy: userID || 0,
+        updatedBy: userID || 0,
+      }));
+      await this.projectRepository.createProjectMember(data);
+    }
+
+    if (deletedmembersID.length > 0) {
+      await this.projectRepository.deleteProjectMember(id, deletedmembersID);
+    }
+
+    if (newCoursesID.length > 0) {
+      const data = Array.from(new Set(newCoursesID)).map((courseID) => ({
+        projectID: id,
+        courseID,
+        createdBy: userID || 0,
+        updatedBy: userID || 0,
+      }));
+      await this.projectRepository.createProjectCourse(data);
+    }
+
+    if (deletedCoursesID.length > 0) {
+      await this.projectRepository.deleteProjectCourse(id, deletedCoursesID);
+    }
+
+    return this.projectFactory.mapProjectToDTO(updatedProject);
+  }
+
+  async deleteProject(id: number, userID: number): Promise<ProjectDTO | null> {
+    const project = await this.projectRepository.deleteProject(id, userID);
+    if (!project) {
+      throw new AppError(
+        ErrorCode.NOT_FOUND_ERROR,
+        "Project not found",
+        HttpStatusCode.NOT_FOUND,
+      );
+    }
+    return this.projectFactory.mapProjectToDTO(project);
   }
 }

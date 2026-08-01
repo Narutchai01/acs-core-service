@@ -1,19 +1,20 @@
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import {
   Student,
   StudentQueryParams,
+  StudentCreatePayload,
+  StudentUpdatePayload,
 } from "../modules/students/domain/student";
 import { IStudentRepository } from "../modules/students/domain/student.repository";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
+import { PrismaInstance } from "../lib/db";
 export class StudentRepository implements IStudentRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly db: PrismaInstance) {}
 
-  async createStudent(
-    data: Prisma.StudentUncheckedCreateInput,
-  ): Promise<Student> {
-    const student = await this.prisma.student.create({
+  async createStudent(data: StudentCreatePayload): Promise<Student> {
+    const student = await this.db.student.create({
       data,
       include: {
         user: true,
@@ -32,7 +33,7 @@ export class StudentRepository implements IStudentRepository {
       classBookID,
     } = query;
 
-    const students = await this.prisma.student.findMany({
+    const students = await this.db.student.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       where: {
@@ -69,7 +70,7 @@ export class StudentRepository implements IStudentRepository {
 
   async getStudentById(id: number): Promise<Student | null> {
     try {
-      const student = await this.prisma.student.findUnique({
+      const student = await this.db.student.findUnique({
         where: { id, deletedAt: null },
         include: {
           user: true,
@@ -90,9 +91,33 @@ export class StudentRepository implements IStudentRepository {
     }
   }
 
+  async getStudentByUserId(userId: number): Promise<Student | null> {
+    try {
+      const student = await this.db.student.findFirst({
+        where: { user: { id: userId, deletedAt: null }, deletedAt: null },
+        include: {
+          user: true,
+          classBook: true,
+        },
+      });
+      return student as Student | null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw new AppError(
+        ErrorCode.DATABASE_ERROR,
+        "An error occurred while fetching the student",
+        500,
+      );
+    }
+  }
+
   async deleteStudent(id: number): Promise<Student> {
     try {
-      const student = await this.prisma.student.update({
+      const student = await this.db.student.update({
         where: { id },
         data: {
           deletedAt: new Date(),
@@ -118,10 +143,10 @@ export class StudentRepository implements IStudentRepository {
 
   async updateStudent(
     studentID: number,
-    data: Prisma.StudentUncheckedUpdateInput,
+    data: StudentUpdatePayload,
   ): Promise<Student> {
     try {
-      const student = await this.prisma.student.update({
+      const student = await this.db.student.update({
         where: { id: studentID },
         data,
         include: {
@@ -144,7 +169,7 @@ export class StudentRepository implements IStudentRepository {
   }
 
   async countStudents(query: StudentQueryParams): Promise<number> {
-    const count = await this.prisma.student.count({
+    const count = await this.db.student.count({
       where: {
         ...(query.classBookID && { classBookID: query.classBookID }),
         deletedAt: null,

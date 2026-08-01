@@ -9,6 +9,7 @@ import { CurriculumDocs } from "./curriculum.docs";
 import { success } from "../../core/interceptor/response";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const curriculumRepository = new CurriculumRepository(prisma);
 const curriculumFactory = new CurriculumFactory();
@@ -18,10 +19,6 @@ const curriculumService = new CurriculumService(
   curriculumFactory,
   supabaseService,
 );
-
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
 
 export const CurriculumController = (app: Elysia) =>
   app.decorate("curriculumService", curriculumService).group("/curriculums", (app) =>

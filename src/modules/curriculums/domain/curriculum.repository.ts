@@ -1,11 +1,10 @@
-import { Prisma } from "../../../generated/prisma/client";
-import { Curriculum, CurriculumQueryParams } from "./curriculum";
+import { Curriculum, CurriculumQueryParams, CurriculumCreatePayload, CurriculumUpdatePayload } from "./curriculum";
 
 export interface ICurriculumRepository {
-  createCurriculum(data: Prisma.CurriculumCreateInput): Promise<Curriculum>;
+  createCurriculum(data: CurriculumCreatePayload): Promise<Curriculum>;
   getCurriculums(query: CurriculumQueryParams): Promise<Curriculum[]>;
   countCurriculums(query: CurriculumQueryParams): Promise<number>;
   getCurriculumById(id: number): Promise<Curriculum | null>;
-  updateCurriculum(id: number, data: Prisma.CurriculumUpdateInput): Promise<Curriculum>;
+  updateCurriculum(id: number, data: CurriculumUpdatePayload): Promise<Curriculum>;
   deleteCurriculum(id: number): Promise<Curriculum>;
 }

@@ -1,16 +1,16 @@
 import { Prisma } from "../../../generated/prisma/client";
-import { Professor, ProfessorQueryParams } from "./professor";
+import {
+  Professor,
+  ProfessorQueryParams,
+  ProfessorCreatePayload,
+  ProfessorUpdatePayload,
+} from "./professor";
 
 export interface IProfessorRepository {
-  createProfessor(
-    data: Prisma.ProfessorUncheckedCreateInput,
-  ): Promise<Professor>;
+  createProfessor(data: ProfessorCreatePayload): Promise<Professor>;
   getProfessors(query: ProfessorQueryParams): Promise<Professor[]>;
   getProfessorById(id: number): Promise<Professor | null>;
-  updateProfessor(
-    professorID: number,
-    data: Prisma.ProfessorUncheckedUpdateInput,
-  ): Promise<Professor>;
+  updateProfessor(professorID: number,data: ProfessorUpdatePayload): Promise<Professor>;
   countProfessors(query: ProfessorQueryParams): Promise<number>;
   deleteProfessor(id: number): Promise<Professor | null>;
 }

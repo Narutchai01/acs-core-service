@@ -8,14 +8,11 @@ import { CourseDocs } from "./course.docs";
 import { CourseFactory } from "./course.factory";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
 const courseService = new CourseService(courseRepository, courseFactory);
-
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
 
 export const CourseController = (app: Elysia) =>
   app.group("/courses", (app) =>

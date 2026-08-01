@@ -9,6 +9,7 @@ import { SupabaseService } from "../../core/utils/supabase";
 import { HttpStatusCode } from "../../core/types/http";
 import { authMiddleware } from "../../middleware/auth";
 import { roleMacro } from "../../middleware/checkRole";
+import { PERMISSION } from "../../core/permission/permission";
 
 const newsRepository = new NewsRepository(prisma);
 const newsFactory = new NewsFactory();
@@ -18,10 +19,6 @@ const newsService = new NewsService(
   newsFactory,
   supabaseService,
 );
-
-const PERMISSION = {
-  ADMINPERSMISSION: ["admin"],
-};
 
 export const newsController = (app: Elysia) =>
   app.decorate("newsService", newsService).group("/news", (app) =>
@@ -43,7 +40,7 @@ export const newsController = (app: Elysia) =>
             },
             {
               ...NewsDocs.createNews,
-              checkRole: ["admin"],
+              checkRole: PERMISSION.ADMINPERSMISSION,
             },
           )
           .put(
@@ -55,7 +52,7 @@ export const newsController = (app: Elysia) =>
             },
             {
               ...NewsDocs.upsertNewsFeature,
-              checkRole: ["admin"],
+              checkRole: PERMISSION.ADMINPERSMISSION,
             },
           )
           .patch(
@@ -82,7 +79,7 @@ export const newsController = (app: Elysia) =>
             },
             {
               ...NewsDocs.deleteNews,
-              checkRole: ["admin"],
+              checkRole: PERMISSION.ADMINPERSMISSION,
             },
           ),
       )

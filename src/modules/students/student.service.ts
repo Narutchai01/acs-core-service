@@ -7,10 +7,12 @@ import {
   StudentQueryParams,
   StudentUpdateDTO,
   CreaetListStudentDTO,
+  StudentCreatePayload,
+  StudentUpdatePayload,
 } from "./domain/student";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
-import { CreateUserModel } from "../users/domain/user";
+import { CreateUserModel, UpdateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
@@ -49,6 +51,7 @@ export class StudentService implements IStudentService {
       lastNameTh,
       firstNameEn,
       lastNameEn,
+      skills,
       ...studentData
     } = data;
     let imagePath: string | null = null;
@@ -93,8 +96,9 @@ export class StudentService implements IStudentService {
         );
       }
 
-      const rawStudentData: Prisma.StudentUncheckedCreateInput = {
+      const rawStudentData: StudentCreatePayload = {
         ...studentData,
+        skills: skills ? skills.join(",") : null,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
         userID: user.id,
@@ -150,6 +154,21 @@ export class StudentService implements IStudentService {
     }
   }
 
+  async getStudentByUserId(userId: number): Promise<StudentDTO | null> {
+    try {
+      const student = await this.studentRepository.getStudentByUserId(userId);
+      if (!student) {
+        return null;
+      }
+      return this.studentFactory.MapStudentToDTO(student);
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   async deleteStudent(id: number): Promise<StudentDTO> {
     const student = await this.studentRepository.deleteStudent(id);
     return this.studentFactory.MapStudentToDTO(student);
@@ -167,6 +186,7 @@ export class StudentService implements IStudentService {
       facebook,
       instagram,
       classBookID,
+      skills,
       ...userData
     } = data;
     let imagePath: string | undefined = undefined;
@@ -176,19 +196,20 @@ export class StudentService implements IStudentService {
         imagePath = await this.storage.uploadFile(imageFile, "students");
       }
 
-      const updatedUserData: Prisma.UserUncheckedUpdateInput = {
+      const updatedUserData: UpdateUserModel = {
         ...(imagePath && { imageUrl: imagePath }),
         ...userData,
         updatedBy: 0,
       };
 
-      const updateStudentData: Prisma.StudentUncheckedUpdateInput = {
+      const updateStudentData: StudentUpdatePayload = {
         studentCode,
         linkedin,
         github,
         facebook,
         instagram,
         classBookID,
+        skills: skills ? skills.join(",") : null,
         updatedBy: 0,
       };
 
@@ -229,10 +250,11 @@ export class StudentService implements IStudentService {
           facebook,
           instagram,
           studentCode,
+          skills,
           ...userData
         } = studentData;
 
-        const rawUserData: Prisma.UserUncheckedCreateInput = {
+        const rawUserData: CreateUserModel = {
           ...userData,
           createdBy: 0,
           updatedBy: 0,
@@ -248,13 +270,14 @@ export class StudentService implements IStudentService {
           );
         }
 
-        const rawStudentData: Prisma.StudentUncheckedCreateInput = {
+        const rawStudentData: StudentCreatePayload = {
           linkedin,
           github,
           facebook,
           instagram,
           studentCode,
           classBookID,
+          skills: skills ? skills.join(",") : null,
           createdBy: 0,
           updatedBy: 0,
           userID: user.id,

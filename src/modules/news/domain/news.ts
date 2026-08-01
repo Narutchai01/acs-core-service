@@ -10,7 +10,8 @@ const CommonNewsFields = {
 };
 export const CreateNewsDTO = t.Object({
   ...CommonNewsFields,
-  image: t.File(),
+  thumbnail: t.File(),
+  highlight: t.File(),
   tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
 });
 
@@ -19,6 +20,8 @@ export const NewsSchema = t.Intersect([
     id: t.Number(),
     ...CommonNewsFields,
     image: t.String(),
+    thumbnail: t.Nullable(t.String()),
+    highlight: t.Nullable(t.String()),
     tagID: t.Numeric(),
     tag: t.Optional(Tag),
   }),
@@ -27,7 +30,8 @@ export const NewsSchema = t.Intersect([
 
 export const NewsDTO = t.Object({
   id: t.Number(),
-  image: t.String(),
+  thumbnailURL: t.Nullable(t.String()),
+  highlightURL: t.Nullable(t.String()),
   ...CommonNewsFields,
   tag: t.Optional(Tag),
 });
@@ -35,7 +39,8 @@ export const NewsDTO = t.Object({
 export const NewsUpdateDTO = t.Partial(
   t.Object({
     ...CommonNewsFields,
-    image: t.File(),
+    thumbnail: t.File(),
+    highlight: t.File(),
     tagID: t.Numeric(),
   }),
 );
@@ -82,6 +87,35 @@ export const QueryNewsFeatureParams = t.Object({
   ...CommonQueryParams,
 });
 
+export const NewsCreatePayloadSchema = t.Object({
+  ...CommonNewsFields,
+  image: t.String(),
+  thumbnail: t.String(),
+  highlight: t.String(),
+  tagID: t.Numeric(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+export const NewsUpdatePayloadSchema = t.Partial(
+  t.Object({
+    ...CommonNewsFields,
+    thumbnail: t.String(),
+    highlight: t.String(),
+    tagID: t.Numeric(),
+    updatedBy: t.Number(),
+    updatedAt: t.Date(),
+  })
+);
+
+export const NewsFeatureCreatePayloadSchema = t.Object({
+  ...CommonNewsFeatureFields,
+  thumbnailURL: t.String(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
@@ -91,3 +125,6 @@ export type UpsertNewsFeatureDTO = Static<typeof UpsertNewsFeatureDTO>;
 export type NewsFeature = Static<typeof NewsFeatureSchema>;
 export type NewsFeatureDTO = Static<typeof NewsFeatureDTO>;
 export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;
+export type NewsCreatePayload = Static<typeof NewsCreatePayloadSchema>;
+export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
+export type NewsFeatureCreatePayload = Static<typeof NewsFeatureCreatePayloadSchema>;

@@ -1,20 +1,21 @@
 import { IClassBookRepository } from "../modules/class-book/domain/class-book.repository";
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import {
   ClassBook,
   ClassBookQueryParams,
+  ClassBookCreatePayload,
+  ClassBookUpdatePayload,
 } from "../modules/class-book/domain/class-book";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
+import { PrismaInstance } from "../lib/db";
 
 export class ClassBookRepository implements IClassBookRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly db: PrismaInstance) {}
 
-  async createClassBook(
-    data: Prisma.ClassBookUncheckedCreateInput,
-  ): Promise<ClassBook> {
-    const classBook = await this.prisma.classBook.create({
+  async createClassBook(data: ClassBookCreatePayload): Promise<ClassBook> {
+    const classBook = await this.db.classBook.create({
       data,
       include: {
         curriculum: true,
@@ -33,7 +34,7 @@ export class ClassBookRepository implements IClassBookRepository {
       search,
       curriculumID,
     } = query;
-    const classBooks = await this.prisma.classBook.findMany({
+    const classBooks = await this.db.classBook.findMany({
       skip: calculatePagination(page, pageSize),
       take: pageSize,
       orderBy: {
@@ -43,11 +44,11 @@ export class ClassBookRepository implements IClassBookRepository {
         ...(curriculumID && { curriculumID }),
         ...(search &&
           searchBy && {
-          [searchBy]: {
-            contains: search,
-            mode: "insensitive",
-          },
-        }),
+            [searchBy]: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
         deletedAt: null,
       },
       include: {
@@ -59,7 +60,7 @@ export class ClassBookRepository implements IClassBookRepository {
 
   async getClassBookById(id: number): Promise<ClassBook | null> {
     try {
-      const classBook = await this.prisma.classBook.findUnique({
+      const classBook = await this.db.classBook.findUnique({
         where: { id, deletedAt: null },
         include: {
           curriculum: true,
@@ -81,26 +82,25 @@ export class ClassBookRepository implements IClassBookRepository {
   }
   async countClassBooks(query: ClassBookQueryParams): Promise<number> {
     const { searchBy, search, curriculumID } = query;
-    const count = await this.prisma.classBook.count({
+    const count = await this.db.classBook.count({
       where: {
         ...(curriculumID && { curriculumID }),
         ...(search &&
           searchBy && {
-          [searchBy]: {
-            contains: search,
-            mode: "insensitive",
-          },
-        }),
+            [searchBy]: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
         deletedAt: null,
       },
     });
     return count;
   }
 
-  async updateClassBook(classBookID: number, data: Prisma.ClassBookUncheckedUpdateInput
-  ): Promise<ClassBook> {
+  async updateClassBook(classBookID: number, data: ClassBookUpdatePayload): Promise<ClassBook> {
     try {
-      const classBook = await this.prisma.classBook.update({
+      const classBook = await this.db.classBook.update({
         where: { id: classBookID },
         data,
         include: {
@@ -124,7 +124,7 @@ export class ClassBookRepository implements IClassBookRepository {
 
   async deleteClassBook(id: number): Promise<ClassBook> {
     try {
-      const classBook = await this.prisma.classBook.update({
+      const classBook = await this.db.classBook.update({
         where: { id },
         data: {
           deletedAt: new Date(),
