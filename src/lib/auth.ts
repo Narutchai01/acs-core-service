@@ -67,7 +67,7 @@ export const auth = betterAuth({
     disableSignUp: true,
     minPasswordLength: 4,
     revokeSessionsOnPasswordReset: true,
-    sendResetPassword: ({ user, url }) => {
+    sendResetPassword: async ({ user, url }) => {
       void sendPasswordResetLink({
         email: user.email,
         url,
