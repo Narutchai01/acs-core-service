@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createBetterAuthPasswordResetSender } from "../../src/lib/password-reset";
 import {
   PasswordResetEmailMessage,
   renderPasswordResetEmail,
@@ -44,5 +45,19 @@ describe("password reset email", () => {
     expect(message?.subject).toBe("Reset your ACS password");
     expect(message?.text).toContain(resetURL);
     expect(message?.html).toContain(resetURL);
+  });
+
+  test("waits for Better Auth reset-email delivery and propagates failures", async () => {
+    const deliveryError = new Error("SMTP rejected the message");
+    const sendResetPassword = createBetterAuthPasswordResetSender(async () => {
+      throw deliveryError;
+    });
+
+    await expect(
+      sendResetPassword({
+        user: { email: "user@example.com" },
+        url: "https://api.example.com/reset-password/token",
+      }),
+    ).rejects.toBe(deliveryError);
   });
 });
