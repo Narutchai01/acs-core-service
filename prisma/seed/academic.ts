@@ -38,11 +38,32 @@ export const academicPositions = [
   },
   {
     sequence: 6,
-    nameTh: "ศาสตราจารย์คลินิก",
-    shortTh: "ศ. คลินิก",
-    nameEn: "Clinical Professor",
-    shortEn: "Clinical Prof.",
+    nameTh: "ผู้ช่วยศาสตราจารย์ ดอกเตอร์",
+    shortTh: "ผศ. ดร.",
+    nameEn: "Assistant Professor Doctor",
+    shortEn: "Asst. Prof. Dr.",
   },
+  {
+    sequence: 7,
+    nameTh: "ดอกเตอร์",
+    shortTh: "ดร.",
+    nameEn: "Doctor",
+    shortEn: "Dr.",
+  },
+  {
+    sequence: 8,
+    nameTh: "รองศาสตราจารย์ ดอกเตอร์",
+    shortTh: "รศ. ดร.",
+    nameEn: "Associate Professor Doctor",
+    shortEn: "Assoc. Prof. Dr.",
+  },
+  {
+    sequence: 9,
+    nameTh: "ศาสตราจารย์ ดอกเตอร์",
+    shortTh: "ศ. ดร.",
+    nameEn: "Professor Doctor",
+    shortEn: "Prof. Dr.",
+  }
 ];
 
 export const executeSeedAcademicPositions = async (prisma: PrismaClient) => {
