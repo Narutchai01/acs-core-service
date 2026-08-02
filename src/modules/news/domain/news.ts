@@ -8,8 +8,24 @@ const CommonNewsFields = {
   startDate: t.Date(),
   dueDate: t.Optional(t.Nullable(t.Date())),
 };
+
+const FocalPointInputFields = {
+  cardFocalPointX: t.Optional(t.Numeric()),
+  cardFocalPointY: t.Optional(t.Numeric()),
+  thumbnailFocalPointX: t.Optional(t.Numeric()),
+  thumbnailFocalPointY: t.Optional(t.Numeric()),
+};
+
+const FocalPointResponseFields = {
+  cardFocalPointX: t.Optional(t.Nullable(t.Number())),
+  cardFocalPointY: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
+};
+
 export const CreateNewsDTO = t.Object({
   ...CommonNewsFields,
+  ...FocalPointInputFields,
   thumbnail: t.File(),
   highlight: t.File(),
   tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
@@ -22,6 +38,7 @@ export const NewsSchema = t.Intersect([
     image: t.String(),
     thumbnail: t.Nullable(t.String()),
     highlight: t.Nullable(t.String()),
+    ...FocalPointResponseFields,
     tagID: t.Numeric(),
     tag: t.Optional(Tag),
   }),
@@ -33,12 +50,14 @@ export const NewsDTO = t.Object({
   thumbnailURL: t.Nullable(t.String()),
   highlightURL: t.Nullable(t.String()),
   ...CommonNewsFields,
+  ...FocalPointResponseFields,
   tag: t.Optional(Tag),
 });
 
 export const NewsUpdateDTO = t.Partial(
   t.Object({
     ...CommonNewsFields,
+    ...FocalPointInputFields,
     thumbnail: t.File(),
     highlight: t.File(),
     tagID: t.Numeric(),
@@ -89,6 +108,7 @@ export const QueryNewsFeatureParams = t.Object({
 
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
+  ...FocalPointInputFields,
   image: t.String(),
   thumbnail: t.String(),
   highlight: t.String(),
@@ -100,6 +120,7 @@ export const NewsCreatePayloadSchema = t.Object({
 export const NewsUpdatePayloadSchema = t.Partial(
   t.Object({
     ...CommonNewsFields,
+    ...FocalPointInputFields,
     thumbnail: t.String(),
     highlight: t.String(),
     tagID: t.Numeric(),

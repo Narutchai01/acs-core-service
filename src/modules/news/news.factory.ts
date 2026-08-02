@@ -10,6 +10,10 @@ export class NewsFactory {
       detail: news.detail,
       startDate: news.startDate,
       dueDate: news.dueDate,
+      cardFocalPointX: news.cardFocalPointX,
+      cardFocalPointY: news.cardFocalPointY,
+      thumbnailFocalPointX: news.thumbnailFocalPointX,
+      thumbnailFocalPointY: news.thumbnailFocalPointY,
       tag: news.tag
         ? {
             id: news.tag.id,
