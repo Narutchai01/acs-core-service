@@ -199,7 +199,6 @@ export class ProfessorService implements IProfessorService {
       const professorData: ProfessorCreatePayload = {
         ...rawProfessorData,
         expertFields: expertFieldsString,
-        academicPositionID: rawProfessorData.academicPositionID,
         educations: educationsString,
         userID: user.id,
         createdBy: 0,
