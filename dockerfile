@@ -9,7 +9,7 @@ COPY prisma ./prisma/
 RUN bun install --frozen-lockfile
 RUN bunx prisma generate
 
-FROM bun-base AS development
+FROM bun-base AS local
 ENV NODE_ENV=development
 COPY . .
 COPY --from=bun-install /usr/src/app/node_modules ./node_modules
@@ -18,6 +18,8 @@ RUN sed -i 's/\r$//' ./entrypoint/setup.sh \
     && chmod +x ./entrypoint/setup.sh
 ENTRYPOINT [ "sh", "./entrypoint/setup.sh" ]
 CMD [ "bun", "--watch", "src/index.ts" ]
+
+FROM local AS development
 
 FROM node:22-alpine AS node-base
 WORKDIR /usr/src/app

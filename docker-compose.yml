@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-      target: development
+      target: local
     environment:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
