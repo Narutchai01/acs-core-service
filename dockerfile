@@ -16,7 +16,7 @@ RUN apk add --no-cache curl unzip openssl bash && \
 FROM base AS install
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
-RUN bun install
+RUN bun install --frozen-lockfile
 RUN node node_modules/.bin/prisma generate
 
 # --- Stage 2: Final Production Image ---
