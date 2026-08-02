@@ -56,6 +56,111 @@ export class ProfessorService implements IProfessorService {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
       }
 
+      if (rawProfessorData.expertFields) {
+        expertFieldsString = rawProfessorData.expertFields
+          ?.split("/")
+          .map((field) => field.trim())
+          .join(",");
+      }
+
+      if (rawProfessorData.educations) {
+        educationsString = rawProfessorData.educations
+          ?.split("/")
+          .map((edu) => edu.trim())
+          .join("/");
+      }
+
+      const existingUser = await this.userRepository.getUserByEmail(email);
+
+      if (existingUser) {
+        const existingProfessor =
+          await this.professorRepository.getProfessorByUserId(existingUser.id);
+        if (existingProfessor) {
+          if (existingProfessor.deletedAt === null) {
+            throw new AppError(
+              ErrorCode.DUPLICATE_DATA_ERROR,
+              "Professor with this email already exists",
+              400,
+            );
+          }
+
+          const professorData: ProfessorUpdatePayload = {
+            ...rawProfessorData,
+            expertFields: expertFieldsString,
+            educations: educationsString,
+            updatedBy: 0,
+            deletedAt: null,
+          };
+
+          const restoredProfessor =
+            await this.professorRepository.updateProfessor(
+              existingProfessor.id,
+              professorData,
+            );
+
+          const updatedUserData: UpdateUserModel = {
+            firstNameTh,
+            lastNameTh,
+            firstNameEn,
+            lastNameEn,
+            updatedBy: 0,
+            ...(pathImage && { imageUrl: pathImage }),
+          };
+
+          const updatedUser = await this.userRepository.updateUser(
+            existingUser.id,
+            updatedUserData,
+          );
+
+          restoredProfessor.user = updatedUser;
+
+          return this.professorFactory.mapProfessorToDTO(restoredProfessor);
+        } else {
+          const professorData: ProfessorCreatePayload = {
+            ...rawProfessorData,
+            expertFields: expertFieldsString,
+            educations: educationsString,
+            userID: existingUser.id,
+            createdBy: 0,
+            updatedBy: 0,
+          };
+
+          const newProfessor =
+            await this.professorRepository.createProfessor(professorData);
+
+          const hasProfessorRole = existingUser.userRoles?.some(
+            (ur) => ur.roleID === 3,
+          );
+
+          if (!hasProfessorRole) {
+            await this.userRepository.assignUserRole({
+              userID: existingUser.id,
+              roleID: 3,
+              createdBy: 0,
+              updatedBy: 0,
+            });
+          }
+
+          const updatedUserData: UpdateUserModel = {
+            firstNameTh,
+            lastNameTh,
+            firstNameEn,
+            lastNameEn,
+            updatedBy: 0,
+            ...(pathImage && { imageUrl: pathImage }),
+          };
+
+          const updatedUser = await this.userRepository.updateUser(
+            existingUser.id,
+            updatedUserData,
+          );
+
+          newProfessor.user = updatedUser;
+
+          return this.professorFactory.mapProfessorToDTO(newProfessor);
+        }
+      }
+
       const userData: CreateUserModel = {
         firstNameTh,
         lastNameTh,
@@ -89,20 +194,6 @@ export class ProfessorService implements IProfessorService {
           ErrorCode.DATABASE_ERROR,
           "Failed to assign role to student user",
         );
-      }
-
-      if (rawProfessorData.expertFields) {
-        expertFieldsString = rawProfessorData.expertFields
-          ?.split("/")
-          .map((field) => field.trim())
-          .join(",");
-      }
-
-      if (rawProfessorData.educations) {
-        educationsString = rawProfessorData.educations
-          ?.split("/")
-          .map((edu) => edu.trim())
-          .join("/");
       }
 
       const professorData: ProfessorCreatePayload = {
