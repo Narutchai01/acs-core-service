@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { logger } from "elysia-logger";
+import { node } from "@elysiajs/node";
 import { openapi } from "@elysiajs/openapi";
 import { responseEnhancer } from "../core/interceptor/response";
 import { openapiConfig } from "./openapi.config";
@@ -14,7 +14,9 @@ export class Server {
     private readonly hostname: string,
   ) {}
   start() {
-    const app = new Elysia({ prefix: "/api" })
+    const app = (process.versions.bun
+      ? new Elysia({ prefix: "/api" })
+      : new Elysia({ adapter: node(), prefix: "/api" }))
       .use(openapi(openapiConfig))
       .use(responseEnhancer)
       .use(errorPlugin)
@@ -29,14 +31,16 @@ export class Server {
           credentials: true,
         }),
       )
-      .use(logger())
+      .onRequest(({ request }) => {
+        console.info(`${request.method} ${new URL(request.url).pathname}`);
+      })
       .mount(auth.handler)
       .use(RouteSetup);
 
-    app.listen({ port: this.port, hostname: this.hostname });
-
-    console.log(
-      `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-    );
+    app.listen({ port: this.port, hostname: this.hostname }, () => {
+      console.log(
+        `🦊 Elysia is running at ${this.hostname}:${this.port} (${process.versions.bun ? "Bun" : "Node.js"})`,
+      );
+    });
   }
 }

@@ -28,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+      target: development
     environment:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
@@ -43,5 +44,5 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
