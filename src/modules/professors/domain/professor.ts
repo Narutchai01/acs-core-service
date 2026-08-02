@@ -115,6 +115,7 @@ export const ProfessorUpdatePayloadSchema = t.Partial(
     expertFields: t.Optional(t.Nullable(t.String())),
     educations: t.Optional(t.Nullable(t.String())),
     updatedBy: t.Number(),
+    deletedAt: t.Optional(t.Nullable(t.Date())),
   }),
 );
 
