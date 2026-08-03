@@ -238,4 +238,30 @@ export class CourseRepository implements ICourseRepository {
       throw error;
     }
   }
+
+  async getCourseCodes(codes: string[]): Promise<string[]> {
+    const courses = await this.db.course.findMany({
+      where: {
+        courseCode: {
+          in: codes,
+        },
+        deletedAt: null,
+      },
+      select: {
+        courseCode: true,
+      },
+    });
+    return courses.map((c) => c.courseCode);
+  }
+
+  async createManyCourses(data: CourseCreatePayload[]): Promise<void> {
+    await this.db.course.createMany({
+      data: data.map(course => ({
+        ...course,
+        createdBy: course.createdBy || 0,
+        updatedBy: course.updatedBy || 0,
+      })),
+      skipDuplicates: true,
+    });
+  }
 }
