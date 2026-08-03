@@ -19,7 +19,7 @@ import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { PageableType } from "../../core/models";
 interface IProfessorService {
-  createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
+  createProfessor(data: CreateProfessorDTO, userID: number): Promise<ProfessorDTO>;
   getProfessors(
     query: ProfessorQueryParams,
   ): Promise<PageableType<typeof ProfessorDTO>>;
@@ -38,7 +38,7 @@ export class ProfessorService implements IProfessorService {
     private readonly storage: SupabaseService,
   ) {}
 
-  async createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO> {
+  async createProfessor(data: CreateProfessorDTO, userID: number): Promise<ProfessorDTO> {
     const {
       imageFile,
       firstNameTh,
@@ -88,7 +88,7 @@ export class ProfessorService implements IProfessorService {
             ...rawProfessorData,
             expertFields: expertFieldsString,
             educations: educationsString,
-            updatedBy: 0,
+            updatedBy: userID,
             deletedAt: null,
           };
 
@@ -103,7 +103,7 @@ export class ProfessorService implements IProfessorService {
             lastNameTh,
             firstNameEn,
             lastNameEn,
-            updatedBy: 0,
+            updatedBy: userID,
             ...(pathImage && { imageUrl: pathImage }),
           };
 
@@ -121,23 +121,23 @@ export class ProfessorService implements IProfessorService {
             expertFields: expertFieldsString,
             educations: educationsString,
             userID: existingUser.id,
-            createdBy: 0,
-            updatedBy: 0,
+            createdBy: userID,
+            updatedBy: userID,
           };
 
           const newProfessor =
             await this.professorRepository.createProfessor(professorData);
 
           const hasProfessorRole = existingUser.userRoles?.some(
-            (ur) => ur.roleID === 3,
+            (role) => role.roleID === 3,
           );
 
           if (!hasProfessorRole) {
             await this.userRepository.assignUserRole({
               userID: existingUser.id,
               roleID: 3,
-              createdBy: 0,
-              updatedBy: 0,
+              createdBy: userID,
+              updatedBy: userID,
             });
           }
 
@@ -146,7 +146,7 @@ export class ProfessorService implements IProfessorService {
             lastNameTh,
             firstNameEn,
             lastNameEn,
-            updatedBy: 0,
+            updatedBy: userID,
             ...(pathImage && { imageUrl: pathImage }),
           };
 
@@ -168,8 +168,8 @@ export class ProfessorService implements IProfessorService {
         lastNameEn,
         email,
         imageUrl: pathImage,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       };
 
       const user = await this.userRepository.createUser(userData);
@@ -185,8 +185,8 @@ export class ProfessorService implements IProfessorService {
       const role = await this.userRepository.assignUserRole({
         userID: user.id,
         roleID: 3,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       });
 
       if (!role) {
@@ -201,8 +201,8 @@ export class ProfessorService implements IProfessorService {
         expertFields: expertFieldsString,
         educations: educationsString,
         userID: user.id,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       };
 
       const professor =
