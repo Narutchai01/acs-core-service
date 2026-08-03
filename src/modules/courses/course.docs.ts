@@ -1,6 +1,6 @@
 import { mapResponse } from "../../core/interceptor/response";
 import { Pageable } from "../../core/models";
-import { CourseDTO, CourseQueryParams, CreateCourseDTO, UpdateCourseDTO } from "./domain/course";
+import { CourseDTO, CourseQueryParams, CreateCourseDTO, UpdateCourseDTO, BatchCourseResponseSchema } from "./domain/course";
 import { t } from "elysia";
 
 export const CourseDocs = {
@@ -77,6 +77,23 @@ export const CourseDocs = {
     response: {
       200: mapResponse(CourseDTO),
       404: mapResponse(t.Null()),
+    },
+  },
+  batchCreateCourses: {
+    detail: {
+      summary: "Import courses via CSV file",
+      description: "Upload a CSV file to bulk import courses.",
+      tags: ["Courses"],
+    },
+    body: t.Object({
+      file: t.File({
+        type: ["text/csv"],
+        description: "CSV file containing course data",
+      }),
+    }),
+    response: {
+      200: mapResponse(BatchCourseResponseSchema),
+      400: mapResponse(t.Null()),
     },
   },
 };

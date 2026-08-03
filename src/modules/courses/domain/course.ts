@@ -91,6 +91,18 @@ export const CourseUpdatePayloadSchema = t.Partial(
   })
 );
 
+export const BatchCourseResponseSchema = t.Object({
+  totalRecords: t.Number(),
+  successfulRecords: t.Number(),
+  failedRecords: t.Array(
+    t.Object({
+      row: t.Number(),
+      reason: t.String(),
+    })
+  ),
+  duplicateRecords: t.Array(t.String()),
+});
+
 export type CourseQueryParams = Static<typeof CourseQueryParams>;
 export type Course = Static<typeof CourseSchema>;
 export type CreateCourseDTO = Static<typeof CreateCourseDTO>;
@@ -98,3 +110,4 @@ export type CourseDTO = Static<typeof CourseDTO>;
 export type UpdateCourseDTO = Static<typeof UpdateCourseDTO>;
 export type CourseCreatePayload = Static<typeof CourseCreatePayloadSchema>;
 export type CourseUpdatePayload = Static<typeof CourseUpdatePayloadSchema>;
+export type BatchCourseResponseDTO = Static<typeof BatchCourseResponseSchema>;
