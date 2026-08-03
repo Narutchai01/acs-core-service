@@ -83,8 +83,11 @@ export const ProfessorController = (app: Elysia) =>
           .use(roleMacro)
           .post(
             "",
-            async ({ professorService, body, set }) => {
-              const professor = await professorService.createProfessor(body);
+            async ({ professorService, body, set, userID }) => {
+              const professor = await professorService.createProfessor(
+                body,
+                userID,
+              );
               if (!professor) {
                 set.status = HttpStatusCode.INTERNAL_SERVER_ERROR;
                 return success(
