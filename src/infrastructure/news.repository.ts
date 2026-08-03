@@ -6,8 +6,8 @@ import {
   NewsQueryParams,
   QueryNewsFeatureParams,
   NewsCreatePayload,
-  NewsFeatureCreatePayload,
-  NewsUpdatePayload
+  NewsUpdatePayload,
+  NewsFeatureUpsertPayload
 } from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
@@ -102,21 +102,19 @@ export class NewsRepository implements INewsRepository {
     }
   }
 
-  async upsertNewsFeature(
-    newsFeatureData: NewsFeatureCreatePayload, 
+  async createNewsFeature(
+    newsFeatureData: NewsFeatureUpsertPayload,
   ): Promise<NewsFeature> {
-    const newsFeature = await this.db.newsFeatures.upsert({
-      where: {
-        newsID_tagID: {
-          newsID: newsFeatureData.newsID,
-          tagID: newsFeatureData.tagID,
-        },
-      },
-      update: {
-        thumbnailURL: newsFeatureData.thumbnailURL,
-        updatedBy: newsFeatureData.updatedBy,
-      },
-      create: newsFeatureData,
+    const data: Prisma.NewsFeaturesUncheckedCreateInput = {
+      newsID: newsFeatureData.newsID,
+      tagID: newsFeatureData.tagID,
+      thumbnailURL: newsFeatureData.thumbnailURL,
+      createdBy: newsFeatureData.createdBy ?? 0,
+      updatedBy: newsFeatureData.updatedBy ?? 0,
+    };
+
+    const newsFeature = await this.db.newsFeatures.create({
+      data,
       include: {
         news: {
           include: {
@@ -125,6 +123,44 @@ export class NewsRepository implements INewsRepository {
         },
       },
     });
+
+    return {
+      ...newsFeature,
+      news: {
+        ...newsFeature.news,
+        tag: newsFeature.news.tag
+          ? {
+              ...newsFeature.news.tag,
+              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+            }
+          : undefined,
+      },
+    };
+  }
+
+  async updateNewsFeature(
+    id: number,
+    newsFeatureData: NewsFeatureUpsertPayload,
+  ): Promise<NewsFeature> {
+    const data: Prisma.NewsFeaturesUncheckedUpdateInput = {
+      newsID: newsFeatureData.newsID,
+      tagID: newsFeatureData.tagID,
+      thumbnailURL: newsFeatureData.thumbnailURL,
+      updatedBy: newsFeatureData.updatedBy ?? 0,
+    };
+
+    const newsFeature = await this.db.newsFeatures.update({
+      where: { id },
+      data,
+      include: {
+        news: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+
     return {
       ...newsFeature,
       news: {
@@ -153,6 +189,9 @@ export class NewsRepository implements INewsRepository {
             tag: true,
           },
         },
+      },
+      orderBy: {
+        id: "asc",
       },
     });
     return newsFeatures.map((newsFeature) => ({
@@ -197,6 +236,7 @@ export class NewsRepository implements INewsRepository {
         },
       };
     } catch (error) {
+      console.error("🔥 Error in getNewsFeatureById:", error);
       return null;
     }
   }
