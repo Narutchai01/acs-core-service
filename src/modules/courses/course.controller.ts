@@ -51,6 +51,27 @@ export const CourseController = (app: Elysia) =>
           .use(authMiddleware)
           .use(roleMacro)
           .post(
+            "/batch",
+            async ({ courseService, body, set, userID }) => {
+              try {
+                const report = await courseService.importCoursesFromFile(body.file as File, userID);
+                set.status = HttpStatusCode.OK;
+                return success(
+                  report,
+                  "Batch import processed successfully",
+                  HttpStatusCode.OK,
+                );
+              } catch (error: any) {
+                set.status = HttpStatusCode.BAD_REQUEST;
+                return success(null, error.message, HttpStatusCode.BAD_REQUEST);
+              }
+            },
+            {
+              ...CourseDocs.batchCreateCourses,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            }
+          )
+          .post(
             "",
             async ({ courseService, body, set, userID }) => {
               const course = await courseService.createCourse(body, userID);
