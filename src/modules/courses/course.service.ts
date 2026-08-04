@@ -1,4 +1,13 @@
-import { CreateCourseDTO, CourseDTO, CourseQueryParams, UpdateCourseDTO } from "./domain/course";
+import {
+  CreateCourseDTO,
+  CourseDTO,
+  CourseQueryParams,
+  UpdateCourseDTO,
+  BatchCourseResponseDTO,
+  CourseCreatePayload
+} from "./domain/course";
+import { parse } from "csv-parse/sync";
+import { Value } from "@sinclair/typebox/value";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
 import { PageableType } from "../../core/models";
@@ -6,6 +15,7 @@ interface ICourseService {
   createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO>;
   getCourses(query: CourseQueryParams): Promise<PageableType<typeof CourseDTO>>;
   getCourseByID(id: number): Promise<CourseDTO | null>;
+  importCoursesFromFile(file: File, userID: number): Promise<BatchCourseResponseDTO>;
 }
 
 export class CourseService implements ICourseService {
@@ -78,4 +88,76 @@ export class CourseService implements ICourseService {
     return this.courseFactory.mapCourseToDTO(course);
   }
 
+  async importCoursesFromFile(file: File, userID: number): Promise<BatchCourseResponseDTO> {
+    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+      throw new Error("Invalid file format. Only CSV is allowed.");
+    }
+
+    const text = await file.text();
+    const records: Record<string, string>[] = parse(text, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+    });
+
+    if (records.length === 0) {
+      throw new Error("File is empty or contains no valid data rows.");
+    }
+
+    const validRecords: CourseCreatePayload[] = [];
+    const failedRecords: { row: number; reason: string }[] = [];
+    const duplicateRecords: string[] = [];
+    const courseCodesToValidate: string[] = [];
+
+    for (let i = 0; i < records.length; i++) {
+      const rowNum = i + 1;
+      const row = records[i];
+      const parsedRow = {
+        ...row,
+        typeCourseID: row.typeCourseID ? Number(row.typeCourseID) : undefined,
+        curriculumID: row.curriculumID ? Number(row.curriculumID) : undefined,
+      };
+
+      if (!Value.Check(CreateCourseDTO, parsedRow)) {
+        const errors = [...Value.Errors(CreateCourseDTO, parsedRow)];
+        failedRecords.push({
+          row: rowNum,
+          reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
+        });
+        continue;
+      }
+
+      validRecords.push({
+        ...parsedRow,
+        createdBy: userID,
+        updatedBy: userID,
+      } as CourseCreatePayload);
+      courseCodesToValidate.push(parsedRow.courseCode);
+    }
+
+    const finalRecordsToInsert: CourseCreatePayload[] = [];
+    if (courseCodesToValidate.length > 0) {
+      const existingCodes = await this.courseRepository.getCourseCodes(courseCodesToValidate);
+      const existingCodeSet = new Set(existingCodes);
+
+      for (const record of validRecords) {
+        if (existingCodeSet.has(record.courseCode)) {
+          duplicateRecords.push(record.courseCode);
+        } else {
+          finalRecordsToInsert.push(record);
+        }
+      }
+    }
+
+    if (finalRecordsToInsert.length > 0) {
+      await this.courseRepository.createManyCourses(finalRecordsToInsert);
+    }
+
+    return {
+      totalRecords: records.length,
+      successfulRecords: finalRecordsToInsert.length,
+      failedRecords,
+      duplicateRecords,
+    };
+  }
 }
