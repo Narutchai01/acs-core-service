@@ -53,18 +53,13 @@ export const CourseController = (app: Elysia) =>
           .post(
             "/batch",
             async ({ courseService, body, set, userID }) => {
-              try {
-                const report = await courseService.importCoursesFromFile(body.file as File, userID);
-                set.status = HttpStatusCode.OK;
-                return success(
-                  report,
-                  "Batch import processed successfully",
-                  HttpStatusCode.OK,
-                );
-              } catch (error: any) {
-                set.status = HttpStatusCode.BAD_REQUEST;
-                return success(null, error.message, HttpStatusCode.BAD_REQUEST);
-              }
+              const report = await courseService.importCoursesFromFile(body.file as File, userID);
+              set.status = HttpStatusCode.OK;
+              return success(
+                report,
+                "Batch import processed successfully",
+                HttpStatusCode.OK,
+              );
             },
             {
               ...CourseDocs.batchCreateCourses,
