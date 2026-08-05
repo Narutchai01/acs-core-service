@@ -19,7 +19,10 @@ import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { PageableType } from "../../core/models";
 interface IProfessorService {
-  createProfessor(data: CreateProfessorDTO, userID: number): Promise<ProfessorDTO>;
+  createProfessor(
+    data: CreateProfessorDTO,
+    userID: number,
+  ): Promise<ProfessorDTO>;
   getProfessors(
     query: ProfessorQueryParams,
   ): Promise<PageableType<typeof ProfessorDTO>>;
@@ -38,7 +41,10 @@ export class ProfessorService implements IProfessorService {
     private readonly storage: SupabaseService,
   ) {}
 
-  async createProfessor(data: CreateProfessorDTO, userID: number): Promise<ProfessorDTO> {
+  async createProfessor(
+    data: CreateProfessorDTO,
+    userID: number,
+  ): Promise<ProfessorDTO> {
     const {
       imageFile,
       firstNameTh,
@@ -63,27 +69,21 @@ export class ProfessorService implements IProfessorService {
           .join(",");
       }
 
-      if (rawProfessorData.educations) {
-        educationsString = rawProfessorData.educations
-          ?.split("/")
-          .map((edu) => edu.trim())
-          .join("/");
-      }
-
       const existingUser = await this.userRepository.getUserByEmail(email);
 
       if (existingUser) {
         const existingProfessor =
           await this.professorRepository.getProfessorByUserId(existingUser.id);
-        if (existingProfessor) {
-          if (existingProfessor.deletedAt === null) {
-            throw new AppError(
-              ErrorCode.DUPLICATE_DATA_ERROR,
-              "Professor with this email already exists",
-              400,
-            );
-          }
 
+        if (existingProfessor?.deletedAt === null) {
+          throw new AppError(
+            ErrorCode.DUPLICATE_DATA_ERROR,
+            "Professor with this email already exists",
+            400,
+          );
+        }
+
+        if (existingProfessor) {
           const professorData: ProfessorUpdatePayload = {
             ...rawProfessorData,
             expertFields: expertFieldsString,
