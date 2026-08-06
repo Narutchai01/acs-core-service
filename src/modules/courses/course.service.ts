@@ -7,6 +7,7 @@ import {
   CourseCreatePayload
 } from "./domain/course";
 import { parse } from "csv-parse/sync";
+import * as xlsx from "xlsx";
 import { Value } from "@sinclair/typebox/value";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
@@ -89,16 +90,37 @@ export class CourseService implements ICourseService {
   }
 
   async importCoursesFromFile(file: File, userID: number): Promise<BatchCourseResponseDTO> {
-    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
-      throw new Error("Invalid file format. Only CSV is allowed.");
+    const isCSV = file.name.endsWith(".csv") || file.type === "text/csv";
+    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
+
+    if (!isCSV && !isExcel) {
+      throw new Error("Invalid file format. Only CSV and Excel are allowed.");
     }
 
-    const text = await file.text();
-    const records: Record<string, string>[] = parse(text, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
+    let records: Record<string, string>[] = [];
+
+    if (isCSV) {
+      const text = await file.text();
+      records = parse(text, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+    } else {
+      const buffer = await file.arrayBuffer();
+      const workbook = xlsx.read(buffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rawRecords = xlsx.utils.sheet_to_json<Record<string, any>>(sheet, { raw: false, defval: "" });
+
+      records = rawRecords.map(row => {
+        const trimmedRow: Record<string, string> = {};
+        for (const key in row) {
+          trimmedRow[key.trim()] = String(row[key]).trim();
+        }
+        return trimmedRow;
+      });
+    }
 
     if (records.length === 0) {
       throw new Error("File is empty or contains no valid data rows.");
