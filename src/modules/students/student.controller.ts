@@ -51,11 +51,13 @@ export const StudentController = (app: Elysia) =>
           )
           .post(
             "/batch",
-            async ({ body, studentService }) => {
-              const students = await studentService.createStudentBatch(body);
+            async ({ body, studentService, set, userID }) => {
+              const { file, classBookID } = body;
+              const result = await studentService.importStudentsFromFile(file, classBookID, userID);
+              set.status = HttpStatusCode.CREATED;
               return success(
-                students,
-                "Students created successfully",
+                result,
+                "Students batch processed successfully",
                 HttpStatusCode.CREATED,
               );
             },
