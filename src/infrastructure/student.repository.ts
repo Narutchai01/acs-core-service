@@ -15,7 +15,11 @@ export class StudentRepository implements IStudentRepository {
 
   async createStudent(data: StudentCreatePayload): Promise<Student> {
     const student = await this.db.student.create({
-      data,
+      data: {
+        ...data,
+        createdBy: data.createdBy ?? 0,
+        updatedBy: data.updatedBy ?? 0,
+      },
       include: {
         user: true,
       },
@@ -113,6 +117,17 @@ export class StudentRepository implements IStudentRepository {
         500,
       );
     }
+  }
+
+  async getStudentCodes(codes: string[]): Promise<string[]> {
+    const students = await this.db.student.findMany({
+      where: {
+        studentCode: { in: codes },
+        deletedAt: null,
+      },
+      select: { studentCode: true },
+    });
+    return students.map((s) => s.studentCode);
   }
 
   async deleteStudent(id: number): Promise<Student> {
