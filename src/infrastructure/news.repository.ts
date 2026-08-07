@@ -14,20 +14,20 @@ import { ErrorCode } from "../core/types/errors";
 import { calculatePagination } from "../core/utils/calculator";
 import { PrismaInstance } from "../lib/db";
 export class NewsRepository implements INewsRepository {
-  constructor(private readonly db: PrismaInstance) {}
+  constructor(private readonly db: PrismaInstance) { }
 
   async createNews(data: NewsCreatePayload): Promise<News> {
     //
-    const news = await this.db.news.create({data,include: { tag: true },});
+    const news = await this.db.news.create({ data, include: { tag: true }, });
     return {
       ...news,
       tag: news.tag
         ? {
-            ...news.tag,
-            tagsGroupsId: news.tag.tageGroupsId,
-            // Remove the incorrect property if present
-            // Optionally: ...news.tag without 'tageGroupsId'
-          }
+          ...news.tag,
+          tagsGroupsId: news.tag.tageGroupsId,
+          // Remove the incorrect property if present
+          // Optionally: ...news.tag without 'tageGroupsId'
+        }
         : undefined,
     };
   }
@@ -51,8 +51,8 @@ export class NewsRepository implements INewsRepository {
         ...(query.tagID && { tagID: query.tagID }),
         ...(search &&
           searchBy && {
-            [searchBy]: { contains: search, mode: "insensitive" },
-          }),
+          [searchBy]: { contains: search, mode: "insensitive" },
+        }),
         deletedAt: null,
       },
       include: {
@@ -63,9 +63,9 @@ export class NewsRepository implements INewsRepository {
       ...news,
       tag: news.tag
         ? {
-            ...news.tag,
-            tagsGroupsId: news.tag.tageGroupsId,
-          }
+          ...news.tag,
+          tagsGroupsId: news.tag.tageGroupsId,
+        }
         : undefined,
     }));
   }
@@ -83,9 +83,9 @@ export class NewsRepository implements INewsRepository {
         ...news,
         tag: news.tag
           ? {
-              ...news.tag,
-              tagsGroupsId: news.tag.tageGroupsId,
-            }
+            ...news.tag,
+            tagsGroupsId: news.tag.tageGroupsId,
+          }
           : undefined,
       };
     } catch (error) {
@@ -109,6 +109,7 @@ export class NewsRepository implements INewsRepository {
       newsID: newsFeatureData.newsID,
       tagID: newsFeatureData.tagID,
       thumbnailURL: newsFeatureData.thumbnailURL,
+      highlightURL: newsFeatureData.highlightURL,
       createdBy: newsFeatureData.createdBy ?? 0,
       updatedBy: newsFeatureData.updatedBy ?? 0,
     };
@@ -130,9 +131,9 @@ export class NewsRepository implements INewsRepository {
         ...newsFeature.news,
         tag: newsFeature.news.tag
           ? {
-              ...newsFeature.news.tag,
-              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
-            }
+            ...newsFeature.news.tag,
+            tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+          }
           : undefined,
       },
     };
@@ -146,6 +147,7 @@ export class NewsRepository implements INewsRepository {
       newsID: newsFeatureData.newsID,
       tagID: newsFeatureData.tagID,
       thumbnailURL: newsFeatureData.thumbnailURL,
+      highlightURL: newsFeatureData.highlightURL,
       updatedBy: newsFeatureData.updatedBy ?? 0,
     };
 
@@ -167,9 +169,9 @@ export class NewsRepository implements INewsRepository {
         ...newsFeature.news,
         tag: newsFeature.news.tag
           ? {
-              ...newsFeature.news.tag,
-              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
-            }
+            ...newsFeature.news.tag,
+            tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+          }
           : undefined,
       },
     };
@@ -200,9 +202,9 @@ export class NewsRepository implements INewsRepository {
         ...newsFeature.news,
         tag: newsFeature.news.tag
           ? {
-              ...newsFeature.news.tag,
-              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
-            }
+            ...newsFeature.news.tag,
+            tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+          }
           : undefined,
       },
     }));
@@ -229,9 +231,9 @@ export class NewsRepository implements INewsRepository {
           ...newsFeature.news,
           tag: newsFeature.news.tag
             ? {
-                ...newsFeature.news.tag,
-                tagsGroupsId: newsFeature.news.tag.tageGroupsId,
-              }
+              ...newsFeature.news.tag,
+              tagsGroupsId: newsFeature.news.tag.tageGroupsId,
+            }
             : undefined,
         },
       };
@@ -276,9 +278,9 @@ export class NewsRepository implements INewsRepository {
         ...news,
         tag: news.tag
           ? {
-              ...news.tag,
-              tagsGroupsId: news.tag.tageGroupsId,
-            }
+            ...news.tag,
+            tagsGroupsId: news.tag.tageGroupsId,
+          }
           : undefined,
       };
     } catch (error) {
@@ -311,9 +313,9 @@ export class NewsRepository implements INewsRepository {
         ...news,
         tag: news.tag
           ? {
-              ...news.tag,
-              tagsGroupsId: news.tag.tageGroupsId,
-            }
+            ...news.tag,
+            tagsGroupsId: news.tag.tageGroupsId,
+          }
           : undefined,
       };
     } catch (error) {

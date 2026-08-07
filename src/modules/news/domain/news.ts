@@ -85,6 +85,14 @@ export const UpsertNewsFeatureDTO = t.Object({
       errorMessage: "Invalid file type. Only image files are allowed.",
     }),
   ]),
+  highlight: t.Optional(
+    t.Union([
+      t.String(),
+      t.File({
+        errorMessage: "Invalid file type. Only image files are allowed.",
+      }),
+    ]),
+  ),
 });
 
 export const NewsFeatureSchema = t.Intersect([
@@ -92,6 +100,7 @@ export const NewsFeatureSchema = t.Intersect([
     id: t.Number(),
     ...CommonNewsFeatureFields,
     thumbnailURL: t.String(),
+    highlightURL: t.Optional(t.Nullable(t.String())),
     news: NewsSchema,
   }),
   BaseModelSchema,
@@ -101,6 +110,7 @@ export const NewsFeatureDTO = t.Object({
   id: t.Number(),
   // ...CommonNewsFeatureFields,
   thumbnailURL: t.String(),
+  highlightURL: t.Optional(t.Nullable(t.String())),
   news: NewsDTO,
 });
 
@@ -135,6 +145,7 @@ export const NewsUpdatePayloadSchema = t.Partial(
 export const NewsFeaturUpsertPayloadSchema = t.Object({
   ...CommonNewsFeatureFields,
   thumbnailURL: t.String(),
+  highlightURL: t.Optional(t.String()),
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
