@@ -1,22 +1,25 @@
 import { SupabaseService } from "../../core/utils/supabase";
-import { Prisma } from "../../generated/prisma/client";
 import {
   CreateStudentDTO,
   StudentDTO,
   Student,
   StudentQueryParams,
   StudentUpdateDTO,
-  CreaetListStudentDTO,
+  BatchStudentResponseDTO,
   StudentCreatePayload,
   StudentUpdatePayload,
+  CreateStudent,
 } from "./domain/student";
+import { parse } from "csv-parse/sync";
+import * as xlsx from "xlsx";
+import { Value } from "@sinclair/typebox/value";
+import { Static } from "elysia";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
 import { CreateUserModel, UpdateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
-import { HttpStatusCode } from "../../core/types/http";
 import { PageableType } from "../../core/models";
 
 interface IStudentService {
@@ -27,7 +30,7 @@ interface IStudentService {
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
   updateStudent(studentID: number, data: StudentUpdateDTO): Promise<StudentDTO>;
-  createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]>;
+  importStudentsFromFile(file: File, classBookID: number, userID: number): Promise<BatchStudentResponseDTO>;
 }
 
 export class StudentService implements IStudentService {
@@ -238,72 +241,132 @@ export class StudentService implements IStudentService {
     }
   }
 
-  async createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]> {
-    const { classBookID, students } = data;
-    const studentsDB: Student[] = [];
-    try {
-      for (const studentData of students) {
-        const {
-          linkedin,
-          github,
-          facebook,
-          instagram,
-          studentCode,
-          skills,
-          ...userData
-        } = studentData;
+  async importStudentsFromFile(file: File, classBookID: number, userID: number): Promise<BatchStudentResponseDTO> {
+    const isCSV = file.name.endsWith(".csv") || file.type === "text/csv";
+    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
 
-        const rawUserData: CreateUserModel = {
-          ...userData,
-          createdBy: 0,
-          updatedBy: 0,
-        };
+    if (!isCSV && !isExcel) {
+      throw new Error("Invalid file format. Only CSV and Excel are allowed.");
+    }
 
-        const user = await this.userRepository.createUser(rawUserData);
+    let records: Record<string, string>[] = [];
 
-        if (!user) {
-          throw new AppError(
-            ErrorCode.DATABASE_ERROR,
-            "Failed to create user for student",
-            HttpStatusCode.INTERNAL_SERVER_ERROR,
-          );
+    if (isCSV) {
+      const text = await file.text();
+      records = parse(text, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+    } else {
+      const buffer = await file.arrayBuffer();
+      const workbook = xlsx.read(buffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rawRecords = xlsx.utils.sheet_to_json<Record<string, string>>(sheet, { raw: false, defval: "" });
+
+      records = rawRecords.map((row) => {
+        const trimmedRow: Record<string, string> = {};
+        for (const key in row) {
+          trimmedRow[key.trim()] = String(row[key]).trim();
         }
+        return trimmedRow;
+      });
+    }
 
-        const rawStudentData: StudentCreatePayload = {
-          linkedin,
-          github,
-          facebook,
-          instagram,
-          studentCode,
-          classBookID,
-          skills: skills ? skills.join(",") : null,
-          createdBy: 0,
-          updatedBy: 0,
-          userID: user.id,
-        };
+    if (records.length === 0) {
+      throw new Error("File is empty or contains no valid data rows.");
+    }
 
-        const student =
-          await this.studentRepository.createStudent(rawStudentData);
+    const validRecords: (Static<typeof CreateStudent> & { studentCode: string })[] = [];
+    const failedRecords: { row: number; reason: string }[] = [];
+    const duplicateRecords: string[] = [];
+    const studentCodesToValidate: string[] = [];
 
-        if (!student) {
-          throw new AppError(
-            ErrorCode.DATABASE_ERROR,
-            "Failed to create student",
-            HttpStatusCode.INTERNAL_SERVER_ERROR,
-          );
+    for (let i = 0; i < records.length; i++) {
+      const rowNum = i + 1;
+      const row = records[i];
+      const parsedRow: Record<string, unknown> = {};
+      for (const key in row) {
+        if (row[key] === "") {
+          parsedRow[key] = undefined;
+        } else {
+          parsedRow[key] = row[key];
         }
+      }
+      parsedRow.skills = row.skills ? row.skills.split(",").map(s => s.trim()).filter(s => s !== "") : undefined;
 
-        studentsDB.push(student);
+      if (!Value.Check(CreateStudent, parsedRow)) {
+        const errors = [...Value.Errors(CreateStudent, parsedRow)];
+        failedRecords.push({
+          row: rowNum,
+          reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
+        });
+        continue;
       }
 
-      return this.studentFactory.MapStudentListToDTO(studentsDB);
-    } catch (error) {
-      console.log(error);
-      throw new AppError(
-        ErrorCode.DATABASE_ERROR,
-        "Failed to create students batch",
-        HttpStatusCode.INTERNAL_SERVER_ERROR,
-      );
+      validRecords.push(parsedRow);
+      studentCodesToValidate.push(parsedRow.studentCode);
     }
+
+    let successfulRecords = 0;
+
+    if (studentCodesToValidate.length > 0) {
+      const existingCodes = await this.studentRepository.getStudentCodes(studentCodesToValidate);
+      const existingCodeSet = new Set(existingCodes);
+
+      for (const record of validRecords) {
+        if (existingCodeSet.has(record.studentCode)) {
+          duplicateRecords.push(record.studentCode);
+        } else {
+          const {
+            linkedin,
+            github,
+            facebook,
+            instagram,
+            studentCode,
+            skills,
+            ...userData
+          } = record;
+
+          const rawUserData: CreateUserModel = {
+            ...userData,
+            createdBy: userID,
+            updatedBy: userID,
+          };
+
+          const user = await this.userRepository.createUser(rawUserData);
+
+          if (!user) {
+            continue;
+          }
+
+          const rawStudentData: StudentCreatePayload = {
+            linkedin: linkedin || null,
+            github: github || null,
+            facebook: facebook || null,
+            instagram: instagram || null,
+            studentCode,
+            classBookID,
+            skills: skills ? skills.join(",") : null,
+            createdBy: userID,
+            updatedBy: userID,
+            userID: user.id,
+          };
+
+          const student = await this.studentRepository.createStudent(rawStudentData);
+          if (student) {
+            successfulRecords++;
+          }
+        }
+      }
+    }
+
+    return {
+      totalRecords: records.length,
+      successfulRecords,
+      failedRecords,
+      duplicateRecords,
+    };
   }
 }
