@@ -94,14 +94,12 @@ export class ProfessorService implements IProfessorService {
       if (rawProfessorData.expertFields) {
         expertFieldsString = rawProfessorData.expertFields
           ?.split("/")
-          .map((field) => field.trim())
           .join("/");
       }
 
       if (rawProfessorData.educations) {
         educationsString = rawProfessorData.educations
           ?.split("/")
-          .map((edu) => edu.trim())
           .join("/");
       }
 
@@ -179,14 +177,12 @@ export class ProfessorService implements IProfessorService {
     if (expertFields) {
       expertFieldsString = expertFields
         .split("/")
-        .map((field) => field.trim())
         .join("/");
     }
 
     if (educations) {
       educationsString = educations
         .split("/")
-        .map((edu) => edu.trim())
         .join("/");
     }
 
