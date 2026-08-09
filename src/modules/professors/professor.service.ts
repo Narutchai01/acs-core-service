@@ -254,21 +254,6 @@ export class ProfessorService implements IProfessorService {
     let pathImage: string | undefined = undefined;
     let professor: Professor | null;
 
-    let expertFieldsString: string | undefined = undefined;
-    let educationsString: string | undefined = undefined;
-
-    if (expertFields) {
-      expertFieldsString = expertFields
-        .split("/")
-        .join("/");
-    }
-
-    if (educations) {
-      educationsString = educations
-        .split("/")
-        .join("/");
-    }
-
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
@@ -278,8 +263,8 @@ export class ProfessorService implements IProfessorService {
         phone,
         profRoom,
         academicPositionID,
-        educations: educationsString,
-        expertFields: expertFieldsString,
+        educations,
+        expertFields,
         updatedBy: 0,
       };
 
