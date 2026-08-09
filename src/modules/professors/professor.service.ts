@@ -19,7 +19,10 @@ import { ErrorCode } from "../../core/types/errors";
 import { HttpStatusCode } from "../../core/types/http";
 import { PageableType } from "../../core/models";
 interface IProfessorService {
-  createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO>;
+  createProfessor(
+    data: CreateProfessorDTO,
+    userID: number,
+  ): Promise<ProfessorDTO>;
   getProfessors(
     query: ProfessorQueryParams,
   ): Promise<PageableType<typeof ProfessorDTO>>;
@@ -38,7 +41,10 @@ export class ProfessorService implements IProfessorService {
     private readonly storage: SupabaseService,
   ) { }
 
-  async createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO> {
+  async createProfessor(
+    data: CreateProfessorDTO,
+    userID: number,
+  ): Promise<ProfessorDTO> {
     const {
       imageFile,
       firstNameTh,
@@ -56,6 +62,105 @@ export class ProfessorService implements IProfessorService {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
       }
 
+      if (rawProfessorData.expertFields) {
+        expertFieldsString = rawProfessorData.expertFields
+          ?.split("/")
+          .map((field) => field.trim())
+          .join(",");
+      }
+
+      const existingUser = await this.userRepository.getUserByEmail(email);
+
+      if (existingUser) {
+        const existingProfessor =
+          await this.professorRepository.getProfessorByUserId(existingUser.id);
+
+        if (existingProfessor?.deletedAt === null) {
+          throw new AppError(
+            ErrorCode.DUPLICATE_DATA_ERROR,
+            "Professor with this email already exists",
+            400,
+          );
+        }
+
+        if (existingProfessor) {
+          const professorData: ProfessorUpdatePayload = {
+            ...rawProfessorData,
+            expertFields: expertFieldsString,
+            educations: educationsString,
+            updatedBy: userID,
+            deletedAt: null,
+          };
+
+          const restoredProfessor =
+            await this.professorRepository.updateProfessor(
+              existingProfessor.id,
+              professorData,
+            );
+
+          const updatedUserData: UpdateUserModel = {
+            firstNameTh,
+            lastNameTh,
+            firstNameEn,
+            lastNameEn,
+            updatedBy: userID,
+            ...(pathImage && { imageUrl: pathImage }),
+          };
+
+          const updatedUser = await this.userRepository.updateUser(
+            existingUser.id,
+            updatedUserData,
+          );
+
+          restoredProfessor.user = updatedUser;
+
+          return this.professorFactory.mapProfessorToDTO(restoredProfessor);
+        } else {
+          const professorData: ProfessorCreatePayload = {
+            ...rawProfessorData,
+            expertFields: expertFieldsString,
+            educations: educationsString,
+            userID: existingUser.id,
+            createdBy: userID,
+            updatedBy: userID,
+          };
+
+          const newProfessor =
+            await this.professorRepository.createProfessor(professorData);
+
+          const hasProfessorRole = existingUser.userRoles?.some(
+            (role) => role.roleID === 3,
+          );
+
+          if (!hasProfessorRole) {
+            await this.userRepository.assignUserRole({
+              userID: existingUser.id,
+              roleID: 3,
+              createdBy: userID,
+              updatedBy: userID,
+            });
+          }
+
+          const updatedUserData: UpdateUserModel = {
+            firstNameTh,
+            lastNameTh,
+            firstNameEn,
+            lastNameEn,
+            updatedBy: userID,
+            ...(pathImage && { imageUrl: pathImage }),
+          };
+
+          const updatedUser = await this.userRepository.updateUser(
+            existingUser.id,
+            updatedUserData,
+          );
+
+          newProfessor.user = updatedUser;
+
+          return this.professorFactory.mapProfessorToDTO(newProfessor);
+        }
+      }
+
       const userData: CreateUserModel = {
         firstNameTh,
         lastNameTh,
@@ -63,8 +168,8 @@ export class ProfessorService implements IProfessorService {
         lastNameEn,
         email,
         imageUrl: pathImage,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       };
 
       const user = await this.userRepository.createUser(userData);
@@ -80,8 +185,8 @@ export class ProfessorService implements IProfessorService {
       const role = await this.userRepository.assignUserRole({
         userID: user.id,
         roleID: 3,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       });
 
       if (!role) {
@@ -106,11 +211,10 @@ export class ProfessorService implements IProfessorService {
       const professorData: ProfessorCreatePayload = {
         ...rawProfessorData,
         expertFields: expertFieldsString,
-        academicPositionID: rawProfessorData.academicPositionID,
         educations: educationsString,
         userID: user.id,
-        createdBy: 0,
-        updatedBy: 0,
+        createdBy: userID,
+        updatedBy: userID,
       };
 
       const professor =

@@ -4,7 +4,7 @@ import {
   NewsFeature,
   QueryNewsFeatureParams,
   NewsCreatePayload,
-  NewsFeatureCreatePayload,
+  NewsFeatureUpsertPayload,
   NewsUpdatePayload,
 } from "./news";
 
@@ -13,8 +13,12 @@ export interface INewsRepository {
   createNews(data: NewsCreatePayload): Promise<News>;
   getNews(query: NewsQueryParams): Promise<News[]>;
   getNewsById(id: number): Promise<News | null>;
-  upsertNewsFeature(
-    newsFeatureData: NewsFeatureCreatePayload,
+  createNewsFeature(
+    newsFeatureData: NewsFeatureUpsertPayload,
+  ): Promise<NewsFeature>;
+  updateNewsFeature(
+    id: number,
+    newsFeatureData: NewsFeatureUpsertPayload,
   ): Promise<NewsFeature>;
   getNewsFeaturesBy(query: QueryNewsFeatureParams): Promise<NewsFeature[]>;
   getNewsFeatureById(id: number): Promise<NewsFeature | null>;
