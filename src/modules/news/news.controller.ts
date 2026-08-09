@@ -47,8 +47,8 @@ export const createNewsController =
             )
             .put(
               "/news-features",
-              async ({ newsService, body, set }) => {
-                const newsFeature = await newsService.upsertNewsFeature(body);
+              async ({ newsService, body, set ,userID }) => {
+                const newsFeature = await newsService.upsertNewsFeature(body,userID);
                 set.status = HttpStatusCode.OK;
                 return success(
                   newsFeature,

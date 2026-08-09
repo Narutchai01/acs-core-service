@@ -12,8 +12,8 @@ import {
   NewsUpdateDTO,
   News,
   NewsCreatePayload,
-  NewsFeatureCreatePayload,
   NewsUpdatePayload,
+  NewsFeatureUpsertPayload,
 } from "./domain/news";
 import { INewsRepository } from "./domain/news.repository";
 import { NewsFactory } from "./news.factory";
@@ -23,7 +23,10 @@ interface INewsService {
   createNews(data: CreateNewsDTO): Promise<NewsDTO>;
   getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>>;
   getNewsById(id: number): Promise<NewsDTO | null>;
-  upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO>;
+  upsertNewsFeature(
+    data: UpsertNewsFeatureDTO,
+    userId: number,
+  ): Promise<NewsFeatureDTO>;
   getNewsFeatures(
     query: QueryNewsFeatureParams,
   ): Promise<PageableType<typeof NewsFeatureDTO>>;
@@ -123,32 +126,47 @@ export class NewsService implements INewsService {
     }
   }
 
-  async upsertNewsFeature(data: UpsertNewsFeatureDTO): Promise<NewsFeatureDTO> {
+  async upsertNewsFeature(data: UpsertNewsFeatureDTO, userId: number): Promise<NewsFeatureDTO> {
     try {
-      const { thumbnail, ...rest } = data;
-      let uploadedThumbnailPath: string | null = null;
+      const { thumbnail, id, ...rest } = data;
 
-      if (!thumbnail) {
-        throw new AppError(
-          ErrorCode.VALIDATION_ERROR,
-          "Thumbnail file is required",
-          400,
+      let thumbnailURL: string;
+
+      if (typeof thumbnail === "string") {
+        thumbnailURL = thumbnail;
+      } else {
+        if (!thumbnail) {
+          throw new AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "Thumbnail file is required",
+            400,
+          );
+        }
+
+        thumbnailURL = await this.storageService.uploadFile(
+          thumbnail,
+          "news-features",
         );
       }
-      uploadedThumbnailPath = await this.storageService.uploadFile(
-        thumbnail,
-        "news-features",
-      );
 
-      const newsFeatureData: NewsFeatureCreatePayload = {
+      const newsFeatureData: NewsFeatureUpsertPayload = {
         ...rest,
-        thumbnailURL: uploadedThumbnailPath,
-        createdBy: 0,
-        updatedBy: 0,
+        thumbnailURL,
+        createdBy: userId,
+        updatedBy: userId,
       };
 
-      const newsFeature =
-        await this.newsRepository.upsertNewsFeature(newsFeatureData);
+      if (!id) {
+        const newsFeature = await this.newsRepository.createNewsFeature(
+          newsFeatureData,
+        );
+        return this.newsFactory.mapNewsFeatureToDTO(newsFeature);
+      }
+
+      const newsFeature = await this.newsRepository.updateNewsFeature(
+        id,
+        newsFeatureData,
+      );
       return this.newsFactory.mapNewsFeatureToDTO(newsFeature);
     } catch (error) {
       console.error("🔥 Error in upsertNewsFeature:", error);
