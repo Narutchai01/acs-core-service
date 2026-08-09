@@ -55,18 +55,9 @@ export class ProfessorService implements IProfessorService {
       ...rawProfessorData
     } = data;
     let pathImage: string | null = null;
-    let expertFieldsString: string | null = "";
-    let educationsString: string | null = "";
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
-      }
-
-      if (rawProfessorData.expertFields) {
-        expertFieldsString = rawProfessorData.expertFields
-          ?.split("/")
-          .map((field) => field.trim())
-          .join(",");
       }
 
       const existingUser = await this.userRepository.getUserByEmail(email);
@@ -86,8 +77,8 @@ export class ProfessorService implements IProfessorService {
         if (existingProfessor) {
           const professorData: ProfessorUpdatePayload = {
             ...rawProfessorData,
-            expertFields: expertFieldsString,
-            educations: educationsString,
+            expertFields: rawProfessorData.expertFields,
+            educations: rawProfessorData.educations,
             updatedBy: userID,
             deletedAt: null,
           };
@@ -118,8 +109,8 @@ export class ProfessorService implements IProfessorService {
         } else {
           const professorData: ProfessorCreatePayload = {
             ...rawProfessorData,
-            expertFields: expertFieldsString,
-            educations: educationsString,
+            expertFields: rawProfessorData.expertFields,
+            educations: rawProfessorData.educations,
             userID: existingUser.id,
             createdBy: userID,
             updatedBy: userID,
@@ -196,22 +187,10 @@ export class ProfessorService implements IProfessorService {
         );
       }
 
-      if (rawProfessorData.expertFields) {
-        expertFieldsString = rawProfessorData.expertFields
-          ?.split("/")
-          .join("/");
-      }
-
-      if (rawProfessorData.educations) {
-        educationsString = rawProfessorData.educations
-          ?.split("/")
-          .join("/");
-      }
-
       const professorData: ProfessorCreatePayload = {
         ...rawProfessorData,
-        expertFields: expertFieldsString,
-        educations: educationsString,
+        expertFields: rawProfessorData.expertFields,
+        educations: rawProfessorData.educations,
         userID: user.id,
         createdBy: userID,
         updatedBy: userID,
