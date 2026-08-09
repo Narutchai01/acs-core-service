@@ -36,7 +36,7 @@ export class ProfessorService implements IProfessorService {
     private readonly userRepository: IUserRepository,
     private readonly professorFactory: IProfessorFactory,
     private readonly storage: SupabaseService,
-  ) {}
+  ) { }
 
   async createProfessor(data: CreateProfessorDTO): Promise<ProfessorDTO> {
     const {
@@ -95,7 +95,7 @@ export class ProfessorService implements IProfessorService {
         expertFieldsString = rawProfessorData.expertFields
           ?.split("/")
           .map((field) => field.trim())
-          .join(",");
+          .join("/");
       }
 
       if (rawProfessorData.educations) {
@@ -172,6 +172,24 @@ export class ProfessorService implements IProfessorService {
     } = data;
     let pathImage: string | undefined = undefined;
     let professor: Professor | null;
+
+    let expertFieldsString: string | undefined = undefined;
+    let educationsString: string | undefined = undefined;
+
+    if (expertFields) {
+      expertFieldsString = expertFields
+        .split("/")
+        .map((field) => field.trim())
+        .join("/");
+    }
+
+    if (educations) {
+      educationsString = educations
+        .split("/")
+        .map((edu) => edu.trim())
+        .join("/");
+    }
+
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
@@ -181,8 +199,8 @@ export class ProfessorService implements IProfessorService {
         phone,
         profRoom,
         academicPositionID,
-        educations,
-        expertFields,
+        educations: educationsString,
+        expertFields: expertFieldsString,
         updatedBy: 0,
       };
 
