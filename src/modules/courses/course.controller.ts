@@ -12,7 +12,7 @@ import { PERMISSION } from "../../core/permission/permission";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
-const courseService = new CourseService(courseRepository, courseFactory);
+const courseService = new CourseService(courseRepository, courseFactory, prisma);
 
 export const CourseController = (app: Elysia) =>
   app.group("/courses", (app) =>

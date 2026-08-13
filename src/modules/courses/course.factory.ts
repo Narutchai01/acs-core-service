@@ -1,7 +1,8 @@
-import { CourseDTO, Course } from "./domain/course";
+import { CourseDTO, Course, BatchCourseResponseDTO } from "./domain/course";
 export interface ICourseFactory {
   mapCourseToDTO(course: Course): CourseDTO;
   mapCourseListToDTO(courses: Course[]): CourseDTO[];
+  mapBatchCourseResponse(total: number, successful: number, failed: { row: number; reason: string }[], duplicates: string[]): BatchCourseResponseDTO;
 }
 
 export class CourseFactory implements ICourseFactory {
@@ -29,5 +30,14 @@ export class CourseFactory implements ICourseFactory {
 
   mapCourseListToDTO(courses: Course[]): CourseDTO[] {
     return courses.map((course) => this.mapCourseToDTO(course));
+  }
+
+  mapBatchCourseResponse(total: number, successful: number, failed: { row: number; reason: string }[], duplicates: string[]): BatchCourseResponseDTO {
+    return {
+      totalRecords: total,
+      successfulRecords: successful,
+      failedRecords: failed,
+      duplicateRecords: duplicates,
+    };
   }
 }

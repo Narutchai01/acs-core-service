@@ -11,6 +11,7 @@ import * as xlsx from "xlsx";
 import { Value } from "@sinclair/typebox/value";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
+import { PrismaClient } from "../../generated/prisma/client";
 import { PageableType } from "../../core/models";
 interface ICourseService {
   createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO>;
@@ -23,6 +24,7 @@ export class CourseService implements ICourseService {
   constructor(
     private readonly courseRepository: ICourseRepository,
     private readonly courseFactory: ICourseFactory,
+    private readonly db: PrismaClient,
   ) { }
 
   async createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO> {
@@ -111,7 +113,7 @@ export class CourseService implements ICourseService {
       const workbook = xlsx.read(buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const rawRecords = xlsx.utils.sheet_to_json<Record<string, any>>(sheet, { raw: false, defval: "" });
+      const rawRecords = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: "" });
 
       records = rawRecords.map(row => {
         const trimmedRow: Record<string, string> = {};
@@ -126,60 +128,65 @@ export class CourseService implements ICourseService {
       throw new Error("File is empty or contains no valid data rows.");
     }
 
-    const validRecords: CourseCreatePayload[] = [];
-    const failedRecords: { row: number; reason: string }[] = [];
+    const uniqueRecords: Record<string, string>[] = [];
     const duplicateRecords: string[] = [];
-    const courseCodesToValidate: string[] = [];
+    const seen = new Set<string>();
 
-    for (let i = 0; i < records.length; i++) {
-      const rowNum = i + 1;
-      const row = records[i];
-      const parsedRow = {
-        ...row,
-        typeCourseID: row.typeCourseID ? Number(row.typeCourseID) : undefined,
-        curriculumID: row.curriculumID ? Number(row.curriculumID) : undefined,
-      };
-
-      if (!Value.Check(CreateCourseDTO, parsedRow)) {
-        const errors = [...Value.Errors(CreateCourseDTO, parsedRow)];
-        failedRecords.push({
-          row: rowNum,
-          reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
-        });
-        continue;
+    for (const record of records) {
+      const hash = JSON.stringify(record);
+      if (!seen.has(hash)) {
+        seen.add(hash);
+        uniqueRecords.push(record);
+      } else {
+        duplicateRecords.push(record.courseCode);
       }
-
-      validRecords.push({
-        ...parsedRow,
-        createdBy: userID,
-        updatedBy: userID,
-      } as CourseCreatePayload);
-      courseCodesToValidate.push(parsedRow.courseCode);
     }
 
-    const finalRecordsToInsert: CourseCreatePayload[] = [];
-    if (courseCodesToValidate.length > 0) {
-      const existingCodes = await this.courseRepository.getCourseCodes(courseCodesToValidate);
-      const existingCodeSet = new Set(existingCodes);
+    const { validRecords, failedRecords } = uniqueRecords.reduce(
+      (acc, row, i) => {
+        const rowNum = i + 1;
+        const parsedRow = {
+          ...row,
+          typeCourseID: row.typeCourseID ? Number(row.typeCourseID) : undefined,
+          curriculumID: row.curriculumID ? Number(row.curriculumID) : undefined,
+        };
 
-      for (const record of validRecords) {
-        if (existingCodeSet.has(record.courseCode)) {
-          duplicateRecords.push(record.courseCode);
+        if (!Value.Check(CreateCourseDTO, parsedRow)) {
+          const errors = [...Value.Errors(CreateCourseDTO, parsedRow)];
+          acc.failedRecords.push({
+            row: rowNum,
+            reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
+          });
         } else {
-          finalRecordsToInsert.push(record);
+          acc.validRecords.push({
+            ...parsedRow,
+            createdBy: userID,
+            updatedBy: userID,
+          } as CourseCreatePayload);
         }
+
+        return acc;
+      },
+      {
+        validRecords: [] as CourseCreatePayload[],
+        failedRecords: [] as { row: number; reason: string }[],
       }
+    );
+
+    if (validRecords.length > 0) {
+      await this.db.$transaction(async (transaction) => {
+        await this.courseRepository.createManyCourses(
+          transaction,
+          validRecords,
+        );
+      });
     }
 
-    if (finalRecordsToInsert.length > 0) {
-      await this.courseRepository.createManyCourses(finalRecordsToInsert);
-    }
-
-    return {
-      totalRecords: records.length,
-      successfulRecords: finalRecordsToInsert.length,
+    return this.courseFactory.mapBatchCourseResponse(
+      records.length,
+      validRecords.length,
       failedRecords,
-      duplicateRecords,
-    };
+      duplicateRecords
+    );
   }
 }
