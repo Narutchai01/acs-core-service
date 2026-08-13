@@ -22,6 +22,8 @@ import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
 import { PageableType } from "../../core/models";
 
+import { PrismaClient } from "../../generated/prisma/client";
+
 interface IStudentService {
   createStudent(data: CreateStudentDTO, createdBy: number): Promise<StudentDTO>;
   getStudents(
@@ -39,7 +41,7 @@ export class StudentService implements IStudentService {
     private readonly userRepository: IUserRepository,
     private readonly storage: SupabaseService,
     private readonly studentFactory: IStudentFactory,
-    // private readonly uowRepository: IUnitOfWork,
+    private readonly db: PrismaClient,
   ) {}
 
   async createStudent(
@@ -278,47 +280,62 @@ export class StudentService implements IStudentService {
       throw new Error("File is empty or contains no valid data rows.");
     }
 
-    const validRecords: (Static<typeof CreateStudent> & { studentCode: string })[] = [];
-    const failedRecords: { row: number; reason: string }[] = [];
+    const uniqueRecords: Record<string, string>[] = [];
     const duplicateRecords: string[] = [];
-    const studentCodesToValidate: string[] = [];
+    const seen = new Set<string>();
 
-    for (let i = 0; i < records.length; i++) {
-      const rowNum = i + 1;
-      const row = records[i];
-      const parsedRow: Record<string, unknown> = {};
-      for (const key in row) {
-        if (row[key] === "") {
-          parsedRow[key] = undefined;
-        } else {
-          parsedRow[key] = row[key];
-        }
+    for (const record of records) {
+      const hash = JSON.stringify(record);
+      if (!seen.has(hash)) {
+        seen.add(hash);
+        uniqueRecords.push(record);
+      } else {
+        duplicateRecords.push(record.studentCode || "Unknown");
       }
-      parsedRow.skills = row.skills ? row.skills.split(",").map(s => s.trim()).filter(s => s !== "") : undefined;
-
-      if (!Value.Check(CreateStudent, parsedRow)) {
-        const errors = [...Value.Errors(CreateStudent, parsedRow)];
-        failedRecords.push({
-          row: rowNum,
-          reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
-        });
-        continue;
-      }
-
-      validRecords.push(parsedRow);
-      studentCodesToValidate.push(parsedRow.studentCode);
     }
 
-    let successfulRecords = 0;
+    const { validRecords, failedRecords } = uniqueRecords.reduce(
+      (acc, row, i) => {
+        const rowNum = i + 1;
+        const parsedRow: Record<string, unknown> = {};
+        for (const key in row) {
+          if (row[key] === "") {
+            parsedRow[key] = undefined;
+          } else {
+            parsedRow[key] = row[key];
+          }
+        }
+        parsedRow.skills = row.skills ? row.skills.split(",").map(s => s.trim()).filter(s => s !== "") : undefined;
 
-    if (studentCodesToValidate.length > 0) {
-      const existingCodes = await this.studentRepository.getStudentCodes(studentCodesToValidate);
-      const existingCodeSet = new Set(existingCodes);
-
-      for (const record of validRecords) {
-        if (existingCodeSet.has(record.studentCode)) {
-          duplicateRecords.push(record.studentCode);
+        if (!Value.Check(CreateStudent, parsedRow)) {
+          const errors = [...Value.Errors(CreateStudent, parsedRow)];
+          acc.failedRecords.push({
+            row: rowNum,
+            reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
+          });
         } else {
+          acc.validRecords.push(parsedRow as (Static<typeof CreateStudent> & { studentCode: string }));
+        }
+
+        return acc;
+      },
+      {
+        validRecords: [] as (Static<typeof CreateStudent> & { studentCode: string })[],
+        failedRecords: [] as { row: number; reason: string }[],
+      }
+    );
+
+    if (failedRecords.length > 0 || duplicateRecords.length > 0) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        `File validation failed. Invalid rows: ${failedRecords.length}, Duplicates: ${duplicateRecords.length}. Please fix the file and try again.`,
+        400
+      );
+    }
+
+    if (validRecords.length > 0) {
+      await this.db.$transaction(async (tx) => {
+        for (const record of validRecords) {
           const {
             linkedin,
             github,
@@ -335,10 +352,14 @@ export class StudentService implements IStudentService {
             updatedBy: userID,
           };
 
-          const user = await this.userRepository.createUser(rawUserData);
+          const user = await this.userRepository.createUser(rawUserData, tx);
 
           if (!user) {
-            continue;
+            throw new AppError(
+              ErrorCode.DATABASE_ERROR,
+              `Failed to create user for studentCode: ${studentCode}`,
+              500
+            );
           }
 
           const rawStudentData: StudentCreatePayload = {
@@ -354,19 +375,24 @@ export class StudentService implements IStudentService {
             userID: user.id,
           };
 
-          const student = await this.studentRepository.createStudent(rawStudentData);
-          if (student) {
-            successfulRecords++;
+          const student = await this.studentRepository.createStudent(rawStudentData, tx);
+          
+          if (!student) {
+            throw new AppError(
+              ErrorCode.DATABASE_ERROR,
+              `Failed to create student for studentCode: ${studentCode}`,
+              500
+            );
           }
         }
-      }
+      });
     }
 
-    return {
-      totalRecords: records.length,
-      successfulRecords,
-      failedRecords,
-      duplicateRecords,
-    };
+    return this.studentFactory.mapBatchStudentResponse(
+      records.length,
+      validRecords.length,
+      [],
+      []
+    );
   }
 }
