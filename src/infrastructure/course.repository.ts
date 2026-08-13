@@ -1,5 +1,5 @@
 import { ICourseRepository } from "../modules/courses/domain/course.repository";
-import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { Course, CourseQueryParams, CourseCreatePayload, CourseUpdatePayload } from "../modules/courses/domain/course";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
@@ -239,29 +239,18 @@ export class CourseRepository implements ICourseRepository {
     }
   }
 
-  async getCourseCodes(codes: string[]): Promise<string[]> {
-    const courses = await this.db.course.findMany({
-      where: {
-        courseCode: {
-          in: codes,
-        },
-        deletedAt: null,
-      },
-      select: {
-        courseCode: true,
-      },
-    });
-    return courses.map((c) => c.courseCode);
-  }
 
-  async createManyCourses(data: CourseCreatePayload[]): Promise<void> {
-    await this.db.course.createMany({
-      data: data.map(course => ({
+
+  async createManyCourses(
+    tx: Prisma.TransactionClient,
+    data: CourseCreatePayload[],
+  ): Promise<void> {
+    await tx.course.createMany({
+      data: data.map((course: CourseCreatePayload) => ({
         ...course,
         createdBy: course.createdBy || 0,
         updatedBy: course.updatedBy || 0,
       })),
-      skipDuplicates: true,
     });
   }
 }

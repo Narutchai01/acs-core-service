@@ -1,3 +1,4 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { Course, CourseQueryParams, CourseCreatePayload, CourseUpdatePayload } from "./course";
 
 export interface ICourseRepository {
@@ -12,6 +13,6 @@ export interface ICourseRepository {
     deletePrecourseId: number[]
   ): Promise<Course | null>;
   deleteCourse(courseId: number, updatedBy: number): Promise<Course | null>;
-  getCourseCodes(codes: string[]): Promise<string[]>;
-  createManyCourses(data: CourseCreatePayload[]): Promise<void>;
+
+  createManyCourses(tx: Prisma.TransactionClient, data: CourseCreatePayload[]): Promise<void>;
 }
