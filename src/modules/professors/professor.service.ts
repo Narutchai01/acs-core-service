@@ -39,7 +39,7 @@ export class ProfessorService implements IProfessorService {
     private readonly userRepository: IUserRepository,
     private readonly professorFactory: IProfessorFactory,
     private readonly storage: SupabaseService,
-  ) {}
+  ) { }
 
   async createProfessor(
     data: CreateProfessorDTO,
@@ -55,18 +55,9 @@ export class ProfessorService implements IProfessorService {
       ...rawProfessorData
     } = data;
     let pathImage: string | null = null;
-    let expertFieldsString: string | null = "";
-    let educationsString: string | null = "";
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");
-      }
-
-      if (rawProfessorData.expertFields) {
-        expertFieldsString = rawProfessorData.expertFields
-          ?.split("/")
-          .map((field) => field.trim())
-          .join(",");
       }
 
       const existingUser = await this.userRepository.getUserByEmail(email);
@@ -86,8 +77,8 @@ export class ProfessorService implements IProfessorService {
         if (existingProfessor) {
           const professorData: ProfessorUpdatePayload = {
             ...rawProfessorData,
-            expertFields: expertFieldsString,
-            educations: educationsString,
+            expertFields: rawProfessorData.expertFields,
+            educations: rawProfessorData.educations,
             updatedBy: userID,
             deletedAt: null,
           };
@@ -118,8 +109,8 @@ export class ProfessorService implements IProfessorService {
         } else {
           const professorData: ProfessorCreatePayload = {
             ...rawProfessorData,
-            expertFields: expertFieldsString,
-            educations: educationsString,
+            expertFields: rawProfessorData.expertFields,
+            educations: rawProfessorData.educations,
             userID: existingUser.id,
             createdBy: userID,
             updatedBy: userID,
@@ -198,8 +189,8 @@ export class ProfessorService implements IProfessorService {
 
       const professorData: ProfessorCreatePayload = {
         ...rawProfessorData,
-        expertFields: expertFieldsString,
-        educations: educationsString,
+        expertFields: rawProfessorData.expertFields,
+        educations: rawProfessorData.educations,
         userID: user.id,
         createdBy: userID,
         updatedBy: userID,
@@ -262,6 +253,7 @@ export class ProfessorService implements IProfessorService {
     } = data;
     let pathImage: string | undefined = undefined;
     let professor: Professor | null;
+
     try {
       if (imageFile) {
         pathImage = await this.storage.uploadFile(imageFile, "professors");

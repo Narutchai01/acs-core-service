@@ -7,7 +7,7 @@ export interface IProfessorFactory {
 }
 
 export class ProfessorFactory implements IProfessorFactory {
-  constructor(private readonly userFactory: IUserFactory) {}
+  constructor(private readonly userFactory: IUserFactory) { }
   mapProfessorToDTO(professor: Professor): ProfessorDTO {
     return {
       id: professor.id,
@@ -16,7 +16,7 @@ export class ProfessorFactory implements IProfessorFactory {
       phone: professor.phone,
       academicPosition: professor.academicPosition,
       expertFields: professor.expertFields
-        ? professor.expertFields?.split(",").map((field) => field.trim())
+        ? professor.expertFields?.split("/").map((field) => field.trim())
         : [],
       educations: professor.educations
         ? professor.educations?.split("/").map((edu) => edu.trim())
