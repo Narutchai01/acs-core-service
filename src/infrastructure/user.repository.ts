@@ -15,8 +15,9 @@ import { HttpStatusCode } from "../core/types/http";
 export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
 
-  async createUser(data: CreateUserModel): Promise<User> {
-    const user = await this.db.user.create({ data });
+  async createUser(data: CreateUserModel, tx?: Prisma.TransactionClient): Promise<User> {
+    const client = tx || this.db;
+    const user = await client.user.create({ data });
     return user as User;
   }
 

@@ -13,8 +13,9 @@ import { PrismaInstance } from "../lib/db";
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly db: PrismaInstance) {}
 
-  async createStudent(data: StudentCreatePayload): Promise<Student> {
-    const student = await this.db.student.create({
+  async createStudent(data: StudentCreatePayload, tx?: Prisma.TransactionClient): Promise<Student> {
+    const client = tx || this.db;
+    const student = await client.student.create({
       data: {
         ...data,
         createdBy: data.createdBy ?? 0,
@@ -119,16 +120,7 @@ export class StudentRepository implements IStudentRepository {
     }
   }
 
-  async getStudentCodes(codes: string[]): Promise<string[]> {
-    const students = await this.db.student.findMany({
-      where: {
-        studentCode: { in: codes },
-        deletedAt: null,
-      },
-      select: { studentCode: true },
-    });
-    return students.map((s) => s.studentCode);
-  }
+
 
   async deleteStudent(id: number): Promise<Student> {
     try {

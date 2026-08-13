@@ -1,9 +1,15 @@
-import { Student, StudentDTO } from "./domain/student";
+import { Student, StudentDTO, BatchStudentResponseDTO } from "./domain/student";
 import { IUserFactory } from "../users/user.factory";
 
 export interface IStudentFactory {
   MapStudentToDTO(student: Student): StudentDTO;
   MapStudentListToDTO(studentList: Student[]): StudentDTO[];
+  mapBatchStudentResponse(
+    totalRecords: number,
+    successfulRecords: number,
+    failedRecords: { row: number; reason: string }[],
+    duplicateRecords: string[],
+  ): BatchStudentResponseDTO;
 }
 
 export class StudentFactory implements IStudentFactory {
@@ -26,5 +32,19 @@ export class StudentFactory implements IStudentFactory {
 
   MapStudentListToDTO(studentList: Student[]): StudentDTO[] {
     return studentList.map((student) => this.MapStudentToDTO(student));
+  }
+
+  mapBatchStudentResponse(
+    totalRecords: number,
+    successfulRecords: number,
+    failedRecords: { row: number; reason: string }[],
+    duplicateRecords: string[],
+  ): BatchStudentResponseDTO {
+    return {
+      totalRecords,
+      successfulRecords,
+      failedRecords,
+      duplicateRecords,
+    };
   }
 }

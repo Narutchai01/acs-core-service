@@ -24,6 +24,7 @@ const studentService = new StudentService(
   userRepository,
   supabaseService,
   studentFactory,
+  prisma,
 );
 
 export const StudentController = (app: Elysia) =>
