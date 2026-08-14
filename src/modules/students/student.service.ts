@@ -244,8 +244,9 @@ export class StudentService implements IStudentService {
   }
 
   async importStudentsFromFile(file: File, classBookID: number, userID: number): Promise<BatchStudentResponseDTO> {
-    const isCSV = file.name.endsWith(".csv") || file.type === "text/csv";
-    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
+    const fileName = file.name.toLowerCase();
+    const isCSV = fileName.endsWith(".csv") || file.type === "text/csv";
+    const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
 
     if (!isCSV && !isExcel) {
       throw new Error("Invalid file format. Only CSV and Excel are allowed.");
