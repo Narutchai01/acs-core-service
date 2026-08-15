@@ -49,8 +49,8 @@ export class UserRepository implements IUserRepository {
       include: {
         userRoles: {
           include: { role: true },
-        },
-      },
+        }
+      }
     });
 
     return user as User | null;
@@ -60,6 +60,11 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.db.user.findFirst({
         where: { id: id, deletedAt: null },
+        include: {
+          userRoles: {
+            include: { role: true },
+          }
+        }
       });
 
       return user as User | null;
