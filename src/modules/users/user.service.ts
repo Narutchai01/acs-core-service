@@ -1,5 +1,5 @@
 import { hashPassword } from "better-auth/crypto";
-import { CreateSuperUserDTO, UserDTO } from "./domain/user";
+import { CreateSuperUserDTO, UserDTO, UserProfileDTO } from "./domain/user";
 import { IUserRepository } from "./domain/user.repository";
 import { IUserFactory } from "./user.factory";
 import { IAuthRepository } from "../auth/domain/auth.repository";
@@ -8,6 +8,7 @@ export interface IUserService {
   createSuperUser(data: CreateSuperUserDTO): Promise<UserDTO>;
   getUsers(): Promise<UserDTO[]>;
   getUserById(id: number): Promise<UserDTO | null>;
+  getUserProfile(id: number): Promise<UserProfileDTO | null>;
 }
 
 export class UserService implements IUserService {
@@ -54,5 +55,14 @@ export class UserService implements IUserService {
     }
 
     return this.userFactory.mapUserToDTO(user);
+  }
+
+  async getUserProfile(id: number): Promise<UserProfileDTO | null> {
+    const user = await this.userRepository.getUserById(id);
+    if (!user) {
+      return null;
+    }
+
+    return this.userFactory.mapUserToProfileDTO(user);
   }
 }

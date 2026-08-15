@@ -92,10 +92,16 @@ export const UserDTO = t.Object({
   imageUrl: t.Optional(t.Nullable(t.String())),
 });
 
+export const UserProfileDTO = t.Object({
+  ...UserDTO.properties,
+  roles: t.Array(RoleSchema),
+});
+
 export type CreateUserDTO = Static<typeof CreateUserDTO>;
 export type User = Static<typeof UserSchema>;
 export type CreateUserModel = Static<typeof CreateUserModel>;
 export type CreateUserRoleModel = Static<typeof CreateUserRoleModel>;
 export type UpdateUserModel = Static<typeof UpdateUserModel>;
 export type UserDTO = Static<typeof UserDTO>;
+export type UserProfileDTO = Static<typeof UserProfileDTO>;
 export type CreateSuperUserDTO = Static<typeof CreateSuperUserDTO>;

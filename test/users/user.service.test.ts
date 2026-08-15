@@ -84,6 +84,63 @@ describe("UserService.createSuperUser", () => {
   });
 });
 
+describe("UserService.getUserProfile", () => {
+  test("returns roles as an array without role audit timestamps", async () => {
+    const user = {
+      ...createUser(),
+      userRoles: [
+        {
+          id: 7,
+          userID: 42,
+          roleID: 1,
+          role: {
+            id: 1,
+            name: "SUPER_ADMIN",
+            createdAt: new Date("2026-08-01T00:00:00.000Z"),
+            updatedAt: new Date("2026-08-01T00:00:00.000Z"),
+            createdBy: 0,
+            updatedBy: 0,
+            deletedAt: null,
+          },
+          createdAt: new Date("2026-08-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-08-01T00:00:00.000Z"),
+          createdBy: 0,
+          updatedBy: 0,
+          deletedAt: null,
+        },
+      ],
+    } as unknown as User;
+    const userRepository: IUserRepository = {
+      createUser: async () => user,
+      getUsers: async () => [],
+      assignUserRole: async () => ({} as UserRole),
+      updateUser: async () => user,
+      getUserByEmail: async () => null,
+      getUserById: async () => user,
+    };
+    const authRepository: IAuthRepository = {
+      syncCredentialAccount: async () => undefined,
+    };
+    const service = new UserService(
+      userRepository,
+      new UserFactory(),
+      authRepository,
+    );
+
+    await expect(service.getUserProfile(user.id)).resolves.toEqual({
+      id: user.id,
+      firstNameTh: user.firstNameTh,
+      lastNameTh: user.lastNameTh,
+      firstNameEn: user.firstNameEn,
+      lastNameEn: user.lastNameEn,
+      email: user.email,
+      nickName: user.nickName,
+      imageUrl: user.imageUrl,
+      roles: [{ id: 1, name: "SUPER_ADMIN" }],
+    });
+  });
+});
+
 const createSuperUserData = (password: string): CreateSuperUserDTO => ({
   firstNameTh: "ผู้ดูแล",
   lastNameTh: "ระบบ",

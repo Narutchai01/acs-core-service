@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { UserService } from "./user.service";
 import { UserRepository } from "../../infrastructure/user.repository";
 import { prisma } from "../../lib/db";
-import { User } from "./domain/user";
+import { User, UserProfileDTO } from "./domain/user";
 import { success } from "../../core/interceptor/response";
 import { userDocs } from "./user.docs";
 import { UserFactory } from "./user.factory";
@@ -42,7 +42,7 @@ export const userController = (app: Elysia) =>
         privateApp.use(authMiddleware).get(
           "/profile",
           async ({ userID }: { userID: number }) => {
-            const user = await userService.getUserById(userID);
+            const user = await userService.getUserProfile(userID);
             if (!user) {
               return success<null>(
                 null,
@@ -50,7 +50,10 @@ export const userController = (app: Elysia) =>
                 HttpStatusCode.NOT_FOUND,
               );
             }
-            return success<User>(user, "User profile retrieved successfully");
+            return success<UserProfileDTO>(
+              user,
+              "User profile retrieved successfully",
+            );
           },
           userDocs.getUserProfile,
         ),
