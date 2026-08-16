@@ -1,4 +1,3 @@
-import { Prisma } from "../../../generated/prisma/client";
 import {
   Student,
   StudentQueryParams,
@@ -7,7 +6,7 @@ import {
 } from "./student";
 
 export interface IStudentRepository {
-  createStudent(data: StudentCreatePayload, tx?: Prisma.TransactionClient): Promise<Student>;
+  createStudent(data: StudentCreatePayload): Promise<Student>;
   getStudents(query: StudentQueryParams): Promise<Student[]>;
   getStudentById(id: number): Promise<Student | null>;
   getStudentByUserId(userId: number): Promise<Student | null>;

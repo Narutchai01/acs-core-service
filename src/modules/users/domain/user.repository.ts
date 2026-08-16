@@ -1,4 +1,3 @@
-import { Prisma } from "../../../generated/prisma/client";
 import {
   CreateUserModel,
   CreateUserRoleModel,
@@ -8,7 +7,7 @@ import {
 } from "./user";
 
 export interface IUserRepository {
-  createUser(data: CreateUserModel, tx?: Prisma.TransactionClient): Promise<User>;
+  createUser(data: CreateUserModel): Promise<User>;
   getUsers(): Promise<User[]>;
   assignUserRole(data: CreateUserRoleModel): Promise<UserRole>;
   updateUser(userID: number, data: UpdateUserModel): Promise<User>;
