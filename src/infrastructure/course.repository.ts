@@ -1,15 +1,23 @@
 import { ICourseRepository } from "../modules/courses/domain/course.repository";
 import { Prisma } from "../generated/prisma/client";
-import { Course, CourseQueryParams, CourseCreatePayload, CourseUpdatePayload } from "../modules/courses/domain/course";
+import {
+  Course,
+  CourseQueryParams,
+  CourseCreatePayload,
+  CourseUpdatePayload,
+} from "../modules/courses/domain/course";
 import { calculatePagination } from "../core/utils/calculator";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { PrismaInstance } from "../lib/db";
 
 export class CourseRepository implements ICourseRepository {
-  constructor(private readonly db: PrismaInstance) { }
+  constructor(private readonly db: PrismaInstance) {}
 
-  async createCourse(data: CourseCreatePayload, preCourseID: number[]): Promise<Course> {
+  async createCourse(
+    data: CourseCreatePayload,
+    preCourseID: number[],
+  ): Promise<Course> {
     try {
       const course = await this.db.course.create({
         data: {
@@ -17,12 +25,12 @@ export class CourseRepository implements ICourseRepository {
 
           preCourses: preCourseID.length
             ? {
-              create: preCourseID.map((id) => ({
-                preCourseID: id,
-                createdBy: 0,
-                updatedBy: 0,
-              })),
-            }
+                create: preCourseID.map((id) => ({
+                  preCourseID: id,
+                  createdBy: 0,
+                  updatedBy: 0,
+                })),
+              }
             : undefined,
         },
         include: {
@@ -173,7 +181,7 @@ export class CourseRepository implements ICourseRepository {
     courseId: number,
     data: CourseUpdatePayload,
     newPrecourseId: number[],
-    deletePrecourseId: number[]
+    deletePrecourseId: number[],
   ): Promise<Course> {
     try {
       const course = await this.db.course.update({
@@ -225,7 +233,7 @@ export class CourseRepository implements ICourseRepository {
         where: { id: courseId },
         data: {
           deletedAt: new Date(),
-          updatedBy: updatedBy
+          updatedBy: updatedBy,
         },
         include: {
           typeCourse: true,
@@ -239,18 +247,29 @@ export class CourseRepository implements ICourseRepository {
     }
   }
 
-
-
-  async createManyCourses(
-    tx: Prisma.TransactionClient,
-    data: CourseCreatePayload[],
-  ): Promise<void> {
-    await tx.course.createMany({
-      data: data.map((course: CourseCreatePayload) => ({
-        ...course,
-        createdBy: course.createdBy || 0,
-        updatedBy: course.updatedBy || 0,
-      })),
-    });
+  async createManyCourses(data: CourseCreatePayload[]): Promise<void> {
+    try {
+      await this.db.course.createMany({
+        data,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          throw new AppError(
+            ErrorCode.DUPLICATE_DATA_ERROR,
+            "A course code already exists in this curriculum",
+            409,
+          );
+        }
+        if (error.code === "P2003") {
+          throw new AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "A course references a type or curriculum that does not exist",
+            400,
+          );
+        }
+      }
+      throw error;
+    }
   }
 }
