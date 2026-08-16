@@ -266,6 +266,7 @@ export class StudentService implements IStudentService {
       if (isCSV) {
         const text = await file.text();
         rawRecords = parse(text, {
+          bom: true,
           columns: true,
           skip_empty_lines: true,
           trim: true,
