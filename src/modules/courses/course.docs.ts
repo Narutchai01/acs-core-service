@@ -92,11 +92,6 @@ export const CourseDocs = {
     },
     body: t.Object({
       file: t.File({
-        type: [
-          "text/csv",
-          "application/vnd.ms-excel",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        ],
         description: "CSV, XLS, or XLSX file containing course data",
       }),
     }),
