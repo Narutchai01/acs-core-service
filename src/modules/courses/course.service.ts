@@ -3,39 +3,42 @@ import {
   CourseDTO,
   CourseQueryParams,
   UpdateCourseDTO,
-  BatchCourseResponseDTO,
-  CourseCreatePayload
+  CourseCreatePayload,
 } from "./domain/course";
 import { parse } from "csv-parse/sync";
 import * as xlsx from "xlsx";
 import { Value } from "@sinclair/typebox/value";
 import { ICourseRepository } from "../courses/domain/course.repository";
 import { ICourseFactory } from "./course.factory";
-import { PrismaClient } from "../../generated/prisma/client";
 import { PageableType } from "../../core/models";
+import { AppError } from "../../core/error/app-error";
+import { ErrorCode } from "../../core/types/errors";
 interface ICourseService {
   createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO>;
   getCourses(query: CourseQueryParams): Promise<PageableType<typeof CourseDTO>>;
   getCourseByID(id: number): Promise<CourseDTO | null>;
-  importCoursesFromFile(file: File, userID: number): Promise<BatchCourseResponseDTO>;
+  importCoursesFromFile(file: File, userID: number): Promise<void>;
 }
 
 export class CourseService implements ICourseService {
   constructor(
     private readonly courseRepository: ICourseRepository,
     private readonly courseFactory: ICourseFactory,
-    private readonly db: PrismaClient,
-  ) { }
+  ) {}
 
-  async createCourse(data: CreateCourseDTO, createdBy: number): Promise<CourseDTO> {
+  async createCourse(
+    data: CreateCourseDTO,
+    createdBy: number,
+  ): Promise<CourseDTO> {
     const { preCoursesID, ...courseData } = data;
 
-    const course = await this.courseRepository.createCourse({
-      ...courseData,
-      createdBy: createdBy || 0,
-      updatedBy: 0,
-    },
-      preCoursesID ?? []
+    const course = await this.courseRepository.createCourse(
+      {
+        ...courseData,
+        createdBy: createdBy || 0,
+        updatedBy: 0,
+      },
+      preCoursesID ?? [],
     );
 
     return this.courseFactory.mapCourseToDTO(course);
@@ -65,7 +68,11 @@ export class CourseService implements ICourseService {
     return this.courseFactory.mapCourseToDTO(course);
   }
 
-  async updateCourse(courseId: number, data: UpdateCourseDTO, updatedBy: number): Promise<CourseDTO | null> {
+  async updateCourse(
+    courseId: number,
+    data: UpdateCourseDTO,
+    updatedBy: number,
+  ): Promise<CourseDTO | null> {
     const { newPrecourseId, deletePrecourseId, ...courseData } = data;
     const course = await this.courseRepository.updateCourse(
       courseId,
@@ -74,14 +81,17 @@ export class CourseService implements ICourseService {
         updatedBy: updatedBy || 0,
       },
       newPrecourseId ?? [],
-      deletePrecourseId ?? []
+      deletePrecourseId ?? [],
     );
     if (!course) return null;
 
     return this.courseFactory.mapCourseToDTO(course);
   }
 
-  async deleteCourse(courseId: number, updatedBy: number): Promise<CourseDTO | null> {
+  async deleteCourse(
+    courseId: number,
+    updatedBy: number,
+  ): Promise<CourseDTO | null> {
     const course = await this.courseRepository.deleteCourse(
       courseId,
       updatedBy || 0,
@@ -91,103 +101,97 @@ export class CourseService implements ICourseService {
     return this.courseFactory.mapCourseToDTO(course);
   }
 
-  async importCoursesFromFile(file: File, userID: number): Promise<BatchCourseResponseDTO> {
+  async importCoursesFromFile(file: File, userID: number): Promise<void> {
     const fileName = file.name.toLowerCase();
     const isCSV = fileName.endsWith(".csv") || file.type === "text/csv";
     const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
 
     if (!isCSV && !isExcel) {
-      throw new Error("Invalid file format. Only CSV and Excel are allowed.");
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Invalid file format. Only CSV and Excel are allowed.",
+        400,
+      );
     }
 
-    let records: Record<string, string>[] = [];
-
-    if (isCSV) {
-      const text = await file.text();
-      records = parse(text, {
-        columns: true,
-        skip_empty_lines: true,
-        trim: true,
-      });
-    } else {
-      const buffer = await file.arrayBuffer();
-      const workbook = xlsx.read(buffer, { type: "buffer" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const rawRecords = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: "" });
-
-      records = rawRecords.map(row => {
-        const trimmedRow: Record<string, string> = {};
-        for (const key in row) {
-          trimmedRow[key.trim()] = String(row[key]).trim();
+    let rawRecords: Record<string, unknown>[];
+    try {
+      if (isCSV) {
+        const text = await file.text();
+        rawRecords = parse(text, {
+          columns: true,
+          skip_empty_lines: true,
+          trim: true,
+        });
+      } else {
+        const buffer = await file.arrayBuffer();
+        const workbook = xlsx.read(buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+        if (!sheet) {
+          throw new Error("The spreadsheet has no readable worksheet.");
         }
-        return trimmedRow;
-      });
+        rawRecords = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+          raw: false,
+          defval: "",
+        });
+      }
+    } catch {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "The uploaded file could not be read.",
+        400,
+      );
     }
+
+    const records = rawRecords.map((row) => ({
+      values: Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key.trim(),
+          String(value).trim(),
+        ]),
+      ),
+    }));
 
     if (records.length === 0) {
-      throw new Error("File is empty or contains no valid data rows.");
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "File is empty or contains no valid data rows.",
+        400,
+      );
     }
 
-    const uniqueRecords: Record<string, string>[] = [];
-    const duplicateRecords: string[] = [];
-    const seen = new Set<string>();
+    const validRecords: CourseCreatePayload[] = [];
 
-    for (const record of records) {
-      const hash = JSON.stringify(record);
-      if (!seen.has(hash)) {
-        seen.add(hash);
-        uniqueRecords.push(record);
-      } else {
-        duplicateRecords.push(record.courseCode);
+    for (const { values } of records) {
+      const parsedRow = {
+        courseCode: values.courseCode,
+        courseNameTh: values.courseNameTh,
+        courseNameEn: values.courseNameEn,
+        credits: values.credits,
+        detail: values.detail,
+        typeCourseID: values.typeCourseID
+          ? Number(values.typeCourseID)
+          : undefined,
+        curriculumID: values.curriculumID
+          ? Number(values.curriculumID)
+          : undefined,
+      };
+
+      if (!Value.Check(CreateCourseDTO, parsedRow)) {
+        throw new AppError(ErrorCode.VALIDATION_ERROR, "Invalid format", 400);
       }
+
+      const course = {
+        ...parsedRow,
+        createdBy: userID,
+        updatedBy: userID,
+      } as CourseCreatePayload;
+      validRecords.push(course);
     }
-
-    const { validRecords, failedRecords } = uniqueRecords.reduce(
-      (acc, row, i) => {
-        const rowNum = i + 1;
-        const parsedRow = {
-          ...row,
-          typeCourseID: row.typeCourseID ? Number(row.typeCourseID) : undefined,
-          curriculumID: row.curriculumID ? Number(row.curriculumID) : undefined,
-        };
-
-        if (!Value.Check(CreateCourseDTO, parsedRow)) {
-          const errors = [...Value.Errors(CreateCourseDTO, parsedRow)];
-          acc.failedRecords.push({
-            row: rowNum,
-            reason: `Invalid format: ${errors.map((e) => e.path + " " + e.message).join(", ")}`,
-          });
-        } else {
-          acc.validRecords.push({
-            ...parsedRow,
-            createdBy: userID,
-            updatedBy: userID,
-          } as CourseCreatePayload);
-        }
-
-        return acc;
-      },
-      {
-        validRecords: [] as CourseCreatePayload[],
-        failedRecords: [] as { row: number; reason: string }[],
-      }
-    );
 
     if (validRecords.length > 0) {
-      await this.db.$transaction(async (transaction) => {
-        await this.courseRepository.createManyCourses(
-          transaction,
-          validRecords,
-        );
-      });
+      await this.courseRepository.createManyCourses(validRecords);
     }
-
-    return this.courseFactory.mapBatchCourseResponse(
-      records.length,
-      validRecords.length,
-      failedRecords,
-      duplicateRecords
-    );
   }
 }

@@ -12,7 +12,7 @@ import { PERMISSION } from "../../core/permission/permission";
 
 const courseRepository = new CourseRepository(prisma);
 const courseFactory = new CourseFactory();
-const courseService = new CourseService(courseRepository, courseFactory, prisma);
+const courseService = new CourseService(courseRepository, courseFactory);
 
 export const CourseController = (app: Elysia) =>
   app.group("/courses", (app) =>
@@ -53,18 +53,21 @@ export const CourseController = (app: Elysia) =>
           .post(
             "/batch",
             async ({ courseService, body, set, userID }) => {
-              const report = await courseService.importCoursesFromFile(body.file as File, userID);
+              await courseService.importCoursesFromFile(
+                body.file as File,
+                userID,
+              );
               set.status = HttpStatusCode.OK;
               return success(
-                report,
-                "Batch import processed successfully",
+                null,
+                "Courses imported successfully",
                 HttpStatusCode.OK,
               );
             },
             {
               ...CourseDocs.batchCreateCourses,
               checkRole: PERMISSION.ADMINPERSMISSION,
-            }
+            },
           )
           .post(
             "",
@@ -92,19 +95,19 @@ export const CourseController = (app: Elysia) =>
                 return success(
                   null,
                   "Course not found",
-                  HttpStatusCode.NOT_FOUND
+                  HttpStatusCode.NOT_FOUND,
                 );
               }
               return success(
                 course,
                 "Course update successfully",
-                HttpStatusCode.OK,);
+                HttpStatusCode.OK,
+              );
             },
             {
               ...CourseDocs.updateCourse,
               checkRole: PERMISSION.ADMINPERSMISSION,
             },
-
           )
           .delete(
             "/:id",
@@ -118,18 +121,19 @@ export const CourseController = (app: Elysia) =>
                 return success(
                   null,
                   "Course not found",
-                  HttpStatusCode.NOT_FOUND
+                  HttpStatusCode.NOT_FOUND,
                 );
               }
               return success(
                 course,
                 "Delete course successfully",
-                HttpStatusCode.OK,);
+                HttpStatusCode.OK,
+              );
             },
             {
               ...CourseDocs.DeleteCourse,
               checkRole: PERMISSION.ADMINPERSMISSION,
-            }
-          )
-      )
+            },
+          ),
+      ),
   );
