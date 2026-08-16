@@ -4,10 +4,13 @@ import { IProfessorRepository } from "../modules/professors/domain/professor.rep
 import { UserRepository } from "./user.repository";
 import { PrismaClient } from "../generated/prisma/client";
 import { ProfessorRepository } from "./profressor.repository";
+import { IStudentRepository } from "../modules/students/domain/student.repository";
+import { StudentRepository } from "./student.repository";
 
 export class PrismaUnitOfWorkRepository implements IUnitOfWork {
   private _userRepository?: IUserRepository;
   private _professorRepository?: IProfessorRepository;
+  private _studentRepository?: IStudentRepository;
 
   constructor(private readonly prisma: PrismaClient) {}
   get user(): IUserRepository {
@@ -18,6 +21,11 @@ export class PrismaUnitOfWorkRepository implements IUnitOfWork {
   get professor(): IProfessorRepository {
     this._professorRepository ??= new ProfessorRepository(this.prisma);
     return this._professorRepository;
+  }
+
+  get student(): IStudentRepository {
+    this._studentRepository ??= new StudentRepository(this.prisma);
+    return this._studentRepository;
   }
 
   async runInTransaction<T>(fn: (uow: IUnitOfWork) => Promise<T>): Promise<T> {
