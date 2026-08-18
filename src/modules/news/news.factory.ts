@@ -30,7 +30,13 @@ export class NewsFactory {
 
   mapNewsFeatureToDTO(newsFeature: NewsFeature): NewsFeatureDTO {
     return {
-      ...newsFeature,
+      id: newsFeature.id,
+      thumbnailURL: newsFeature.thumbnailURL,
+      highlightURL: newsFeature.highlightURL,
+      thumbnailFocalPointX: newsFeature.thumbnailFocalPointX,
+      thumbnailFocalPointY: newsFeature.thumbnailFocalPointY,
+      highlightFocalPointX: newsFeature.highlightFocalPointX,
+      highlightFocalPointY: newsFeature.highlightFocalPointY,
       news: this.mapNewsToDTO(newsFeature.news),
     };
   }
