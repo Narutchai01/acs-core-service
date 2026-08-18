@@ -110,6 +110,10 @@ export class NewsRepository implements INewsRepository {
       tagID: newsFeatureData.tagID,
       thumbnailURL: newsFeatureData.thumbnailURL,
       highlightURL: newsFeatureData.highlightURL,
+      thumbnailFocalPointX: newsFeatureData.thumbnailFocalPointX,
+      thumbnailFocalPointY: newsFeatureData.thumbnailFocalPointY,
+      highlightFocalPointX: newsFeatureData.highlightFocalPointX,
+      highlightFocalPointY: newsFeatureData.highlightFocalPointY,
       createdBy: newsFeatureData.createdBy ?? 0,
       updatedBy: newsFeatureData.updatedBy ?? 0,
     };
@@ -148,6 +152,10 @@ export class NewsRepository implements INewsRepository {
       tagID: newsFeatureData.tagID,
       thumbnailURL: newsFeatureData.thumbnailURL,
       highlightURL: newsFeatureData.highlightURL,
+      thumbnailFocalPointX: newsFeatureData.thumbnailFocalPointX,
+      thumbnailFocalPointY: newsFeatureData.thumbnailFocalPointY,
+      highlightFocalPointX: newsFeatureData.highlightFocalPointX,
+      highlightFocalPointY: newsFeatureData.highlightFocalPointY,
       updatedBy: newsFeatureData.updatedBy ?? 0,
     };
 
