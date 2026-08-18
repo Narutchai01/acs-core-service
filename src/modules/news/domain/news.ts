@@ -76,9 +76,24 @@ export const CommonNewsFeatureFields = {
   tagID: t.Numeric(),
 };
 
+const NewsFeatureFocalPointInputFields = {
+  thumbnailFocalPointX: t.Optional(t.Numeric()),
+  thumbnailFocalPointY: t.Optional(t.Numeric()),
+  highlightFocalPointX: t.Optional(t.Numeric()),
+  highlightFocalPointY: t.Optional(t.Numeric()),
+};
+
+const NewsFeatureFocalPointResponseFields = {
+  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
+  highlightFocalPointX: t.Optional(t.Nullable(t.Number())),
+  highlightFocalPointY: t.Optional(t.Nullable(t.Number())),
+};
+
 export const UpsertNewsFeatureDTO = t.Object({
   id: t.Optional(t.Numeric()),
   ...CommonNewsFeatureFields,
+  ...NewsFeatureFocalPointInputFields,
   thumbnail: t.Union([
     t.String(),
     t.File({
@@ -101,6 +116,7 @@ export const NewsFeatureSchema = t.Intersect([
     ...CommonNewsFeatureFields,
     thumbnailURL: t.String(),
     highlightURL: t.Optional(t.Nullable(t.String())),
+    ...NewsFeatureFocalPointResponseFields,
     news: NewsSchema,
   }),
   BaseModelSchema,
@@ -111,6 +127,7 @@ export const NewsFeatureDTO = t.Object({
   // ...CommonNewsFeatureFields,
   thumbnailURL: t.String(),
   highlightURL: t.Optional(t.Nullable(t.String())),
+  ...NewsFeatureFocalPointResponseFields,
   news: NewsDTO,
 });
 
@@ -146,6 +163,7 @@ export const NewsFeaturUpsertPayloadSchema = t.Object({
   ...CommonNewsFeatureFields,
   thumbnailURL: t.String(),
   highlightURL: t.Optional(t.String()),
+  ...NewsFeatureFocalPointInputFields,
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
