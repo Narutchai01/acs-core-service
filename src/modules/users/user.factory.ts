@@ -16,6 +16,8 @@ export class UserFactory implements IUserFactory {
       email: user.email,
       nickName: user.nickName,
       imageUrl: user.imageUrl,
+      imageFocalPointX: user.imageFocalPointX,
+      imageFocalPointY: user.imageFocalPointY,
     };
   }
   mapUserListToDTO(users: User[]): UserDTO[] {
