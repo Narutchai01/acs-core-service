@@ -1,6 +1,6 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
-import { CommonUserFields, UserSchema } from "../../users/domain/user";
+import { CommonUserFields, UserSchema, FocalPointInputFields } from "../../users/domain/user";
 import { AcademicPositionSchema } from "../../../core/models/academic";
 
 export const CommonProfessorFields = {
@@ -25,6 +25,7 @@ export const ProfessorSchema = t.Intersect([
 export const CreateProfessorDTO = t.Object({
   ...CommonProfessorFields,
   ...CommonUserFields,
+  ...FocalPointInputFields,
   imageFile: t.Optional(
     t.File({
       examples: ["professor1.jpg"],
@@ -75,6 +76,7 @@ export const ProfessorUpdateDTO = t.Partial(
   t.Object({
     ...CommonProfessorFields,
     ...CommonUserFields,
+    ...FocalPointInputFields,
     imageFile: t.Optional(t.Nullable(t.File())),
     expertFields: t.Optional(
       t.Nullable(

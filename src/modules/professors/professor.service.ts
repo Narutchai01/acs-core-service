@@ -52,6 +52,8 @@ export class ProfessorService implements IProfessorService {
       lastNameTh,
       lastNameEn,
       email,
+      imageFocalPointX,
+      imageFocalPointY,
       ...rawProfessorData
     } = data;
     let pathImage: string | null = null;
@@ -94,6 +96,8 @@ export class ProfessorService implements IProfessorService {
             lastNameTh,
             firstNameEn,
             lastNameEn,
+            imageFocalPointX,
+            imageFocalPointY,
             updatedBy: userID,
             ...(pathImage && { imageUrl: pathImage }),
           };
@@ -137,6 +141,8 @@ export class ProfessorService implements IProfessorService {
             lastNameTh,
             firstNameEn,
             lastNameEn,
+            imageFocalPointX,
+            imageFocalPointY,
             updatedBy: userID,
             ...(pathImage && { imageUrl: pathImage }),
           };
@@ -159,6 +165,8 @@ export class ProfessorService implements IProfessorService {
         lastNameEn,
         email,
         imageUrl: pathImage,
+        imageFocalPointX,
+        imageFocalPointY,
         createdBy: userID,
         updatedBy: userID,
       };
