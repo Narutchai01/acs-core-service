@@ -26,6 +26,16 @@ export const CommonUserFields = {
   ),
 };
 
+export const FocalPointInputFields = {
+  imageFocalPointX: t.Optional(t.Numeric()),
+  imageFocalPointY: t.Optional(t.Numeric()),
+};
+
+const FocalPointResponseFields = {
+  imageFocalPointX: t.Optional(t.Nullable(t.Number())),
+  imageFocalPointY: t.Optional(t.Nullable(t.Number())),
+};
+
 export const CreateUserDTO = t.Object({
   ...CommonUserFields,
 });
@@ -59,6 +69,7 @@ export const UserSchema = t.Intersect([
     id: t.Number(),
     ...CommonUserFields,
     imageUrl: t.Optional(t.Nullable(t.String())),
+    ...FocalPointResponseFields,
     userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
   BaseModelSchema,
@@ -67,6 +78,7 @@ export const UserSchema = t.Intersect([
 export const CreateUserModel = t.Object({
   ...CommonUserFields,
   imageUrl: t.Optional(t.Nullable(t.String())),
+  ...FocalPointInputFields,
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });
@@ -82,6 +94,7 @@ export const UpdateUserModel = t.Partial(
   t.Object({
     ...CommonUserFields,
     imageUrl: t.Optional(t.Nullable(t.String())),
+    ...FocalPointInputFields,
     updatedBy: t.Number(),
   }),
 );
@@ -90,6 +103,7 @@ export const UserDTO = t.Object({
   id: t.Number(),
   ...CommonUserFields,
   imageUrl: t.Optional(t.Nullable(t.String())),
+  ...FocalPointResponseFields,
 });
 
 export const UserProfileDTO = t.Object({
@@ -103,5 +117,4 @@ export type CreateUserModel = Static<typeof CreateUserModel>;
 export type CreateUserRoleModel = Static<typeof CreateUserRoleModel>;
 export type UpdateUserModel = Static<typeof UpdateUserModel>;
 export type UserDTO = Static<typeof UserDTO>;
-export type UserProfileDTO = Static<typeof UserProfileDTO>;
 export type CreateSuperUserDTO = Static<typeof CreateSuperUserDTO>;
