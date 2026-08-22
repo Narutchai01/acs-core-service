@@ -192,6 +192,8 @@ model Curriculum {
   documentURL  String      @map("document_url")
   description  String      @map("description")
   thumbnailURL String      @map("thumbnail_url")
+  thumbnailFocalPointX Float? @map("thumbnail_focal_point_x")
+  thumbnailFocalPointY Float? @map("thumbnail_focal_point_y")
   createdBy    Int         @map("created_by")
   updatedBy    Int         @map("updated_by")
   createdAt    DateTime    @default(now()) @map("created_at")
