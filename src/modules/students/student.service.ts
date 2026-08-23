@@ -45,6 +45,7 @@ export class StudentService implements IStudentService {
   ): Promise<StudentDTO> {
     const {
       imageFile,
+      prefixID,
       email,
       nickName,
       firstNameTh,
@@ -61,6 +62,7 @@ export class StudentService implements IStudentService {
       }
 
       const rawUserData: CreateUserModel = {
+        prefixID,
         email,
         firstNameTh,
         lastNameTh,

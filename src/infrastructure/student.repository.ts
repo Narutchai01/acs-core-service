@@ -17,7 +17,7 @@ export class StudentRepository implements IStudentRepository {
     const student = await this.db.student.create({
       data,
       include: {
-        user: true,
+        user: { include: { prefix: true } },
       },
     });
     return student as Student;
@@ -62,7 +62,7 @@ export class StudentRepository implements IStudentRepository {
         [orderBy]: sortBy,
       },
       include: {
-        user: true,
+        user: { include: { prefix: true } },
       },
     });
     return students as Student[];
@@ -73,7 +73,7 @@ export class StudentRepository implements IStudentRepository {
       const student = await this.db.student.findUnique({
         where: { id, deletedAt: null },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student | null;
@@ -96,7 +96,7 @@ export class StudentRepository implements IStudentRepository {
       const student = await this.db.student.findFirst({
         where: { user: { id: userId, deletedAt: null }, deletedAt: null },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
           classBook: true,
         },
       });
@@ -123,7 +123,7 @@ export class StudentRepository implements IStudentRepository {
           deletedAt: new Date(),
         },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student;
@@ -150,7 +150,7 @@ export class StudentRepository implements IStudentRepository {
         where: { id: studentID },
         data,
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student;
