@@ -54,6 +54,7 @@ export class ProfessorService implements IProfessorService {
       email,
       imageFocalPointX,
       imageFocalPointY,
+      prefixID,
       ...rawProfessorData
     } = data;
     let pathImage: string | null = null;
@@ -93,6 +94,7 @@ export class ProfessorService implements IProfessorService {
 
           const updatedUserData: UpdateUserModel = {
             firstNameTh,
+            prefixID,
             lastNameTh,
             firstNameEn,
             lastNameEn,
@@ -138,6 +140,7 @@ export class ProfessorService implements IProfessorService {
 
           const updatedUserData: UpdateUserModel = {
             firstNameTh,
+            prefixID,
             lastNameTh,
             firstNameEn,
             lastNameEn,
@@ -160,6 +163,7 @@ export class ProfessorService implements IProfessorService {
 
       const userData: CreateUserModel = {
         firstNameTh,
+        prefixID,
         lastNameTh,
         firstNameEn,
         lastNameEn,
@@ -256,7 +260,6 @@ export class ProfessorService implements IProfessorService {
       profRoom,
       educations,
       expertFields,
-      academicPositionID,
       ...UserData
     } = data;
     let pathImage: string | undefined = undefined;
@@ -270,7 +273,6 @@ export class ProfessorService implements IProfessorService {
       const updatedProfessor: ProfessorUpdatePayload = {
         phone,
         profRoom,
-        academicPositionID,
         educations,
         expertFields,
         updatedBy: 0,

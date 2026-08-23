@@ -210,13 +210,11 @@ model Professor {
   educations         String?   @map("educations")
   createdBy          Int       @map("created_by")
   updatedBy          Int       @map("updated_by")
-  academicPositionID Int       @map("academic_position_id")
   createdAt          DateTime  @default(now()) @map("created_at")
   deletedAt          DateTime? @map("deleted_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
-  user             User             @relation(fields: [userID], references: [id])
-  academicPosition AcademicPosition @relation(fields: [academicPositionID], references: [id])
+  user User @relation(fields: [userID], references: [id])
 
   @@map("professors")
 }
