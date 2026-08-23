@@ -19,7 +19,7 @@ export class ProfessorRepository implements IProfessorRepository {
     const professor = await this.db.professor.create({
       data,
       include: {
-        user: true,
+        user: { include: { prefix: true } },
         academicPosition: true,
       },
     });
@@ -59,7 +59,7 @@ export class ProfessorRepository implements IProfessorRepository {
         ...searchCondition,
       },
       include: {
-        user: true,
+        user: { include: { prefix: true } },
         academicPosition: academicPosition,
       },
     });
@@ -71,7 +71,7 @@ export class ProfessorRepository implements IProfessorRepository {
       const professor = await this.db.professor.findUnique({
         where: { id, deletedAt: null },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
           academicPosition: true,
         },
       });
@@ -95,7 +95,7 @@ export class ProfessorRepository implements IProfessorRepository {
       const professor = await this.db.professor.findUnique({
         where: { userID },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
           academicPosition: true,
         },
       });
@@ -119,7 +119,7 @@ export class ProfessorRepository implements IProfessorRepository {
       where: { id: professorID },
       data,
       include: {
-        user: true,
+        user: { include: { prefix: true } },
         academicPosition: true,
       },
     });
@@ -152,7 +152,7 @@ export class ProfessorRepository implements IProfessorRepository {
           deletedAt: new Date(),
         },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
           academicPosition: true,
         },
       });

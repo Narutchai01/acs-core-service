@@ -12,9 +12,9 @@ export class ProfessorFactory implements IProfessorFactory {
     return {
       id: professor.id,
       profRoom: professor.profRoom,
+      prefix: professor.user.prefix,
       user: this.userFactory.mapUserToDTO(professor.user),
       phone: professor.phone,
-      academicPosition: professor.academicPosition,
       expertFields: professor.expertFields
         ? professor.expertFields?.split("/").map((field) => field.trim())
         : [],
