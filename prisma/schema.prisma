@@ -301,16 +301,16 @@ model ClassBook {
 //   @@map("education")
 // }
 
-model AcademicPosition {
+model Prefix {
   id          Int         @id @default(autoincrement()) @map("id")
   sequence    Int         @unique @default(0) @map("sequence")
   nameTh      String      @unique @map("name_th")
   nameEn      String      @map("name_en")
   shortNameTh String      @map("short_name_th")
   shortNameEn String      @map("short_name_en")
-  professors  Professor[]
+  users       User[]
 
-  @@map("academic_positions")
+  @@map("prefixes")
 }
 
 model NewsFeatures {
