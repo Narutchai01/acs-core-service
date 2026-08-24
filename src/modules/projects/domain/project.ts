@@ -16,6 +16,12 @@ const FocalPointResponseFields = {
   assetsFocalPoints: t.Optional(t.Nullable(t.Array(t.String()))),
 };
 
+const FocalPointDBFields = {
+  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
+  assetsFocalPoints: t.Optional(t.Nullable(t.String())),
+};
+
 export const CommonProjectFields = {
   title: t.String(),
   details: t.String(),
@@ -30,7 +36,7 @@ export const ProjectSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonProjectFields,
-    ...FocalPointResponseFields,
+    ...FocalPointDBFields,
     thumbnailURL: t.String(),
     assetsURL: t.Optional(t.String()),
     techStacks: t.String(),
