@@ -342,7 +342,6 @@ model Project {
   thumbnailFocalPointX Float?     @map("thumbnail_focal_point_x")
   thumbnailFocalPointY Float?     @map("thumbnail_focal_point_y")
   assetsURL       String          @map("assets_url")
-  assetsFocalPoints    String?    @map("assets_focal_points")
   techStacks      String          @map("tech_stacks")
   details         String          @map("details")
   githubURL       String          @map("github_url")
