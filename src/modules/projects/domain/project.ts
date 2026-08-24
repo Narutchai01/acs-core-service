@@ -8,18 +8,10 @@ import { RoleSchema } from "../../../core/models/role";
 const FocalPointInputFields = {
   thumbnailFocalPointX: t.Optional(t.Numeric()),
   thumbnailFocalPointY: t.Optional(t.Numeric()),
-  assetsFocalPoints: t.Optional(t.String()),
 };
 const FocalPointResponseFields = {
   thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
   thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
-  assetsFocalPoints: t.Optional(t.Nullable(t.Array(t.String()))),
-};
-
-const FocalPointDBFields = {
-  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
-  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
-  assetsFocalPoints: t.Optional(t.Nullable(t.String())),
 };
 
 export const CommonProjectFields = {
@@ -36,7 +28,7 @@ export const ProjectSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonProjectFields,
-    ...FocalPointDBFields,
+    ...FocalPointResponseFields,
     thumbnailURL: t.String(),
     assetsURL: t.Optional(t.String()),
     techStacks: t.String(),
