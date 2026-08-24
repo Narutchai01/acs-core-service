@@ -25,7 +25,6 @@ export class ProjectFactory implements IProjectFactory {
       figmaURL: project.figmaURL,
       youtubeURL: project.youtubeURL,
       assetsURL: project.assetsURL ? project.assetsURL.split(",") : [],
-      assetsFocalPoints: project.assetsFocalPoints ? project.assetsFocalPoints.split(",") : [],
       techStacks: project.techStacks ? project.techStacks.split(",") : [],
 
       tag: project.projectTags?.map((projectTag: any) => ({
