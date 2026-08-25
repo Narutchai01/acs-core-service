@@ -22,9 +22,16 @@ export const ProjectSchema = t.Intersect([
     thumbnailURL: t.String(),
     assetsURL: t.Optional(t.String()),
     techStacks: t.String(),
-    projectTags: t.Optional(t.Array(Tag)),
-    projectMembers: t.Optional(t.Array(UserSchema)),
-    projectCourses: t.Optional(t.Array(CourseSchema)),
+    projectTags: t.Optional(t.Array(t.Object({
+      tag: Tag,
+    }))),
+    projectMembers: t.Optional(t.Array(t.Object({
+      user: UserSchema,
+      role: RoleSchema,
+    }))),
+    projectCourses: t.Optional(t.Array(t.Object({
+      course: CourseSchema,
+    }))),
   }),
   BaseModelSchema,
 ]);

@@ -27,14 +27,14 @@ export class ProjectFactory implements IProjectFactory {
       assetsURL: project.assetsURL ? project.assetsURL.split(",") : [],
       techStacks: project.techStacks ? project.techStacks.split(",") : [],
 
-      tag: project.projectTags?.map((projectTag: any) => ({
+      tag: project.projectTags?.map((projectTag) => ({
         id: projectTag.tag.id,
         name: projectTag.tag.name,
-        tagsGroupsId: projectTag.tag.tageGroupsId,
+        tagsGroupsId: projectTag.tag.tagsGroupsId,
       })) || [],
 
       member:
-        project.projectMembers?.map((projectMember: any) => ({
+        project.projectMembers?.map((projectMember) => ({
           ...this.userFactory.mapUserToDTO(projectMember.user),
           role: {
             id: projectMember.role.id,
@@ -43,7 +43,7 @@ export class ProjectFactory implements IProjectFactory {
         })) ?? [],
 
       course: this.courseFactory.mapCourseListToDTO(
-        project.projectCourses?.map((projectCourse: any) => projectCourse.course) || []
+        project.projectCourses?.map((projectCourse) => projectCourse.course) || []
       ),
     };
   }
