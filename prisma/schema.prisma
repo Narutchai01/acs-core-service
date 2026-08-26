@@ -279,6 +279,8 @@ model ClassBook {
   classof           String     @unique @map("classof")
   firstYearAcademic String     @map("first_year_academic")
   thumbnailURL      String     @map("thumbnail_url")
+  imageFocalPointX  Float?     @map("image_focal_point_x")
+  imageFocalPointY  Float?     @map("image_focal_point_y")
   curriculumID      Int        @map("curriculum_id")
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
