@@ -51,6 +51,25 @@ export const CourseController = (app: Elysia) =>
           .use(authMiddleware)
           .use(roleMacro)
           .post(
+            "/batch",
+            async ({ courseService, body, set, userID }) => {
+              await courseService.importCoursesFromFile(
+                body.file as File,
+                userID,
+              );
+              set.status = HttpStatusCode.OK;
+              return success(
+                null,
+                "Courses imported successfully",
+                HttpStatusCode.OK,
+              );
+            },
+            {
+              ...CourseDocs.batchCreateCourses,
+              checkRole: PERMISSION.ADMINPERSMISSION,
+            },
+          )
+          .post(
             "",
             async ({ courseService, body, set, userID }) => {
               const course = await courseService.createCourse(body, userID);
@@ -76,19 +95,19 @@ export const CourseController = (app: Elysia) =>
                 return success(
                   null,
                   "Course not found",
-                  HttpStatusCode.NOT_FOUND
+                  HttpStatusCode.NOT_FOUND,
                 );
               }
               return success(
                 course,
                 "Course update successfully",
-                HttpStatusCode.OK,);
+                HttpStatusCode.OK,
+              );
             },
             {
               ...CourseDocs.updateCourse,
               checkRole: PERMISSION.ADMINPERSMISSION,
             },
-
           )
           .delete(
             "/:id",
@@ -102,18 +121,19 @@ export const CourseController = (app: Elysia) =>
                 return success(
                   null,
                   "Course not found",
-                  HttpStatusCode.NOT_FOUND
+                  HttpStatusCode.NOT_FOUND,
                 );
               }
               return success(
                 course,
                 "Delete course successfully",
-                HttpStatusCode.OK,);
+                HttpStatusCode.OK,
+              );
             },
             {
               ...CourseDocs.DeleteCourse,
               checkRole: PERMISSION.ADMINPERSMISSION,
-            }
-          )
-      )
+            },
+          ),
+      ),
   );

@@ -1,6 +1,7 @@
 import Elysia from "elysia";
 import { StudentService } from "./student.service";
 import { StudentRepository } from "../../infrastructure/student.repository";
+import { PrismaUnitOfWorkRepository } from "../../infrastructure/prisma-uow.repository";
 import { prisma } from "../../lib/db";
 import { UserRepository } from "../../infrastructure/user.repository";
 import { SupabaseService } from "../../core/utils/supabase";
@@ -18,12 +19,14 @@ const studentRepository = new StudentRepository(prisma);
 const userRepository = new UserRepository(prisma);
 const studentFactory = new StudentFactory(userFactory);
 const supabaseService = new SupabaseService();
+const studentUnitOfWork = new PrismaUnitOfWorkRepository(prisma);
 
 const studentService = new StudentService(
   studentRepository,
   userRepository,
   supabaseService,
   studentFactory,
+  studentUnitOfWork,
 );
 
 export const StudentController = (app: Elysia) =>
@@ -51,12 +54,18 @@ export const StudentController = (app: Elysia) =>
           )
           .post(
             "/batch",
-            async ({ body, studentService }) => {
-              const students = await studentService.createStudentBatch(body);
+            async ({ body, studentService, set, userID }) => {
+              const { file, classBookID } = body;
+              await studentService.importStudentsFromFile(
+                file,
+                classBookID,
+                userID,
+              );
+              set.status = HttpStatusCode.OK;
               return success(
-                students,
-                "Students created successfully",
-                HttpStatusCode.CREATED,
+                null,
+                "Students imported successfully",
+                HttpStatusCode.OK,
               );
             },
             {
