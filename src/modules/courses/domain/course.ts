@@ -14,24 +14,25 @@ const CommonCourseField = {
   detail: t.String(),
 };
 
-export const CourseSchema = t.Recursive((Self) => t.Intersect([
-  t.Object({
-    id: t.Number(),
-    ...CommonCourseField,
-    typeCourseID: t.Number(),
-    curriculumID: t.Number(),
-    typeCourse: TypeCourseSchema,
-    curriculum: t.Intersect([CurriculumSchema, BaseModelSchema]),
-    preCourses: t.Optional(
-      t.Array(
-        t.Object({
-          prerequisite: Self,
-        })
-      )
-    ),
-  }),
-  BaseModelSchema,
-])
+export const CourseSchema = t.Recursive((Self) =>
+  t.Intersect([
+    t.Object({
+      id: t.Number(),
+      ...CommonCourseField,
+      typeCourseID: t.Number(),
+      curriculumID: t.Number(),
+      typeCourse: TypeCourseSchema,
+      curriculum: t.Intersect([CurriculumSchema, BaseModelSchema]),
+      preCourses: t.Optional(
+        t.Array(
+          t.Object({
+            prerequisite: Self,
+          }),
+        ),
+      ),
+    }),
+    BaseModelSchema,
+  ]),
 );
 
 export const PrerequisitesDTO = t.Object({
@@ -69,7 +70,7 @@ export const UpdateCourseDTO = t.Partial(
 
     newPrecourseId: t.Optional(t.Array(t.Number())),
     deletePrecourseId: t.Optional(t.Array(t.Number())),
-  })
+  }),
 );
 
 export const CourseCreatePayloadSchema = t.Object({
@@ -88,7 +89,7 @@ export const CourseUpdatePayloadSchema = t.Partial(
     updatedBy: t.Number(),
     updatedAt: t.Date(),
     deletedAt: t.Nullable(t.Date()),
-  })
+  }),
 );
 
 export type CourseQueryParams = Static<typeof CourseQueryParams>;

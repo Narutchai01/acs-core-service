@@ -69,9 +69,9 @@ export const CreateStudent = t.Object({
   skills: t.Optional(t.Array(t.String())),
 });
 
-export const CreaetListStudentDTO = t.Object({
-  classBookID: t.Number(),
-  students: t.Array(CreateStudent),
+export const StudentBatchUploadDTO = t.Object({
+  file: t.File(),
+  classBookID: t.Numeric(),
 });
 
 export const StudentCreatePayloadSchema = t.Intersect([
@@ -104,6 +104,6 @@ export type CreateStudentModel = Static<typeof CreateStudentModel>;
 export type StudentQueryParams = Static<typeof StudentQueryParams>;
 export type StudentUpdateDTO = Static<typeof StudentUpdateDTO>;
 export type CreateStudent = Static<typeof CreateStudent>;
-export type CreaetListStudentDTO = Static<typeof CreaetListStudentDTO>;
+export type StudentBatchUploadDTO = Static<typeof StudentBatchUploadDTO>;
 export type StudentCreatePayload = Static<typeof StudentCreatePayloadSchema>;
 export type StudentUpdatePayload = Static<typeof StudentUpdatePayloadSchema>;

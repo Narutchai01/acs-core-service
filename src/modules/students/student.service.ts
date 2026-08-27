@@ -1,23 +1,25 @@
 import { SupabaseService } from "../../core/utils/supabase";
-import { Prisma } from "../../generated/prisma/client";
 import {
   CreateStudentDTO,
   StudentDTO,
   Student,
   StudentQueryParams,
   StudentUpdateDTO,
-  CreaetListStudentDTO,
   StudentCreatePayload,
   StudentUpdatePayload,
+  CreateStudent,
 } from "./domain/student";
+import { parse } from "csv-parse/sync";
+import * as xlsx from "xlsx";
+import { Value } from "@sinclair/typebox/value";
 import { IStudentRepository } from "./domain/student.repository";
 import { IUserRepository } from "../users/domain/user.repository";
 import { CreateUserModel, UpdateUserModel } from "../users/domain/user";
 import { AppError } from "../../core/error/app-error";
 import { ErrorCode } from "../../core/types/errors";
 import { IStudentFactory } from "./student.factory";
-import { HttpStatusCode } from "../../core/types/http";
 import { PageableType } from "../../core/models";
+import { IUnitOfWork } from "../../core/uow/uow.interface";
 
 interface IStudentService {
   createStudent(data: CreateStudentDTO, createdBy: number): Promise<StudentDTO>;
@@ -27,7 +29,11 @@ interface IStudentService {
   getStudentById(id: number): Promise<StudentDTO | null>;
   deleteStudent(id: number): Promise<StudentDTO>;
   updateStudent(studentID: number, data: StudentUpdateDTO): Promise<StudentDTO>;
-  createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]>;
+  importStudentsFromFile(
+    file: File,
+    classBookID: number,
+    userID: number,
+  ): Promise<void>;
 }
 
 export class StudentService implements IStudentService {
@@ -36,7 +42,7 @@ export class StudentService implements IStudentService {
     private readonly userRepository: IUserRepository,
     private readonly storage: SupabaseService,
     private readonly studentFactory: IStudentFactory,
-    // private readonly uowRepository: IUnitOfWork,
+    private readonly unitOfWork: IUnitOfWork,
   ) {}
 
   async createStudent(
@@ -240,11 +246,102 @@ export class StudentService implements IStudentService {
     }
   }
 
-  async createStudentBatch(data: CreaetListStudentDTO): Promise<StudentDTO[]> {
-    const { classBookID, students } = data;
-    const studentsDB: Student[] = [];
+  async importStudentsFromFile(
+    file: File,
+    classBookID: number,
+    userID: number,
+  ): Promise<void> {
+    const fileName = file.name.toLowerCase();
+    const isCSV = fileName.endsWith(".csv") || file.type === "text/csv";
+    const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
+
+    if (!isCSV && !isExcel) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Invalid file format. Only CSV and Excel are allowed.",
+        400,
+      );
+    }
+
+    let rawRecords: Record<string, unknown>[];
     try {
-      for (const studentData of students) {
+      if (isCSV) {
+        const text = await file.text();
+        rawRecords = parse(text, {
+          bom: true,
+          columns: true,
+          skip_empty_lines: true,
+          trim: true,
+        });
+      } else {
+        const buffer = await file.arrayBuffer();
+        const workbook = xlsx.read(buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+        if (!sheet) {
+          throw new Error("The spreadsheet has no readable worksheet.");
+        }
+        rawRecords = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+          raw: false,
+          defval: "",
+        });
+      }
+    } catch {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "The uploaded file could not be read.",
+        400,
+      );
+    }
+
+    const records = rawRecords.map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key.trim(),
+          String(value).trim(),
+        ]),
+      ),
+    );
+
+    if (records.length === 0) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "File is empty or contains no valid data rows.",
+        400,
+      );
+    }
+
+    const validRecords: CreateStudent[] = [];
+    for (const row of records) {
+      const parsedRow = {
+        studentCode: row.studentCode,
+        linkedin: row.linkedin || undefined,
+        github: row.github || undefined,
+        facebook: row.facebook || undefined,
+        instagram: row.instagram || undefined,
+        firstNameTh: row.firstNameTh,
+        lastNameTh: row.lastNameTh,
+        firstNameEn: row.firstNameEn || undefined,
+        lastNameEn: row.lastNameEn || undefined,
+        email: row.email,
+        nickName: row.nickName || undefined,
+        skills: row.skills
+          ? row.skills
+              .split(",")
+              .map((skill) => skill.trim())
+              .filter(Boolean)
+          : undefined,
+      };
+
+      if (!Value.Check(CreateStudent, parsedRow)) {
+        throw new AppError(ErrorCode.VALIDATION_ERROR, "Invalid format", 400);
+      }
+
+      validRecords.push(parsedRow as CreateStudent);
+    }
+
+    await this.unitOfWork.runInTransaction(async (transaction) => {
+      for (const record of validRecords) {
         const {
           linkedin,
           github,
@@ -253,59 +350,37 @@ export class StudentService implements IStudentService {
           studentCode,
           skills,
           ...userData
-        } = studentData;
+        } = record;
 
         const rawUserData: CreateUserModel = {
           ...userData,
-          createdBy: 0,
-          updatedBy: 0,
+          createdBy: userID,
+          updatedBy: userID,
         };
 
-        const user = await this.userRepository.createUser(rawUserData);
-
-        if (!user) {
-          throw new AppError(
-            ErrorCode.DATABASE_ERROR,
-            "Failed to create user for student",
-            HttpStatusCode.INTERNAL_SERVER_ERROR,
-          );
-        }
+        const user = await transaction.user.createUser(rawUserData);
+        await transaction.user.assignUserRole({
+          userID: user.id,
+          roleID: 2,
+          createdBy: userID,
+          updatedBy: userID,
+        });
 
         const rawStudentData: StudentCreatePayload = {
-          linkedin,
-          github,
-          facebook,
-          instagram,
+          linkedin: linkedin || null,
+          github: github || null,
+          facebook: facebook || null,
+          instagram: instagram || null,
           studentCode,
           classBookID,
           skills: skills ? skills.join(",") : null,
-          createdBy: 0,
-          updatedBy: 0,
+          createdBy: userID,
+          updatedBy: userID,
           userID: user.id,
         };
 
-        const student =
-          await this.studentRepository.createStudent(rawStudentData);
-
-        if (!student) {
-          throw new AppError(
-            ErrorCode.DATABASE_ERROR,
-            "Failed to create student",
-            HttpStatusCode.INTERNAL_SERVER_ERROR,
-          );
-        }
-
-        studentsDB.push(student);
+        await transaction.student.createStudent(rawStudentData);
       }
-
-      return this.studentFactory.MapStudentListToDTO(studentsDB);
-    } catch (error) {
-      console.log(error);
-      throw new AppError(
-        ErrorCode.DATABASE_ERROR,
-        "Failed to create students batch",
-        HttpStatusCode.INTERNAL_SERVER_ERROR,
-      );
-    }
+    });
   }
 }
