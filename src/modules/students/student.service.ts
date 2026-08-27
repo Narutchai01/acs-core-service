@@ -45,6 +45,8 @@ export class StudentService implements IStudentService {
   ): Promise<StudentDTO> {
     const {
       imageFile,
+      imageFocalPointX,
+      imageFocalPointY,
       email,
       nickName,
       firstNameTh,
@@ -68,6 +70,8 @@ export class StudentService implements IStudentService {
         firstNameEn,
         lastNameEn,
         imageUrl: imagePath,
+        imageFocalPointX: imageFocalPointX != null ? Number(imageFocalPointX) : null,
+        imageFocalPointY: imageFocalPointY != null ? Number(imageFocalPointY) : null,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
       };
@@ -179,6 +183,8 @@ export class StudentService implements IStudentService {
   ): Promise<StudentDTO> {
     const {
       imageFile,
+      imageFocalPointX,
+      imageFocalPointY,
       studentCode,
       linkedin,
       github,
@@ -197,6 +203,8 @@ export class StudentService implements IStudentService {
 
       const updatedUserData: UpdateUserModel = {
         ...(imagePath && { imageUrl: imagePath }),
+        ...(imageFocalPointX !== undefined && { imageFocalPointX: imageFocalPointX != null ? Number(imageFocalPointX) : null }),
+        ...(imageFocalPointY !== undefined && { imageFocalPointY: imageFocalPointY != null ? Number(imageFocalPointY) : null }),
         ...userData,
         updatedBy: 0,
       };

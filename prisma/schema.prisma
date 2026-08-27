@@ -46,6 +46,8 @@ model User {
   firstNameEn   String?   @map("first_name_en")
   firstNameTh   String    @map("first_name_th")
   imageUrl      String?   @map("image_url")
+  imageFocalPointX Float?  @map("image_focal_point_x")
+  imageFocalPointY Float?  @map("image_focal_point_y")
   lastNameEn    String?   @map("last_name_en")
   lastNameTh    String    @map("last_name_th")
   nickName      String?   @map("nick_name")
