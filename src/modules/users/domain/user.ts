@@ -1,8 +1,10 @@
 import { BaseModelSchema } from "../../../core/models";
 import { Static, t } from "elysia";
 import { RoleSchema } from "../../../core/models/role";
+import { PrefixSchema } from "../../../core/models/prefix";
 
 export const CommonUserFields = {
+  prefixID: t.Optional(t.Nullable(t.Numeric())),
   firstNameTh: t.String({
     minLength: 1,
   }),
@@ -61,6 +63,7 @@ export const UserSchema = t.Intersect([
     imageUrl: t.Optional(t.Nullable(t.String())),
     imageFocalPointX: t.Optional(t.Nullable(t.Number())),
     imageFocalPointY: t.Optional(t.Nullable(t.Number())),
+    prefix: t.Optional(t.Nullable(PrefixSchema)),
     userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
   BaseModelSchema,
@@ -71,6 +74,7 @@ export const CreateUserModel = t.Object({
   imageUrl: t.Optional(t.Nullable(t.String())),
   imageFocalPointX: t.Optional(t.Number()),
   imageFocalPointY: t.Optional(t.Number()),
+  prefix: t.Optional(t.Nullable(PrefixSchema)),
   createdBy: t.Number(),
   updatedBy: t.Number(),
 });

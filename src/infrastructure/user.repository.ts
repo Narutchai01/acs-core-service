@@ -17,7 +17,7 @@ export class UserRepository implements IUserRepository {
 
   async createUser(data: CreateUserModel): Promise<User> {
     try {
-      const user = await this.db.user.create({ data });
+      const user = await this.db.user.create({ data, include: { prefix: true } });
       return user as User;
     } catch (error) {
       if (
@@ -35,7 +35,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUsers(): Promise<User[]> {
-    const users = await this.db.user.findMany();
+    const users = await this.db.user.findMany({ include: { prefix: true } });
     return users as User[];
   }
 
@@ -48,6 +48,7 @@ export class UserRepository implements IUserRepository {
     const updatedUser = await this.db.user.update({
       where: { id: userID, deletedAt: null },
       data,
+      include: { prefix: true },
     });
     return updatedUser as User;
   }
@@ -56,6 +57,7 @@ export class UserRepository implements IUserRepository {
     const user = await this.db.user.findFirst({
       where: { email: email, deletedAt: null },
       include: {
+        prefix: true,
         userRoles: {
           include: { role: true },
         }
@@ -69,8 +71,9 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.db.user.findFirst({
         where: { id: id, deletedAt: null },
-        include: {
-          userRoles: {
+      include: {
+        prefix: true,
+        userRoles: {
             include: { role: true },
           }
         }

@@ -1,6 +1,7 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 import { UserSchema, CommonUserFields, UserDTO } from "../../users/domain/user";
+import { PrefixSchema } from "../../../core/models/prefix";
 
 export const CommonStudentFields = {
   studentCode: t.String(),
@@ -41,6 +42,7 @@ export const CreateStudentDTO = t.Object({
 
 export const StudentDTO = t.Object({
   id: t.Number(),
+  prefix: t.Optional(t.Nullable(PrefixSchema)),
   ...CommonStudentFields,
   user: UserDTO,
   classBookID: t.Nullable(t.Number()),

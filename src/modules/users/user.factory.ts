@@ -10,6 +10,7 @@ export class UserFactory implements IUserFactory {
   mapUserToDTO(user: User): UserDTO {
     return {
       id: user.id,
+      prefix: user.prefix ?? null,
       firstNameTh: user.firstNameTh,
       lastNameTh: user.lastNameTh,
       firstNameEn: user.firstNameEn,

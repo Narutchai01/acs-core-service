@@ -53,6 +53,7 @@ export class StudentService implements IStudentService {
       imageFile,
       imageFocalPointX,
       imageFocalPointY,
+      prefixID,
       email,
       nickName,
       firstNameTh,
@@ -69,6 +70,7 @@ export class StudentService implements IStudentService {
       }
 
       const rawUserData: CreateUserModel = {
+        prefixID,
         email,
         firstNameTh,
         lastNameTh,
