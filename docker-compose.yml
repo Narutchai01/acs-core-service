@@ -41,8 +41,6 @@ services:
       DB_NAME: ${DB_NAME}
       APP_PORT: ${APP_PORT}
       APP_HOST: 0.0.0.0
-      SKIP_MIGRATE: ${SKIP_MIGRATE}
-      RUN_SEED: ${RUN_SEED}
     ports:
       - "${APP_PORT}:${APP_PORT}"
     volumes:
