@@ -18,7 +18,10 @@ export class StudentFactory implements IStudentFactory {
       instagram: student.instagram,
       classBookID: student.classBookID,
       skills: student.skills
-        ? student.skills.split(",").map((skill) => skill.trim()).filter((s) => s !== "")
+        ? student.skills
+            .split(",")
+            .map((skill) => skill.trim())
+            .filter((s) => s !== "")
         : [],
       user: this.userFactory.mapUserToDTO(student.user),
     };

@@ -16,8 +16,22 @@ export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
 
   async createUser(data: CreateUserModel): Promise<User> {
-    const user = await this.db.user.create({ data });
-    return user as User;
+    try {
+      const user = await this.db.user.create({ data });
+      return user as User;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new AppError(
+          ErrorCode.DUPLICATE_DATA_ERROR,
+          "A user with this email already exists",
+          HttpStatusCode.CONFICLT_ERROR,
+        );
+      }
+      throw error;
+    }
   }
 
   async getUsers(): Promise<User[]> {
@@ -25,17 +39,12 @@ export class UserRepository implements IUserRepository {
     return users as User[];
   }
 
-  async assignUserRole(
-    data: CreateUserRoleModel,
-  ): Promise<UserRole> {
+  async assignUserRole(data: CreateUserRoleModel): Promise<UserRole> {
     const userRole = await this.db.userRole.create({ data });
     return userRole as UserRole;
   }
 
-  async updateUser(
-    userID: number,
-    data: UpdateUserModel,
-  ): Promise<User> {
+  async updateUser(userID: number, data: UpdateUserModel): Promise<User> {
     const updatedUser = await this.db.user.update({
       where: { id: userID, deletedAt: null },
       data,
@@ -49,8 +58,8 @@ export class UserRepository implements IUserRepository {
       include: {
         userRoles: {
           include: { role: true },
-        },
-      },
+        }
+      }
     });
 
     return user as User | null;
@@ -60,6 +69,11 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.db.user.findFirst({
         where: { id: id, deletedAt: null },
+        include: {
+          userRoles: {
+            include: { role: true },
+          }
+        }
       });
 
       return user as User | null;
