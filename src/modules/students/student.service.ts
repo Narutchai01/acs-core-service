@@ -70,8 +70,8 @@ export class StudentService implements IStudentService {
         firstNameEn,
         lastNameEn,
         imageUrl: imagePath,
-        imageFocalPointX: imageFocalPointX != null ? Number(imageFocalPointX) : null,
-        imageFocalPointY: imageFocalPointY != null ? Number(imageFocalPointY) : null,
+        imageFocalPointX: imageFocalPointX != null ? Number(imageFocalPointX) : undefined,
+        imageFocalPointY: imageFocalPointY != null ? Number(imageFocalPointY) : undefined,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
       };
@@ -203,8 +203,8 @@ export class StudentService implements IStudentService {
 
       const updatedUserData: UpdateUserModel = {
         ...(imagePath && { imageUrl: imagePath }),
-        ...(imageFocalPointX !== undefined && { imageFocalPointX: imageFocalPointX != null ? Number(imageFocalPointX) : null }),
-        ...(imageFocalPointY !== undefined && { imageFocalPointY: imageFocalPointY != null ? Number(imageFocalPointY) : null }),
+        ...(imageFocalPointX !== undefined && imageFocalPointX !== null && { imageFocalPointX: Number(imageFocalPointX) }),
+        ...(imageFocalPointY !== undefined && imageFocalPointY !== null && { imageFocalPointY: Number(imageFocalPointY) }),
         ...userData,
         updatedBy: 0,
       };

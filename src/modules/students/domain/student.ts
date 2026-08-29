@@ -34,8 +34,8 @@ export const CreateStudentDTO = t.Object({
   ...CommonUserFields,
   classBookID: t.Numeric(),
   imageFile: t.Optional(t.Nullable(t.File())),
-  imageFocalPointX: t.Optional(t.Nullable(t.Numeric())),
-  imageFocalPointY: t.Optional(t.Nullable(t.Numeric())),
+  imageFocalPointX: t.Optional(t.Numeric()),
+  imageFocalPointY: t.Optional(t.Numeric()),
   skills: t.Optional(t.Array(t.String())),
 });
 
@@ -59,8 +59,8 @@ export const StudentUpdateDTO = t.Partial(
     ...CommonUserFields,
     classBookID: t.Numeric(),
     imageFile: t.Optional(t.Nullable(t.File())),
-    imageFocalPointX: t.Optional(t.Nullable(t.Numeric())),
-    imageFocalPointY: t.Optional(t.Nullable(t.Numeric())),
+    imageFocalPointX: t.Optional(t.Numeric()),
+    imageFocalPointY: t.Optional(t.Numeric()),
     skills: t.Optional(t.Array(t.String())),
   }),
 );
