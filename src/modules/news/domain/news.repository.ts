@@ -6,6 +6,8 @@ import {
   NewsCreatePayload,
   NewsFeatureUpsertPayload,
   NewsUpdatePayload,
+  NewsAdditionalImage,
+  NewsAdditionalImageCreatePayload,
 } from "./news";
 
 
@@ -29,4 +31,7 @@ export interface INewsRepository {
     id: number,
     data: NewsUpdatePayload,
   ): Promise<News | null>;
+  createNewsAdditionalImage(
+    data: NewsAdditionalImageCreatePayload,
+  ): Promise<NewsAdditionalImage>;
 }
