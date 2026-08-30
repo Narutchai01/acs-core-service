@@ -20,7 +20,6 @@ export class ProfessorRepository implements IProfessorRepository {
       data,
       include: {
         user: { include: { prefix: true } },
-        academicPosition: true,
       },
     });
     return professor as unknown as Professor;
@@ -32,7 +31,6 @@ export class ProfessorRepository implements IProfessorRepository {
       pageSize = 10,
       orderBy = "createdAt",
       sortBy = "asc",
-      academicPosition,
       search,
       searchBy,
     } = query;
@@ -60,7 +58,6 @@ export class ProfessorRepository implements IProfessorRepository {
       },
       include: {
         user: { include: { prefix: true } },
-        academicPosition: academicPosition,
       },
     });
     return professors as unknown as Professor[];
@@ -72,7 +69,6 @@ export class ProfessorRepository implements IProfessorRepository {
         where: { id, deletedAt: null },
         include: {
           user: { include: { prefix: true } },
-          academicPosition: true,
         },
       });
       return professor as Professor | null;
@@ -96,7 +92,6 @@ export class ProfessorRepository implements IProfessorRepository {
         where: { userID },
         include: {
           user: { include: { prefix: true } },
-          academicPosition: true,
         },
       });
       return professor as unknown as Professor | null;
@@ -120,7 +115,6 @@ export class ProfessorRepository implements IProfessorRepository {
       data,
       include: {
         user: { include: { prefix: true } },
-        academicPosition: true,
       },
     });
     return professor as unknown as Professor;
@@ -153,7 +147,6 @@ export class ProfessorRepository implements IProfessorRepository {
         },
         include: {
           user: { include: { prefix: true } },
-          academicPosition: true,
         },
       });
       return professor as unknown as Professor;

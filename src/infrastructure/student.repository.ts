@@ -14,13 +14,32 @@ export class StudentRepository implements IStudentRepository {
   constructor(private readonly db: PrismaInstance) {}
 
   async createStudent(data: StudentCreatePayload): Promise<Student> {
-    const student = await this.db.student.create({
-      data,
-      include: {
-        user: true,
-      },
-    });
-    return student as Student;
+    try {
+      const student = await this.db.student.create({
+        data: {
+          ...data,
+          createdBy: data.createdBy ?? 0,
+          updatedBy: data.updatedBy ?? 0,
+        },
+        include: {
+          user: true,
+          prefix: true
+        },
+      });
+      return student as Student;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2003"
+      ) {
+        throw new AppError(
+          ErrorCode.VALIDATION_ERROR,
+          "The class book does not exist",
+          400,
+        );
+      }
+      throw error;
+    }
   }
 
   async getStudents(query: StudentQueryParams): Promise<Student[]> {
@@ -62,7 +81,7 @@ export class StudentRepository implements IStudentRepository {
         [orderBy]: sortBy,
       },
       include: {
-        user: true,
+        user: { include: { prefix: true } },
       },
     });
     return students as Student[];
@@ -73,7 +92,7 @@ export class StudentRepository implements IStudentRepository {
       const student = await this.db.student.findUnique({
         where: { id, deletedAt: null },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student | null;
@@ -96,7 +115,7 @@ export class StudentRepository implements IStudentRepository {
       const student = await this.db.student.findFirst({
         where: { user: { id: userId, deletedAt: null }, deletedAt: null },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
           classBook: true,
         },
       });
@@ -123,7 +142,7 @@ export class StudentRepository implements IStudentRepository {
           deletedAt: new Date(),
         },
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student;
@@ -150,7 +169,7 @@ export class StudentRepository implements IStudentRepository {
         where: { id: studentID },
         data,
         include: {
-          user: true,
+          user: { include: { prefix: true } },
         },
       });
       return student as Student;

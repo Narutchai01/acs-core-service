@@ -1,7 +1,11 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
-import { CommonUserFields, UserSchema } from "../../users/domain/user";
-import { AcademicPositionSchema } from "../../../core/models/academic";
+import {
+  CommonUserFields,
+  UserSchema,
+  FocalPointInputFields,
+} from "../../users/domain/user";
+import { PrefixSchema } from "../../../core/models/prefix";
 
 export const CommonProfessorFields = {
   phone: t.String(),
@@ -14,8 +18,6 @@ export const ProfessorSchema = t.Intersect([
     userID: t.Number(),
     expertFields: t.Optional(t.Nullable(t.String())),
     educations: t.Optional(t.Nullable(t.String())),
-    academicPositionID: t.Number(),
-    academicPosition: t.Intersect([AcademicPositionSchema]),
     ...CommonProfessorFields,
     user: UserSchema,
   }),
@@ -25,6 +27,7 @@ export const ProfessorSchema = t.Intersect([
 export const CreateProfessorDTO = t.Object({
   ...CommonProfessorFields,
   ...CommonUserFields,
+  ...FocalPointInputFields,
   imageFile: t.Optional(
     t.File({
       examples: ["professor1.jpg"],
@@ -46,7 +49,6 @@ export const CreateProfessorDTO = t.Object({
       }),
     ),
   ),
-  academicPositionID: t.Numeric(),
 });
 
 export const ProfessorDTO = t.Object({
@@ -54,19 +56,12 @@ export const ProfessorDTO = t.Object({
   ...CommonProfessorFields,
   expertFields: t.Array(t.String()),
   educations: t.Array(t.String()),
+  prefix: t.Optional(t.Nullable(PrefixSchema)),
   user: UserSchema,
-  academicPosition: AcademicPositionSchema,
 });
 
 export const ProfessorQueryParams = t.Object({
   ...CommonQueryParams,
-  academicPosition: t.Optional(
-    t.Boolean({
-      default: false,
-      examples: [true, false],
-      description: "Include academic position details",
-    }),
-  ),
   search: t.Optional(t.String()),
   searchBy: t.Optional(t.String()),
 });
@@ -75,6 +70,7 @@ export const ProfessorUpdateDTO = t.Partial(
   t.Object({
     ...CommonProfessorFields,
     ...CommonUserFields,
+    ...FocalPointInputFields,
     imageFile: t.Optional(t.Nullable(t.File())),
     expertFields: t.Optional(
       t.Nullable(
@@ -92,14 +88,12 @@ export const ProfessorUpdateDTO = t.Partial(
         }),
       ),
     ),
-    academicPositionID: t.Numeric(),
   }),
 );
 
 export const ProfessorCreatePayloadSchema = t.Object({
   phone: t.String(),
   profRoom: t.String(),
-  academicPositionID: t.Number(),
   expertFields: t.Optional(t.Nullable(t.String())),
   educations: t.Optional(t.Nullable(t.String())),
   userID: t.Number(),
@@ -111,7 +105,6 @@ export const ProfessorUpdatePayloadSchema = t.Partial(
   t.Object({
     phone: t.String(),
     profRoom: t.String(),
-    academicPositionID: t.Number(),
     expertFields: t.Optional(t.Nullable(t.String())),
     educations: t.Optional(t.Nullable(t.String())),
     updatedBy: t.Number(),

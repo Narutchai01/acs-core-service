@@ -16,29 +16,39 @@ export class UserRepository implements IUserRepository {
   constructor(private readonly db: PrismaInstance) {}
 
   async createUser(data: CreateUserModel): Promise<User> {
-    const user = await this.db.user.create({ data });
-    return user as User;
+    try {
+      const user = await this.db.user.create({ data, include: { prefix: true } });
+      return user as User;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new AppError(
+          ErrorCode.DUPLICATE_DATA_ERROR,
+          "A user with this email already exists",
+          HttpStatusCode.CONFICLT_ERROR,
+        );
+      }
+      throw error;
+    }
   }
 
   async getUsers(): Promise<User[]> {
-    const users = await this.db.user.findMany();
+    const users = await this.db.user.findMany({ include: { prefix: true } });
     return users as User[];
   }
 
-  async assignUserRole(
-    data: CreateUserRoleModel,
-  ): Promise<UserRole> {
+  async assignUserRole(data: CreateUserRoleModel): Promise<UserRole> {
     const userRole = await this.db.userRole.create({ data });
     return userRole as UserRole;
   }
 
-  async updateUser(
-    userID: number,
-    data: UpdateUserModel,
-  ): Promise<User> {
+  async updateUser(userID: number, data: UpdateUserModel): Promise<User> {
     const updatedUser = await this.db.user.update({
       where: { id: userID, deletedAt: null },
       data,
+      include: { prefix: true },
     });
     return updatedUser as User;
   }
@@ -47,6 +57,7 @@ export class UserRepository implements IUserRepository {
     const user = await this.db.user.findFirst({
       where: { email: email, deletedAt: null },
       include: {
+        prefix: true,
         userRoles: {
           include: { role: true },
         }
@@ -60,8 +71,9 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.db.user.findFirst({
         where: { id: id, deletedAt: null },
-        include: {
-          userRoles: {
+      include: {
+        prefix: true,
+        userRoles: {
             include: { role: true },
           }
         }
