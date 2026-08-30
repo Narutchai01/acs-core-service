@@ -7,7 +7,9 @@ import {
   QueryNewsFeatureParams,
   NewsCreatePayload,
   NewsUpdatePayload,
-  NewsFeatureUpsertPayload
+  NewsFeatureUpsertPayload,
+  NewsAdditionalImage,
+  NewsAdditionalImageCreatePayload,
 } from "../modules/news/domain/news";
 import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
@@ -330,5 +332,17 @@ export class NewsRepository implements INewsRepository {
         500,
       );
     }
+  }
+
+  async createNewsAdditionalImage(
+    data: NewsAdditionalImageCreatePayload,
+  ): Promise<NewsAdditionalImage> {
+    const createData: Prisma.NewsAdditionalImageUncheckedCreateInput = {
+      newsID: data.newsID,
+      imageUrl: data.imageUrl,
+      createdBy: data.createdBy ?? 0,
+      updatedBy: data.updatedBy ?? 0,
+    };
+    return await this.db.newsAdditionalImage.create({ data: createData });
   }
 }
