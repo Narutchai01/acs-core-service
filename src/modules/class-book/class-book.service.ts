@@ -92,6 +92,8 @@ export class ClassBookService implements IClassBookService {
       classof,
       firstYearAcademic,
       curriculumID,
+      imageFocalPointX,
+      imageFocalPointY,
 
     } = data;
     let thumbnailPath: string | undefined = undefined;
@@ -108,6 +110,8 @@ export class ClassBookService implements IClassBookService {
         firstYearAcademic,
         curriculumID,
         updatedBy: userID,
+        imageFocalPointX,
+        imageFocalPointY,
       };
 
       classBook = await this.classBookRepository.updateClassBook(classBookID, updateClassBookData);

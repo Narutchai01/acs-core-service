@@ -10,11 +10,17 @@ export const CommonClassBookFields = {
   firstYearAcademic: t.String(),
 };
 
+export const FocalPointFields = {
+  imageFocalPointX: t.Optional(t.Nullable(t.Numeric())),
+  imageFocalPointY: t.Optional(t.Nullable(t.Numeric())),
+};
+
 export const ClassBookSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonClassBookFields,
     thumbnailURL: t.String(),
+    ...FocalPointFields,
     curriculumID: t.Number(),
     curriculum: CurriculumSchema,
   }),
@@ -23,6 +29,7 @@ export const ClassBookSchema = t.Intersect([
 
 export const CreateClassBookDTO = t.Object({
   ...CommonClassBookFields,
+  ...FocalPointFields,
   thumbnailFile: t.File(),
   curriculumID: t.Numeric(),
 });
@@ -38,6 +45,7 @@ export const ClassBookDTO = t.Object({
   id: t.Number(),
   ...CommonClassBookFields,
   thumbnailURL: t.String(),
+  ...FocalPointFields,
   curriculumID: t.Number(),
   curriculum: CurriculumDTO,
 });
@@ -45,6 +53,7 @@ export const ClassBookDTO = t.Object({
 export const UpdateClassBookDTO = t.Partial(
   t.Object({
     ...CommonClassBookFields,
+    ...FocalPointFields,
     thumbnailFile: t.File(),
     curriculumID: t.Numeric(),
   }),
@@ -54,6 +63,7 @@ export const ClassBookCreatePayloadSchema = t.Object({
   classof: t.String(),
   firstYearAcademic: t.String(),
   thumbnailURL: t.String(),
+  ...FocalPointFields,
   curriculumID: t.Number(),
   createdBy: t.Number(),
   updatedBy: t.Number(),
@@ -64,6 +74,7 @@ export const ClassBookUpdatePayloadSchema = t.Partial(
     classof: t.String(),
     firstYearAcademic: t.String(),
     thumbnailURL: t.String(),
+    ...FocalPointFields,
     curriculumID: t.Number(),
     updatedBy: t.Number(),
   }),
