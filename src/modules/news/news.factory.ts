@@ -1,4 +1,4 @@
-import { News, NewsDTO, NewsFeatureDTO, NewsFeature } from "./domain/news";
+import { News, NewsDTO, NewsFeatureDTO, NewsFeature, NewsAdditionalImage } from "./domain/news";
 
 export class NewsFactory {
   mapNewsToDTO(news: News): NewsDTO {
@@ -16,10 +16,10 @@ export class NewsFactory {
       thumbnailFocalPointY: news.thumbnailFocalPointY,
       tag: news.tag
         ? {
-            id: news.tag.id,
-            name: news.tag.name,
-            tagsGroupsId: news.tag.tagsGroupsId,
-          }
+          id: news.tag.id,
+          name: news.tag.name,
+          tagsGroupsId: news.tag.tagsGroupsId,
+        }
         : undefined,
     };
   }
@@ -39,5 +39,15 @@ export class NewsFactory {
     return newsFeatureList.map((newsFeature) =>
       this.mapNewsFeatureToDTO(newsFeature),
     );
+  }
+
+  mapNewsWithAdditionalImage(
+    news: News,
+    newsAdditionalImages: NewsAdditionalImage[],
+  ) {
+    return {
+      ...news,
+      newsAdditionalImages,
+    };
   }
 }
