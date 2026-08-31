@@ -5,6 +5,15 @@ import { UserSchema } from "../../users/domain/user";
 import { CourseSchema, CourseDTO as CourseDTOSchema } from "../../courses/domain/course";
 import { RoleSchema } from "../../../core/models/role";
 
+const FocalPointInputFields = {
+  thumbnailFocalPointX: t.Optional(t.Numeric()),
+  thumbnailFocalPointY: t.Optional(t.Numeric()),
+};
+const FocalPointResponseFields = {
+  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
+};
+
 export const CommonProjectFields = {
   title: t.String(),
   details: t.String(),
@@ -19,12 +28,20 @@ export const ProjectSchema = t.Intersect([
   t.Object({
     id: t.Number(),
     ...CommonProjectFields,
+    ...FocalPointResponseFields,
     thumbnailURL: t.String(),
     assetsURL: t.Optional(t.String()),
     techStacks: t.String(),
-    projectTags: t.Optional(t.Array(Tag)),
-    projectMembers: t.Optional(t.Array(UserSchema)),
-    projectCourses: t.Optional(t.Array(CourseSchema)),
+    projectTags: t.Optional(t.Array(t.Object({
+      tag: Tag,
+    }))),
+    projectMembers: t.Optional(t.Array(t.Object({
+      user: UserSchema,
+      role: RoleSchema,
+    }))),
+    projectCourses: t.Optional(t.Array(t.Object({
+      course: CourseSchema,
+    }))),
   }),
   BaseModelSchema,
 ]);
@@ -37,6 +54,7 @@ const ProjectMemberFields = {
 export const CreateProjectDTO = t.Object({
   thumbnailFile: t.File(),
   ...CommonProjectFields,
+  ...FocalPointInputFields,
   tagsID: t.Array(t.Number()),
   members: t.Array(t.Object(ProjectMemberFields)),
   coursesID: t.Array(t.Number()),
@@ -49,6 +67,7 @@ export const ProjectDTO = t.Intersect([
     id: t.Number(),
     thumbnailURL: t.String(),
     ...CommonProjectFields,
+    ...FocalPointResponseFields,
     assetsURL: t.Array(t.String()),
     techStacks: t.Array(t.String()),
     tag: t.Array(Tag),
@@ -82,6 +101,7 @@ export const UpdateProjectDTO = t.Object({
       t.Optional(value),
     ])
   ),
+  ...FocalPointInputFields,
   newtagsID: t.Optional(t.Array(t.Number())),
   deletedtagsID: t.Optional(t.Array(t.Number())),
   newMembers: t.Optional(t.Array(t.Object(ProjectMemberFields))),
@@ -102,6 +122,7 @@ export const ProjectCreatePayloadSchema = t.Object({ //มาดูอีกท�
   youtubeURL: t.String(),
   thumbnailURL: t.String(),
   assetsURL: t.String(),
+  ...FocalPointInputFields,
   techStacks: t.String(),
   createdBy: t.Number(),
   updatedBy: t.Number(),
@@ -118,6 +139,7 @@ export const ProjectUpdatePayloadSchema = t.Partial(
     youtubeURL: t.String(),
     thumbnailURL: t.String(),
     assetsURL: t.String(),
+    ...FocalPointInputFields,
     techStacks: t.String(),
     updatedBy: t.Number(),
     updatedAt: t.Date(),

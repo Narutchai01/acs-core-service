@@ -1,6 +1,16 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
 
+const FocalPointInputFields = {
+  thumbnailFocalPointX: t.Optional(t.Numeric()),
+  thumbnailFocalPointY: t.Optional(t.Numeric()),
+};
+
+const FocalPointResponseFields = {
+  thumbnailFocalPointX: t.Optional(t.Nullable(t.Number())),
+  thumbnailFocalPointY: t.Optional(t.Nullable(t.Number())),
+};
+
 export const CommonCurriculumField = {
   title: t.String(),
   year: t.String(),
@@ -13,6 +23,7 @@ export const CurriculumSchema = t.Intersect([
     id: t.Number(),
     thumbnailURL: t.String(),
     ...CommonCurriculumField,
+    ...FocalPointResponseFields,
   }),
   BaseModelSchema,
 ]);
@@ -20,12 +31,14 @@ export const CurriculumSchema = t.Intersect([
 export const CreateCurriculumDTO = t.Object({
   thumbnailFile: t.File(),
   ...CommonCurriculumField,
+  ...FocalPointInputFields,
 });
 
 export const CurriculumDTO = t.Object({
   id: t.Number(),
   thumbnailURL: t.String(),
   ...CommonCurriculumField,
+  ...FocalPointResponseFields,
 });
 
 export const CurriculumQueryParams = t.Object({
@@ -41,6 +54,7 @@ export const UpdateCurriculumDTO = t.Partial(
   t.Object({
     thumbnailFile: t.File(),
     ...CommonCurriculumField,
+    ...FocalPointInputFields,
   })
 );
 
@@ -50,6 +64,7 @@ export const CurriculumCreatePayloadSchema = t.Object({
   documentURL: t.String(),
   description: t.String(),
   thumbnailURL: t.String(),
+  ...FocalPointInputFields,
   createdBy: t.Number(),
   updatedBy: t.Number()
 });
@@ -61,6 +76,7 @@ export const CurriculumUpdatePayloadSchema = t.Partial(
     documentURL: t.String(),
     description: t.String(),
     thumbnailURL: t.String(),
+    ...FocalPointInputFields,
     updatedBy: t.Number()
   })
 );
