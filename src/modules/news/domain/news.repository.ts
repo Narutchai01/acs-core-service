@@ -34,4 +34,5 @@ export interface INewsRepository {
   createNewsAdditionalImage(
     data: NewsAdditionalImageCreatePayload,
   ): Promise<NewsAdditionalImage>;
+  getNewsAdditionalImagesByNewsId(newsID: number): Promise<NewsAdditionalImage[]>;
 }
