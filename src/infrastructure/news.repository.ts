@@ -345,4 +345,10 @@ export class NewsRepository implements INewsRepository {
     };
     return await this.db.newsAdditionalImage.create({ data: createData });
   }
+
+  async getNewsAdditionalImagesByNewsId(newsID: number): Promise<NewsAdditionalImage[]> {
+    return await this.db.newsAdditionalImage.findMany({
+      where: { newsID, deletedAt: null },
+    });
+  }
 }
