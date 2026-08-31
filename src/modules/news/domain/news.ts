@@ -128,6 +128,20 @@ export const NewsAdditionalImageSchema = t.Intersect([
   BaseModelSchema,
 ]);
 
+export const NewsWithAdditionalImageSchema = t.Intersect([
+  NewsSchema,
+  t.Object({
+    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
+  }),
+]);
+
+export const NewsWithAdditionalImageDTO = t.Intersect([
+  NewsDTO,
+  t.Object({
+    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
+  }),
+]);
+
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
   ...FocalPointInputFields,
