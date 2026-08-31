@@ -78,7 +78,10 @@ export class NewsRepository implements INewsRepository {
         where: { id, deletedAt: null },
         include: {
           tag: true,
-        },
+          newsAdditionalImages: {
+            where: { deletedAt: null },
+          },
+        }
       });
       if (!news) return null;
       return {
