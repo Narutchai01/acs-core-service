@@ -130,6 +130,20 @@ export const NewsAdditionalImageSchema = t.Object({
   deletedAt: t.Optional(t.Nullable(t.Date())),
 });
 
+export const NewsWithAdditionalImageSchema = t.Intersect([
+  NewsSchema,
+  t.Object({
+    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
+  }),
+]);
+
+export const NewsWithAdditionalImageDTO = t.Intersect([
+  NewsDTO,
+  t.Object({
+    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
+  }),
+]);
+
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
   ...FocalPointInputFields,
@@ -182,3 +196,5 @@ export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
 export type NewsFeatureUpsertPayload = Static<typeof NewsFeaturUpsertPayloadSchema>;
 export type NewsAdditionalImage = Static<typeof NewsAdditionalImageSchema>;
 export type NewsAdditionalImageCreatePayload = Static<typeof NewsAdditionalImageCreatePayloadSchema>;
+export type NewsWithAdditionalImage = Static<typeof NewsWithAdditionalImageSchema>;
+export type NewsWithAdditionalImageDTO = Static<typeof NewsWithAdditionalImageDTO>;
