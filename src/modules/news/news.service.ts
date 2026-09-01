@@ -40,7 +40,10 @@ export class NewsService implements INewsService {
     private readonly newsFactory: NewsFactory,
     private readonly storageService: SupabaseService,
   ) { }
-  async createNews(data: CreateNewsDTO): Promise<NewsDTO> {
+  async createNews(
+    data: CreateNewsDTO,
+    additionalImageUrls?: string[],
+  ): Promise<NewsDTO> {
     const thumbnailFile = data.thumbnail;
     const highlightFile = data.highlight;
     let uploadedThumbnailPath: string | null = null; // เก็บ path ไว้ลบทีหลัง
@@ -73,6 +76,20 @@ export class NewsService implements INewsService {
         updatedBy: 0,
       };
       const news = await this.newsRepository.createNews(newsData);
+
+      if (additionalImageUrls && additionalImageUrls.length > 0) {
+        await Promise.all(
+          additionalImageUrls.map((imageUrl) =>
+            this.newsRepository.createNewsAdditionalImage({
+              newsID: news.id,
+              imageUrl,
+              createdBy: 0,
+              updatedBy: 0,
+            }),
+          ),
+        );
+      }
+
       return this.newsFactory.mapNewsToDTO(news);
     } catch (error) {
       if (uploadedThumbnailPath) {
