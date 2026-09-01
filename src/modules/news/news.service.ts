@@ -7,6 +7,7 @@ import {
   NewsDTO,
   NewsQueryParams,
   NewsFeatureDTO,
+  NewsWithAdditionalImageDTO,
   UpsertNewsFeatureDTO,
   QueryNewsFeatureParams,
   NewsUpdateDTO,
@@ -22,7 +23,7 @@ import { PageableType } from "../../core/models";
 interface INewsService {
   createNews(data: CreateNewsDTO): Promise<NewsDTO>;
   getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>>;
-  getNewsById(id: number): Promise<NewsDTO | null>;
+  getNewsById(id: number): Promise<NewsWithAdditionalImageDTO | null>;
   upsertNewsFeature(
     data: UpsertNewsFeatureDTO,
     userId: number,
@@ -107,14 +108,17 @@ export class NewsService implements INewsService {
     };
   }
 
-  async getNewsById(id: number): Promise<NewsDTO | null> {
+  async getNewsById(id: number): Promise<NewsWithAdditionalImageDTO | null> {
     try {
       const news = await this.newsRepository.getNewsById(id);
 
       if (!news) {
         return null;
       }
-      return this.newsFactory.mapNewsToDTO(news);
+      const additionalImages = await this.newsRepository.getNewsAdditionalImagesByNewsId(id);
+      const newsWithImages = this.newsFactory.mapNewsWithAdditionalImage(news, additionalImages);
+      return this.newsFactory.mapNewsWithAdditionalImageToDTO(newsWithImages);
+
     } catch (error) {
       if (
         error instanceof AppError &&
