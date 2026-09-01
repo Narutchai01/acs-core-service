@@ -29,6 +29,7 @@ export const CreateNewsDTO = t.Object({
   thumbnail: t.File(),
   highlight: t.File(),
   tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
+  additionalImages: t.Optional(t.Files()),
 });
 
 export const NewsSchema = t.Intersect([
