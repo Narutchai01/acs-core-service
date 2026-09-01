@@ -32,7 +32,16 @@ export const createNewsController =
             .post(
               "",
               async ({ newsService, body, set }) => {
-                const news = await newsService.createNews(body);
+                let additionalImageUrls: string[] = [];
+                if (body.additionalImages && body.additionalImages.length > 0) {
+                  additionalImageUrls = await Promise.all(
+                    body.additionalImages.map((file: File) =>
+                      supabaseService.uploadFile(file, "news-additional"),
+                    ),
+                  );
+                }
+
+                const news = await newsService.createNews(body, additionalImageUrls);
                 set.status = HttpStatusCode.CREATED;
                 return success(
                   news,
