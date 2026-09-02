@@ -137,12 +137,15 @@ export const NewsWithAdditionalImageSchema = t.Intersect([
   }),
 ]);
 
-export const NewsWithAdditionalImageDTO = t.Intersect([
-  NewsDTO,
-  t.Object({
-    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
-  }),
-]);
+export const NewsWithAdditionalImageDTO = t.Object({
+  ...NewsDTO.properties,
+  newsAdditionalImages: t.Array(
+    t.Object({
+      newsID: t.Number(),
+      imageUrl: t.String(),
+    }),
+  ),
+});
 
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
