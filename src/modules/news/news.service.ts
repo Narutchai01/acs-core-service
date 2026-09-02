@@ -115,8 +115,11 @@ export class NewsService implements INewsService {
       if (!news) {
         return null;
       }
-      const additionalImages = await this.newsRepository.getNewsAdditionalImagesByNewsId(id);
-      const newsWithImages = this.newsFactory.mapNewsWithAdditionalImage(news, additionalImages);
+
+      const newsWithImages = {
+        ...news,
+        newsAdditionalImages: await this.newsRepository.getNewsAdditionalImagesByNewsId(id),
+      };
       return this.newsFactory.mapNewsWithAdditionalImageToDTO(newsWithImages);
 
     } catch (error) {
