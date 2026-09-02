@@ -135,20 +135,6 @@ export const NewsWithAdditionalImageSchema = t.Intersect([
   }),
 ]);
 
-export const NewsWithAdditionalImageDTO = t.Intersect([
-  NewsDTO,
-  t.Object({
-    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
-  }),
-]);
-
-export const NewsWithAdditionalImageSchema = t.Intersect([
-  NewsSchema,
-  t.Object({
-    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
-  }),
-]);
-
 export const NewsWithAdditionalImageDTO = t.Object({
   ...NewsDTO.properties,
   newsAdditionalImages: t.Array(
