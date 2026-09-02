@@ -3,6 +3,11 @@ import { Static, t } from "elysia";
 import { RoleSchema } from "../../../core/models/role";
 import { PrefixSchema } from "../../../core/models/prefix";
 
+export const FocalPointInputFields = {
+  ImageFocalPointX: t.Optional(t.Numeric()),
+  ImageFocalPointY: t.Optional(t.Numeric()),
+};
+
 export const CommonUserFields = {
   prefixID: t.Optional(t.Nullable(t.Numeric())),
   firstNameTh: t.String({
