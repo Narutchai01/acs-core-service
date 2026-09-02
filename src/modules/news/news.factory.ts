@@ -41,13 +41,9 @@ export class NewsFactory {
     );
   }
 
-  mapNewsWithAdditionalImage(
-    news: News,
-    newsAdditionalImages: NewsAdditionalImage[],
-  ) {
+  mapNewsWithAdditionalImage(news: News) {
     return {
       ...news,
-      newsAdditionalImages,
     };
   }
 }
