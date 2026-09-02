@@ -119,16 +119,14 @@ export const QueryNewsFeatureParams = t.Object({
   ...CommonQueryParams,
 });
 
-export const NewsAdditionalImageSchema = t.Object({
-  id: t.Number(),
-  newsID: t.Number(),
-  imageUrl: t.String(),
-  createdBy: t.Number(),
-  updatedBy: t.Number(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  deletedAt: t.Optional(t.Nullable(t.Date())),
-});
+export const NewsAdditionalImageSchema = t.Intersect([
+  t.Object({
+    id: t.Number(),
+    newsID: t.Number(),
+    imageUrl: t.String(),
+  }),
+  BaseModelSchema,
+]);
 
 export const NewsWithAdditionalImageSchema = t.Intersect([
   NewsSchema,
@@ -137,12 +135,15 @@ export const NewsWithAdditionalImageSchema = t.Intersect([
   }),
 ]);
 
-export const NewsWithAdditionalImageDTO = t.Intersect([
-  NewsDTO,
-  t.Object({
-    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
-  }),
-]);
+export const NewsWithAdditionalImageDTO = t.Object({
+  ...NewsDTO.properties,
+  newsAdditionalImages: t.Array(
+    t.Object({
+      newsID: t.Number(),
+      imageUrl: t.String(),
+    }),
+  ),
+});
 
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
