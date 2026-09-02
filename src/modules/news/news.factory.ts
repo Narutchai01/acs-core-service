@@ -49,13 +49,18 @@ export class NewsFactory {
     );
   }
 
-  mapNewsWithAdditionalImage(
-    news: News,
-    newsAdditionalImages: NewsAdditionalImage[],
-  ) {
+  mapNewsWithAdditionalImage(news: News) {
     return {
       ...news,
-      newsAdditionalImages,
+    };
+  }
+
+  mapNewsWithAdditionalImageToDTO(
+    news: NewsWithAdditionalImage,
+  ): NewsWithAdditionalImageDTO {
+    return {
+      ...this.mapNewsToDTO(news),
+      newsAdditionalImages: news.newsAdditionalImages,
     };
   }
 
