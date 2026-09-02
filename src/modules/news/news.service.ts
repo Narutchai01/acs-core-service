@@ -21,7 +21,7 @@ import { NewsFactory } from "./news.factory";
 import { PageableType } from "../../core/models";
 
 interface INewsService {
-  createNews(data: CreateNewsDTO): Promise<NewsDTO>;
+  createNews(data: CreateNewsDTO, userId: number, additionalImageUrls?: string[]): Promise<NewsDTO>;
   getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>>;
   getNewsById(id: number): Promise<NewsWithAdditionalImageDTO | null>;
   upsertNewsFeature(
@@ -42,6 +42,7 @@ export class NewsService implements INewsService {
   ) { }
   async createNews(
     data: CreateNewsDTO,
+    userId: number,
     additionalImageUrls?: string[],
   ): Promise<NewsDTO> {
     const thumbnailFile = data.thumbnail;
@@ -83,8 +84,8 @@ export class NewsService implements INewsService {
             this.newsRepository.createNewsAdditionalImage({
               newsID: news.id,
               imageUrl,
-              createdBy: 0,
-              updatedBy: 0,
+              createdBy: userId,
+              updatedBy: userId,
             }),
           ),
         );
@@ -132,8 +133,11 @@ export class NewsService implements INewsService {
       if (!news) {
         return null;
       }
-      const additionalImages = await this.newsRepository.getNewsAdditionalImagesByNewsId(id);
-      const newsWithImages = this.newsFactory.mapNewsWithAdditionalImage(news, additionalImages);
+
+      const newsWithImages = {
+        ...news,
+        newsAdditionalImages: await this.newsRepository.getNewsAdditionalImagesByNewsId(id),
+      };
       return this.newsFactory.mapNewsWithAdditionalImageToDTO(newsWithImages);
 
     } catch (error) {
