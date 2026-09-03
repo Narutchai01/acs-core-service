@@ -1,4 +1,4 @@
-import { News, NewsDTO, NewsFeatureDTO, NewsFeature, NewsAdditionalImage } from "./domain/news";
+import { News, NewsDTO, NewsFeatureDTO, NewsFeature, NewsAdditionalImage, NewsWithAdditionalImages } from "./domain/news";
 
 export class NewsFactory {
   mapNewsToDTO(news: News): NewsDTO {
@@ -41,7 +41,7 @@ export class NewsFactory {
     );
   }
 
-  mapNewsWithAdditionalImage(news: News) {
+  mapNewsWithAdditionalImage(news: NewsWithAdditionalImages) {
     return {
       ...news,
     };
