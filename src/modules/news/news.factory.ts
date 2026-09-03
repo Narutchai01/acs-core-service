@@ -4,7 +4,7 @@ import {
   NewsFeatureDTO,
   NewsFeature,
   NewsAdditionalImage,
-  NewsWithAdditionalImage,
+  NewsWithAdditionalImages,
   NewsWithAdditionalImageDTO,
 } from "./domain/news";
 
@@ -49,14 +49,14 @@ export class NewsFactory {
     );
   }
 
-  mapNewsWithAdditionalImage(news: News) {
+  mapNewsWithAdditionalImage(news: NewsWithAdditionalImages) {
     return {
       ...news,
     };
   }
 
   mapNewsWithAdditionalImageToDTO(
-    news: NewsWithAdditionalImage,
+    news: NewsWithAdditionalImages,
   ): NewsWithAdditionalImageDTO {
     return {
       ...this.mapNewsToDTO(news),

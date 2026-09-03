@@ -197,5 +197,7 @@ export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
 export type NewsFeatureUpsertPayload = Static<typeof NewsFeaturUpsertPayloadSchema>;
 export type NewsAdditionalImage = Static<typeof NewsAdditionalImageSchema>;
 export type NewsAdditionalImageCreatePayload = Static<typeof NewsAdditionalImageCreatePayloadSchema>;
-export type NewsWithAdditionalImage = Static<typeof NewsWithAdditionalImageSchema>;
-export type NewsWithAdditionalImageDTO = Static<typeof NewsWithAdditionalImageDTO>;
+export type NewsWithAdditionalImages = News & {
+  newsAdditionalImages: NewsAdditionalImage[];
+};
+export type NewsWithAdditionalImageDTO = Static<typeof NewsWithAdditionalImageDTO>; 
