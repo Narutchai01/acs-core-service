@@ -29,6 +29,7 @@ export const CreateNewsDTO = t.Object({
   thumbnail: t.File(),
   highlight: t.File(),
   tagID: t.Numeric(), // ✨ แก้ปัญหา "Expected number" ให้อัตโนมัติ
+  additionalImages: t.Optional(t.Files()),
 });
 
 export const NewsSchema = t.Intersect([
@@ -119,6 +120,32 @@ export const QueryNewsFeatureParams = t.Object({
   ...CommonQueryParams,
 });
 
+export const NewsAdditionalImageSchema = t.Intersect([
+  t.Object({
+    id: t.Number(),
+    newsID: t.Number(),
+    imageUrl: t.String(),
+  }),
+  BaseModelSchema,
+]);
+
+export const NewsWithAdditionalImageSchema = t.Intersect([
+  NewsSchema,
+  t.Object({
+    newsAdditionalImages: t.Array(NewsAdditionalImageSchema),
+  }),
+]);
+
+export const NewsWithAdditionalImageDTO = t.Object({
+  ...NewsDTO.properties,
+  newsAdditionalImages: t.Array(
+    t.Object({
+      newsID: t.Number(),
+      imageUrl: t.String(),
+    }),
+  ),
+});
+
 export const NewsCreatePayloadSchema = t.Object({
   ...CommonNewsFields,
   ...FocalPointInputFields,
@@ -150,6 +177,13 @@ export const NewsFeaturUpsertPayloadSchema = t.Object({
   updatedBy: t.Number(),
 });
 
+export const NewsAdditionalImageCreatePayloadSchema = t.Object({
+  newsID: t.Numeric(),
+  imageUrl: t.String(),
+  createdBy: t.Number(),
+  updatedBy: t.Number(),
+});
+
 export type CreateNewsDTO = Static<typeof CreateNewsDTO>;
 export type News = Static<typeof NewsSchema>;
 export type NewsDTO = Static<typeof NewsDTO>;
@@ -162,3 +196,9 @@ export type QueryNewsFeatureParams = Static<typeof QueryNewsFeatureParams>;
 export type NewsCreatePayload = Static<typeof NewsCreatePayloadSchema>;
 export type NewsUpdatePayload = Static<typeof NewsUpdatePayloadSchema>;
 export type NewsFeatureUpsertPayload = Static<typeof NewsFeaturUpsertPayloadSchema>;
+export type NewsAdditionalImage = Static<typeof NewsAdditionalImageSchema>;
+export type NewsAdditionalImageCreatePayload = Static<typeof NewsAdditionalImageCreatePayloadSchema>;
+export type NewsWithAdditionalImages = News & {
+  newsAdditionalImages: NewsAdditionalImage[];
+};
+export type NewsWithAdditionalImageDTO = Static<typeof NewsWithAdditionalImageDTO>; 

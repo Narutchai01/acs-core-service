@@ -22,129 +22,138 @@ const defaultNewsService = new NewsService(
 
 export const createNewsController =
   (newsService: NewsService = defaultNewsService) =>
-  (app: Elysia) =>
-    app.decorate("newsService", newsService).group("/news", (app) =>
-      app
-        .guard({}, (admin) =>
-          admin
-            .use(authMiddleware)
-            .use(roleMacro)
-            .post(
-              "",
-              async ({ newsService, body, set }) => {
-                const news = await newsService.createNews(body);
-                set.status = HttpStatusCode.CREATED;
-                return success(
-                  news,
-                  "News created successfully",
-                  HttpStatusCode.CREATED,
-                );
-              },
-              {
-                ...NewsDocs.createNews,
-                checkRole: PERMISSION.ADMINPERSMISSION,
-              },
-            )
-            .put(
-              "/news-features",
-              async ({ newsService, body, set ,userID }) => {
-                const newsFeature = await newsService.upsertNewsFeature(body,userID);
-                set.status = HttpStatusCode.OK;
-                return success(
-                  newsFeature,
-                  "News feature upserted successfully",
-                );
-              },
-              {
-                ...NewsDocs.upsertNewsFeature,
-                checkRole: PERMISSION.ADMINPERSMISSION,
-              },
-            )
-            .patch(
-              "/:id",
-              async ({ newsService, params, body, userID }) => {
-                const news = await newsService.updateNews(
-                  Number(params.id),
-                  body,
-                  userID,
-                );
-                return success(news, "News updated successfully");
-              },
-              {
-                ...NewsDocs.updateNews,
-                checkRole: PERMISSION.ADMINPERSMISSION,
-              },
-            )
-            .delete(
-              "/:id",
-              async ({ newsService, params, set }) => {
-                const news = await newsService.deleteNews(Number(params.id));
-                set.status = HttpStatusCode.OK;
-                return success(news, "News deleted successfully");
-              },
-              {
-                ...NewsDocs.deleteNews,
-                checkRole: PERMISSION.ADMINPERSMISSION,
-              },
-            ),
-        )
-        .get(
-          "",
-          async ({ newsService, query, set }) => {
-            const newsList = await newsService.getNews(query);
-            set.status = HttpStatusCode.OK;
-            return success(newsList, "News retrieved successfully");
-          },
-          NewsDocs.getNews,
-        )
-        .get(
-          "/:id",
-          async ({ newsService, params, set }) => {
-            const news = await newsService.getNewsById(Number(params.id));
-            if (!news) {
-              set.status = HttpStatusCode.NOT_FOUND;
-              return success(null, "News not found", HttpStatusCode.NOT_FOUND);
-            }
-            return success(news, "News retrieved successfully");
-          },
-          NewsDocs.getNewsById,
-        )
-        .group("/news-features", (app) =>
-          app
-            .get(
-              "",
-              async ({ newsService, query, set }) => {
-                const newsFeatures = await newsService.getNewsFeatures(query);
-                set.status = HttpStatusCode.OK;
-                return success(
-                  newsFeatures,
-                  "News features retrieved successfully",
-                );
-              },
-              NewsDocs.getNewsFeatures,
-            )
-            .get(
-              "/:id",
-              async ({ newsService, params, set }) => {
-                const newsFeature = await newsService.getNewsFeatureById(
-                  Number(params.id),
-                );
-                if (!newsFeature) {
-                  set.status = HttpStatusCode.NOT_FOUND;
+    (app: Elysia) =>
+      app.decorate("newsService", newsService).group("/news", (app) =>
+        app
+          .guard({}, (admin) =>
+            admin
+              .use(authMiddleware)
+              .use(roleMacro)
+              .post(
+                "",
+                async ({ newsService, body, set, userID }) => {
+                  let additionalImageUrls: string[] = [];
+                  if (body.additionalImages && body.additionalImages.length > 0) {
+                    additionalImageUrls = await Promise.all(
+                      body.additionalImages.map((file: File) =>
+                        supabaseService.uploadFile(file, "news-additional"),
+                      ),
+                    );
+                  }
+
+                  const news = await newsService.createNews(body, userID, additionalImageUrls);
+                  set.status = HttpStatusCode.CREATED;
                   return success(
-                    null,
-                    "News feature not found",
-                    HttpStatusCode.NOT_FOUND,
+                    news,
+                    "News created successfully",
+                    HttpStatusCode.CREATED,
                   );
-                }
-                return success(
-                  newsFeature,
-                  "News feature retrieved successfully",
-                );
-              },
-              NewsDocs.getNewsFeatureById,
-            ),
-        ),
-    );
+                },
+                {
+                  ...NewsDocs.createNews,
+                  checkRole: PERMISSION.ADMINPERSMISSION,
+                },
+              )
+              .put(
+                "/news-features",
+                async ({ newsService, body, set, userID }) => {
+                  const newsFeature = await newsService.upsertNewsFeature(body, userID);
+                  set.status = HttpStatusCode.OK;
+                  return success(
+                    newsFeature,
+                    "News feature upserted successfully",
+                  );
+                },
+                {
+                  ...NewsDocs.upsertNewsFeature,
+                  checkRole: PERMISSION.ADMINPERSMISSION,
+                },
+              )
+              .patch(
+                "/:id",
+                async ({ newsService, params, body, userID }) => {
+                  const news = await newsService.updateNews(
+                    Number(params.id),
+                    body,
+                    userID,
+                  );
+                  return success(news, "News updated successfully");
+                },
+                {
+                  ...NewsDocs.updateNews,
+                  checkRole: PERMISSION.ADMINPERSMISSION,
+                },
+              )
+              .delete(
+                "/:id",
+                async ({ newsService, params, set }) => {
+                  const news = await newsService.deleteNews(Number(params.id));
+                  set.status = HttpStatusCode.OK;
+                  return success(news, "News deleted successfully");
+                },
+                {
+                  ...NewsDocs.deleteNews,
+                  checkRole: PERMISSION.ADMINPERSMISSION,
+                },
+              ),
+          )
+          .get(
+            "",
+            async ({ newsService, query, set }) => {
+              const newsList = await newsService.getNews(query);
+              set.status = HttpStatusCode.OK;
+              return success(newsList, "News retrieved successfully");
+            },
+            NewsDocs.getNews,
+          )
+          .get(
+            "/:id",
+            async ({ newsService, params, set }) => {
+              const news = await newsService.getNewsById(Number(params.id));
+              if (!news) {
+                set.status = HttpStatusCode.NOT_FOUND;
+                return success(null, "News not found", HttpStatusCode.NOT_FOUND);
+              }
+              return success(news, "News retrieved successfully");
+            },
+            NewsDocs.getNewsById,
+          )
+          .group("/news-features", (app) =>
+            app
+              .get(
+                "",
+                async ({ newsService, query, set }) => {
+                  const newsFeatures = await newsService.getNewsFeatures(query);
+                  set.status = HttpStatusCode.OK;
+                  return success(
+                    newsFeatures,
+                    "News features retrieved successfully",
+                  );
+                },
+                NewsDocs.getNewsFeatures,
+              )
+              .get(
+                "/:id",
+                async ({ newsService, params, set }) => {
+                  const newsFeature = await newsService.getNewsFeatureById(
+                    Number(params.id),
+                  );
+                  if (!newsFeature) {
+                    set.status = HttpStatusCode.NOT_FOUND;
+                    return success(
+                      null,
+                      "News feature not found",
+                      HttpStatusCode.NOT_FOUND,
+                    );
+                  }
+                  return success(
+                    newsFeature,
+                    "News feature retrieved successfully",
+                  );
+                },
+                NewsDocs.getNewsFeatureById,
+              ),
+          ),
+      );
 
 export const newsController = createNewsController();

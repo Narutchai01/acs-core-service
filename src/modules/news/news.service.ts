@@ -7,6 +7,7 @@ import {
   NewsDTO,
   NewsQueryParams,
   NewsFeatureDTO,
+  NewsWithAdditionalImageDTO,
   UpsertNewsFeatureDTO,
   QueryNewsFeatureParams,
   NewsUpdateDTO,
@@ -20,9 +21,9 @@ import { NewsFactory } from "./news.factory";
 import { PageableType } from "../../core/models";
 
 interface INewsService {
-  createNews(data: CreateNewsDTO): Promise<NewsDTO>;
+  createNews(data: CreateNewsDTO, userId: number, additionalImageUrls?: string[]): Promise<NewsDTO>;
   getNews(query: NewsQueryParams): Promise<PageableType<typeof NewsDTO>>;
-  getNewsById(id: number): Promise<NewsDTO | null>;
+  getNewsById(id: number): Promise<NewsWithAdditionalImageDTO | null>;
   upsertNewsFeature(
     data: UpsertNewsFeatureDTO,
     userId: number,
@@ -39,7 +40,11 @@ export class NewsService implements INewsService {
     private readonly newsFactory: NewsFactory,
     private readonly storageService: SupabaseService,
   ) { }
-  async createNews(data: CreateNewsDTO): Promise<NewsDTO> {
+  async createNews(
+    data: CreateNewsDTO,
+    userId: number,
+    additionalImageUrls?: string[],
+  ): Promise<NewsDTO> {
     const thumbnailFile = data.thumbnail;
     const highlightFile = data.highlight;
     let uploadedThumbnailPath: string | null = null; // เก็บ path ไว้ลบทีหลัง
@@ -72,6 +77,20 @@ export class NewsService implements INewsService {
         updatedBy: 0,
       };
       const news = await this.newsRepository.createNews(newsData);
+
+      if (additionalImageUrls && additionalImageUrls.length > 0) {
+        await Promise.all(
+          additionalImageUrls.map((imageUrl) =>
+            this.newsRepository.createNewsAdditionalImage({
+              newsID: news.id,
+              imageUrl,
+              createdBy: userId,
+              updatedBy: userId,
+            }),
+          ),
+        );
+      }
+
       return this.newsFactory.mapNewsToDTO(news);
     } catch (error) {
       if (uploadedThumbnailPath) {
@@ -107,14 +126,20 @@ export class NewsService implements INewsService {
     };
   }
 
-  async getNewsById(id: number): Promise<NewsDTO | null> {
+  async getNewsById(id: number): Promise<NewsWithAdditionalImageDTO | null> {
     try {
       const news = await this.newsRepository.getNewsById(id);
 
       if (!news) {
         return null;
       }
-      return this.newsFactory.mapNewsToDTO(news);
+
+      const newsWithImages = {
+        ...news,
+        newsAdditionalImages: await this.newsRepository.getNewsAdditionalImagesByNewsId(id),
+      };
+      return this.newsFactory.mapNewsWithAdditionalImageToDTO(newsWithImages);
+
     } catch (error) {
       if (
         error instanceof AppError &&
