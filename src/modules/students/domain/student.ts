@@ -1,6 +1,6 @@
 import { t, Static } from "elysia";
 import { BaseModelSchema, CommonQueryParams } from "../../../core/models";
-import { UserSchema, CommonUserFields, UserDTO } from "../../users/domain/user";
+import { UserSchema, CommonUserFields, UserDTO, FocalPointInputFields } from "../../users/domain/user";
 import { PrefixSchema } from "../../../core/models/prefix";
 
 export const CommonStudentFields = {
@@ -33,6 +33,7 @@ export const CreateStudentModel = t.Object({
 export const CreateStudentDTO = t.Object({
   ...CommonStudentFields,
   ...CommonUserFields,
+  ...FocalPointInputFields,
   classBookID: t.Numeric(),
   imageFile: t.Optional(t.Nullable(t.File())),
   skills: t.Optional(t.Array(t.String())),
@@ -57,6 +58,7 @@ export const StudentUpdateDTO = t.Partial(
   t.Object({
     ...CommonStudentFields,
     ...CommonUserFields,
+    ...FocalPointInputFields,
     classBookID: t.Numeric(),
     imageFile: t.Optional(t.Nullable(t.File())),
     skills: t.Optional(t.Array(t.String())),
