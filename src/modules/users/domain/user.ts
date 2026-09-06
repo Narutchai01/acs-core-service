@@ -66,6 +66,8 @@ export const UserSchema = t.Intersect([
     id: t.Number(),
     ...CommonUserFields,
     imageUrl: t.Optional(t.Nullable(t.String())),
+    imageFocalPointX: t.Optional(t.Nullable(t.Number())),
+    imageFocalPointY: t.Optional(t.Nullable(t.Number())),
     prefix: t.Optional(t.Nullable(PrefixSchema)),
     userRoles: t.Optional(t.Array(UserRoleSchema)),
   }),
@@ -75,6 +77,8 @@ export const UserSchema = t.Intersect([
 export const CreateUserModel = t.Object({
   ...CommonUserFields,
   imageUrl: t.Optional(t.Nullable(t.String())),
+  imageFocalPointX: t.Optional(t.Nullable(t.Number())),
+  imageFocalPointY: t.Optional(t.Nullable(t.Number())),
   prefix: t.Optional(t.Nullable(PrefixSchema)),
   createdBy: t.Number(),
   updatedBy: t.Number(),
@@ -91,6 +95,8 @@ export const UpdateUserModel = t.Partial(
   t.Object({
     ...CommonUserFields,
     imageUrl: t.Optional(t.Nullable(t.String())),
+    imageFocalPointX: t.Optional(t.Nullable(t.Number())),
+    imageFocalPointY: t.Optional(t.Nullable(t.Number())),
     updatedBy: t.Number(),
   }),
 );
@@ -99,6 +105,8 @@ export const UserDTO = t.Object({
   id: t.Number(),
   ...CommonUserFields,
   imageUrl: t.Optional(t.Nullable(t.String())),
+  imageFocalPointX: t.Optional(t.Nullable(t.Number())),
+  imageFocalPointY: t.Optional(t.Nullable(t.Number())),
 });
 
 export const UserProfileDTO = t.Object({
