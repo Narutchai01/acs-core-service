@@ -4,8 +4,8 @@ import { RoleSchema } from "../../../core/models/role";
 import { PrefixSchema } from "../../../core/models/prefix";
 
 export const FocalPointInputFields = {
-  ImageFocalPointX: t.Optional(t.Numeric()),
-  ImageFocalPointY: t.Optional(t.Numeric()),
+  imageFocalPointX: t.Optional(t.Numeric()),
+  imageFocalPointY: t.Optional(t.Numeric()),
 };
 
 export const CommonUserFields = {
