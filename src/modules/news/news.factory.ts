@@ -1,3 +1,4 @@
+import { Rest } from "@sinclair/typebox";
 import {
   News,
   NewsDTO,
@@ -14,12 +15,9 @@ export class NewsFactory {
       id: news.id,
       title: news.title,
       thumbnailURL: news.thumbnail,
-      highlightURL: news.highlight,
       detail: news.detail,
       startDate: news.startDate,
       dueDate: news.dueDate,
-      cardFocalPointX: news.cardFocalPointX,
-      cardFocalPointY: news.cardFocalPointY,
       thumbnailFocalPointX: news.thumbnailFocalPointX,
       thumbnailFocalPointY: news.thumbnailFocalPointY,
       tag: news.tag
@@ -49,18 +47,16 @@ export class NewsFactory {
     );
   }
 
-  mapNewsWithAdditionalImage(news: NewsWithAdditionalImages) {
-    return {
-      ...news,
-    };
-  }
-
   mapNewsWithAdditionalImageToDTO(
     news: NewsWithAdditionalImages,
   ): NewsWithAdditionalImageDTO {
+    const {newsAdditionalImages , ...Rest} = news;
+    const mappedNews = this.mapNewsToDTO(Rest);
+    const mappedNewsAdditionalImages = newsAdditionalImages.map((image) => ({ id: image.id, imageUrl: image.imageUrl, }));
+
     return {
-      ...this.mapNewsToDTO(news),
-      newsAdditionalImages: news.newsAdditionalImages,
-    };
+  ...mappedNews,
+  newsAdditionalImages: mappedNewsAdditionalImages,
+};
   }
 }
