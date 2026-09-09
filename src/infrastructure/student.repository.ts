@@ -22,8 +22,11 @@ export class StudentRepository implements IStudentRepository {
           updatedBy: data.updatedBy ?? 0,
         },
         include: {
-          user: true,
-          prefix: true
+          user: {
+            include: {
+              prefix: true,
+            },
+          },
         },
       });
       return student as Student;
