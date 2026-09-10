@@ -1,10 +1,8 @@
-import { Rest } from "@sinclair/typebox";
 import {
   News,
   NewsDTO,
   NewsFeatureDTO,
   NewsFeature,
-  NewsAdditionalImage,
   NewsWithAdditionalImages,
   NewsWithAdditionalImageDTO,
 } from "./domain/news";
