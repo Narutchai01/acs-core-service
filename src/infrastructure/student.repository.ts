@@ -11,7 +11,7 @@ import { AppError } from "../core/error/app-error";
 import { ErrorCode } from "../core/types/errors";
 import { PrismaInstance } from "../lib/db";
 export class StudentRepository implements IStudentRepository {
-  constructor(private readonly db: PrismaInstance) {}
+  constructor(private readonly db: PrismaInstance) { }
 
   async createStudent(data: StudentCreatePayload): Promise<Student> {
     try {
@@ -24,8 +24,8 @@ export class StudentRepository implements IStudentRepository {
         include: {
           user: {
             include: {
-              prefix: true,
-            },
+              prefix: true
+            }
           },
         },
       });

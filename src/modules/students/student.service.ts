@@ -43,7 +43,7 @@ export class StudentService implements IStudentService {
     private readonly storage: SupabaseService,
     private readonly studentFactory: IStudentFactory,
     private readonly unitOfWork: IUnitOfWork,
-  ) {}
+  ) { }
 
   async createStudent(
     data: CreateStudentDTO,
@@ -59,6 +59,8 @@ export class StudentService implements IStudentService {
       firstNameEn,
       lastNameEn,
       skills,
+      imageFocalPointX,
+      imageFocalPointY,
       ...studentData
     } = data;
     let imagePath: string | null = null;
@@ -76,6 +78,8 @@ export class StudentService implements IStudentService {
         firstNameEn,
         lastNameEn,
         imageUrl: imagePath,
+        imageFocalPointX: imageFocalPointX,
+        imageFocalPointY: imageFocalPointY,
         createdBy: createdBy || 0,
         updatedBy: createdBy || 0,
       };
@@ -194,6 +198,8 @@ export class StudentService implements IStudentService {
       instagram,
       classBookID,
       skills,
+      imageFocalPointX,
+      imageFocalPointY,
       ...userData
     } = data;
     let imagePath: string | undefined = undefined;
@@ -206,6 +212,8 @@ export class StudentService implements IStudentService {
       const updatedUserData: UpdateUserModel = {
         ...(imagePath && { imageUrl: imagePath }),
         ...userData,
+        imageFocalPointX: imageFocalPointX,
+        imageFocalPointY: imageFocalPointY,
         updatedBy: 0,
       };
 
@@ -327,9 +335,9 @@ export class StudentService implements IStudentService {
         nickName: row.nickName || undefined,
         skills: row.skills
           ? row.skills
-              .split(",")
-              .map((skill) => skill.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((skill) => skill.trim())
+            .filter(Boolean)
           : undefined,
       };
 
